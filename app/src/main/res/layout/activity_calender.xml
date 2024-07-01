@@ -1,21 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    android:orientation="vertical"-->
+<!--    android:padding="16dp">-->
+
+<!--    <com.prolificinteractive.materialcalendarview.MaterialCalendarView-->
+<!--        android:id="@+id/calendarView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_weight="1"-->
+<!--        app:mcv_selectionColor="#00F"-->
+<!--        app:mcv_showOtherDates="all" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/calendarText"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="275dp" />-->
+<!--</LinearLayout>-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+    <TextView
+        android:id="@+id/monthTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="30dp"
+
+        android:textColor="@android:color/black"
+        android:textSize="23sp"
+        android:textStyle="bold"/>
+
+    <include
+        android:id="@+id/titlesContainer"
+        layout="@layout/calendar_day_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+    <com.kizitonwose.calendar.view.CalendarView
+        android:layout_marginTop="-30dp"
         android:id="@+id/calendarView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        app:mcv_selectionColor="#00F"
-        app:mcv_showOtherDates="all" />
+        app:cv_dayViewResource="@layout/calendar_day_layout"
+        app:cv_monthHeaderResource="@layout/calendar_month_header">
+
+    </com.kizitonwose.calendar.view.CalendarView>
 
     <TextView
-        android:id="@+id/calendarText"
         android:layout_width="match_parent"
-        android:layout_height="275dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 </LinearLayout>

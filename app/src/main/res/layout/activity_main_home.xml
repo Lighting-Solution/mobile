@@ -8,14 +8,14 @@
     tools:context=".MainHome">
 
 
-    <com.michalsvec.singlerowcalendar.calendar.SingleRowCalendar
-        android:id="@+id/main_single_row_calendar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        app:deselection="false"
-        app:longPress="false"
-        app:multiSelection="false" />
+<!--    <com.michalsvec.singlerowcalendar.calendar.SingleRowCalendar-->
+<!--        android:id="@+id/main_single_row_calendar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        app:deselection="false"-->
+<!--        app:longPress="false"-->
+<!--        app:multiSelection="false" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>
