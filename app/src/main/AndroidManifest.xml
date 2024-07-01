@@ -16,10 +16,10 @@
             android:name=".MainHome"
             android:exported="false" />
         <activity
-            android:name=".CalendarView"
+            android:name=".calendar.CalendarMainActivity"
             android:exported="false" />
         <activity
-            android:name=".Login"
+            android:name=".login.Login"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

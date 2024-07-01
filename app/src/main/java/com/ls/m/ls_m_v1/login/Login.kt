@@ -1,9 +1,11 @@
-package com.ls.m.ls_m_v1
+package com.ls.m.ls_m_v1.login
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.ls.m.ls_m_v1.MainActivity
+import com.ls.m.ls_m_v1.R
 
 class Login : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
