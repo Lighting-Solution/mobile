@@ -1,9 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/calendarDayText"
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/DayfirstLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:textSize="14sp"
-    android:textColor="@android:color/black"
-    android:padding="8dp" />
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/dayOut"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="1dp"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints"
+        >
+
+        <TextView
+            android:id="@+id/calendarDayText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center"
+            android:layout_marginTop="2dp"
+            android:gravity="center"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            tools:text="24">
+
+        </TextView>
+
+        <LinearLayout
+            android:id="@+id/view_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"></LinearLayout>
+<!--        <View-->
+<!--            android:id="@+id/exFiveDayFlightTop"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="5dp"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            android:layout_marginBottom="18dp"-->
+<!--            android:background="#8e8e8e" />-->
+
+<!--        <View-->
+<!--            android:id="@+id/exFiveDayFlightBottom"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="5dp"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            android:layout_marginBottom="8dp"-->
+<!--            android:background="#cf88ee" />-->
+    </LinearLayout>
+
+</FrameLayout >

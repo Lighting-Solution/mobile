@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.ls.m.ls_m_v1.entity.CalendarEntity
+import java.time.LocalDate
 
 class DatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -14,6 +15,7 @@ class DatabaseHelper(context: Context) :
         const val DATABASE_VERSION = 1
     }
 
+    //테이블 생성
     override fun onCreate(db: SQLiteDatabase?) {
         val createTable = """
             CREATE TABLE IF NOT EXISTS calendar(
@@ -37,6 +39,7 @@ class DatabaseHelper(context: Context) :
 class CalendarRepository(private val context : Context){
     private val dbHelper = DatabaseHelper(context)
 
+    // 받아온 데이터 삽입
     fun insertCalendarData(datas : List<CalendarEntity>){
         val db = dbHelper.writableDatabase
 
@@ -53,7 +56,8 @@ class CalendarRepository(private val context : Context){
         db.close()
     }
 
-    fun getCalendarData() : List<CalendarEntity>{
+    // 데이터 읽어옴
+    fun getCalendarData(date:LocalDate) : ArrayList<CalendarEntity>{
         val datas = ArrayList<CalendarEntity>()
         val selectQuery = "SELECT * FROM ${DatabaseHelper.TABLE_NAME}"
 
