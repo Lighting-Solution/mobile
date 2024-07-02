@@ -41,6 +41,15 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.runtime.android)
+    implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.filament.android)
+    implementation(libs.sceneform.base)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.tiles.tooling.preview)
+    implementation(libs.androidx.material3.android)
+    implementation(libs.androidx.ui.tooling.preview.android)
+    implementation(libs.androidx.lifecycle.viewmodel.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -56,4 +65,6 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:2.6.0") // 레트로핏
     implementation ("com.squareup.retrofit2:converter-gson:2.6.0") // 레트로핏 - gson 컨버터
 
+    // 플레그먼트
+    implementation ("androidx.fragment:fragment-ktx:1.4.1")
 }

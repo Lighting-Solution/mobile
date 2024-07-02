@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/DayLayout"
+    android:id="@+id/DayfirstLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/calendarDayFrame"
+    <LinearLayout
+        android:id="@+id/dayOut"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="1dp"
+        android:orientation="vertical"
         tools:ignore="MissingConstraints"
         >
 
@@ -29,12 +30,25 @@
         </TextView>
 
         <LinearLayout
-            android:id="@+id/ViewContainer"
+            android:id="@+id/view_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"></LinearLayout>
+<!--        <View-->
+<!--            android:id="@+id/exFiveDayFlightTop"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="5dp"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            android:layout_marginBottom="18dp"-->
+<!--            android:background="#8e8e8e" />-->
 
-        </LinearLayout>
-    </FrameLayout>
+<!--        <View-->
+<!--            android:id="@+id/exFiveDayFlightBottom"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="5dp"-->
+<!--            android:layout_gravity="bottom"-->
+<!--            android:layout_marginBottom="8dp"-->
+<!--            android:background="#cf88ee" />-->
+    </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout >
