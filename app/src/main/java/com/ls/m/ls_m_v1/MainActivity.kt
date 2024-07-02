@@ -25,6 +25,11 @@ class MainActivity : AppCompatActivity() {
                     supportFragmentManager.beginTransaction().replace(R.id.container, calendarFragment).commit()
                     true
                 }
+                R.id.tab2 -> {
+                    Toast.makeText(applicationContext, "두 번째 탭", Toast.LENGTH_SHORT).show()
+                    supportFragmentManager.beginTransaction().replace(R.id.container, calendarFragment).commit()
+                    true
+                }
 
                 else -> {false}
             }

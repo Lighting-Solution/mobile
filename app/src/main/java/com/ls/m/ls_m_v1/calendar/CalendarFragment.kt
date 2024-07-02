@@ -193,10 +193,6 @@ class CalendarFragment : Fragment() {
         selectedDate = LocalDate.now()
         calendarViewModel = CalendarViewModel(Application())
 
-        val event : ArrayList<CalendarEvent> = calendarViewModel.onDateSelected(LocalDate.now())
-        Log.d("ddddd", event.get(1).startTime)
-
-
         // RecyclerView와 CalendarView 설정
         setupRecyclerView()
         setupCalendarView()
