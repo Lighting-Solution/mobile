@@ -1,7 +1,5 @@
 package com.ls.m.ls_m_v1.entity
 
-import java.time.LocalDateTime
-
 data class CalendarEntity (
     var calendarId: Int,
     var calendarTitle: String,

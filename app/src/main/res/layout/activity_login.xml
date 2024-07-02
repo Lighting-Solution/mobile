@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#64A70B">
@@ -34,7 +33,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <EditText
-        android:id="@+id/editTextTextPassword"
+        android:id="@+id/userPassword"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
@@ -49,22 +48,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+        app:layout_constraintTop_toBottomOf="@+id/userID" />
 
     <ImageView
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextText"
-        app:layout_constraintEnd_toEndOf="@+id/editTextText"
+        app:layout_constraintBottom_toBottomOf="@+id/userID"
+        app:layout_constraintEnd_toEndOf="@+id/userID"
         app:layout_constraintHorizontal_bias="0.076"
-        app:layout_constraintStart_toStartOf="@+id/editTextText"
-        app:layout_constraintTop_toTopOf="@+id/editTextText"
+        app:layout_constraintStart_toStartOf="@+id/userID"
+        app:layout_constraintTop_toTopOf="@+id/userID"
         app:layout_constraintVertical_bias="0.518"
         app:srcCompat="@drawable/circle_background" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/userID"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="79dp"
@@ -96,17 +95,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/userPassword" />
 
     <ImageView
         android:id="@+id/imageView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
+        app:layout_constraintBottom_toBottomOf="@+id/userPassword"
+        app:layout_constraintEnd_toEndOf="@+id/userPassword"
         app:layout_constraintHorizontal_bias="0.08"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPassword"
-        app:layout_constraintTop_toTopOf="@+id/editTextTextPassword"
+        app:layout_constraintStart_toStartOf="@+id/userPassword"
+        app:layout_constraintTop_toTopOf="@+id/userPassword"
         app:layout_constraintVertical_bias="0.555"
         app:srcCompat="@drawable/circle_background" />
 
