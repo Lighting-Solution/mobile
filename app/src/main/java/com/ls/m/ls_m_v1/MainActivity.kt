@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ls.m.ls_m_v1.calendar.CalendarFragment
-import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 
 class MainActivity : AppCompatActivity() {
     lateinit var calendarFragment : CalendarFragment

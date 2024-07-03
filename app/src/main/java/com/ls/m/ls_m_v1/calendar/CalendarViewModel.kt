@@ -1,7 +1,6 @@
 package com.ls.m.ls_m_v1.calendar
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,13 +11,12 @@ import java.time.LocalDate
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = CalendarRepository(application)
-    private val _events = MutableLiveData<List<CalendarEvent>>()
-    val events: LiveData<List<CalendarEvent>> get() = _events
-
+    private val _events = MutableLiveData<List<CalendarEntity>>()
+    val events: LiveData<List<CalendarEntity>> get() = _events
 
     fun getEventsOnDate(date: LocalDate): List<CalendarEvent> {
-        val entities = repository.getAllCalendarData()
-        val events = entities.map { entity ->
+        val entities = repository.getCalendarData(date)
+        return entities.map { entity ->
             CalendarEvent(
                 title = entity.calendarTitle,
                 startDate = LocalDate.parse(entity.calendarStartAt.split("T")[0]),
@@ -27,10 +25,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                 endTime = entity.calendarEndAt.split("T")[1]
             )
         }
-        _events.value = events
-        return events
     }
 }
+
 
 
 

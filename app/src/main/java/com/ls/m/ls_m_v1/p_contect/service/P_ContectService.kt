@@ -26,3 +26,43 @@ interface P_ContectService {
             }
         })
 * */
+
+//참고
+/*
+*  override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        dbHelper = DatabaseHelper(this)
+
+        fetchAndStoreData()
+    }
+
+    private fun fetchAndStoreData() {
+        val service = RetrofitClient.instance.create(P_ContectService::class.java)
+        service.getP_ContectData().enqueue(object : Callback<ContanctAandroidDTO> {
+            override fun onResponse(call: Call<ContanctAandroidDTO>, response: Response<ContanctAandroidDTO>) {
+                if (response.isSuccessful) {
+                    response.body()?.let { data ->
+                        storeDataInDatabase(data)
+                    }
+                } else {
+                    Log.e("MainActivity", "API 호출 실패: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ContanctAandroidDTO>, t: Throwable) {
+                Log.e("MainActivity", "API 호출 실패: ${t.message}")
+            }
+        })
+    }
+
+    private fun storeDataInDatabase(data: ContanctAandroidDTO) {
+        data.personalContactDTOList.forEach { contact ->
+            dbHelper.insertPersonalContact(contact)
+        }
+        // 추가적으로 EmpDTO 등 다른 데이터도 저장하려면 이곳에 코드를 추가합니다.
+        Log.d("MainActivity", "데이터베이스에 데이터 저장 완료")
+    }
+}
+* */

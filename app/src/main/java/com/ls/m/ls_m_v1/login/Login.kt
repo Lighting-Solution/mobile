@@ -51,7 +51,7 @@ class Login : AppCompatActivity() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val datas = RetrofitInstanceCalender.api.requestCalendarData()
-                        dbHelper.onDelete(DatabaseHelper.CALENDER_TABLE)
+                        dbHelper.onDelete(DatabaseHelper.CALENDAR_TABLE)
                         calendarRepository.insertCalendarData(datas)
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -70,6 +70,7 @@ class Login : AppCompatActivity() {
         //코루틴을 사용하여 네트워크 요청을 비동기로 처리
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // 데이터 통신이 된다면 데이터 베이스 삭제 후 다시 업로드
                 val response = RetrofitInstanceLogin.api.requestLoginData(loginEntity)
                 withContext(Dispatchers.Main) {
                     // 세션에 토큰 저장
@@ -92,6 +93,7 @@ class Login : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    // 취소 된다면 그냥 화면 전환
                     // UI 스레드에서 에러 메세지 표시
                     Toast.makeText(this@Login, "Error: 아이디/비밀번호를 확인해 주세요", Toast.LENGTH_SHORT)
                         .show()

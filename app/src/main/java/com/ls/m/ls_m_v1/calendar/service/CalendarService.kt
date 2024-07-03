@@ -16,8 +16,6 @@ interface CalendarService {
 object RetrofitInstanceCalender {
     private const val BASE_URL = "http://10.0.2.2:9000/api/v1/"
 
-//    private val okHttpClient = OkHttpClient.Builder().build()
-
     val api: CalendarService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
