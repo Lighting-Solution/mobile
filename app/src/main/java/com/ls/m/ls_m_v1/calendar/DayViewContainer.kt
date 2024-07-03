@@ -11,5 +11,6 @@ import com.ls.m.ls_m_v1.R
 class DayViewContainer(view: View) : ViewContainer(view) {
     val textView: TextView = view.findViewById(R.id.calendarDayText)
     val dayLayout: FrameLayout = view.findViewById(R.id.DayfirstLayout)
+    val viewContainer: LinearLayout = view.findViewById(R.id.view_container)
     lateinit var day: CalendarDay
 }

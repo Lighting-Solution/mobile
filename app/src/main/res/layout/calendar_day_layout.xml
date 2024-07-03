@@ -34,21 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"></LinearLayout>
-<!--        <View-->
-<!--            android:id="@+id/exFiveDayFlightTop"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="5dp"-->
-<!--            android:layout_gravity="bottom"-->
-<!--            android:layout_marginBottom="18dp"-->
-<!--            android:background="#8e8e8e" />-->
 
-<!--        <View-->
-<!--            android:id="@+id/exFiveDayFlightBottom"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="5dp"-->
-<!--            android:layout_gravity="bottom"-->
-<!--            android:layout_marginBottom="8dp"-->
-<!--            android:background="#cf88ee" />-->
     </LinearLayout>
 
 </FrameLayout >

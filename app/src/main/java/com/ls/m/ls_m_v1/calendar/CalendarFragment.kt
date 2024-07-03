@@ -1,16 +1,18 @@
 package com.ls.m.ls_m_v1.calendar
 
-import android.app.Application
+import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kizitonwose.calendar.core.CalendarDay
@@ -22,160 +24,28 @@ import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.ls.m.ls_m_v1.R
-import com.ls.m.ls_m_v1.databaseHelper.CalendarRepository
-import com.ls.m.ls_m_v1.dto.CalendarEvent
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+import java.util.Random
 
-
-/*class CalendarMainActivity : AppCompatActivity() {
-    lateinit var calendarView: CalendarView
-    private lateinit var monthTitle: TextView
-    private var selectDate: LocalDate? = null
-
-//    private lateinit var repository: CalendarRepository
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_calender)
-        val view = View(this)
-        calendarView = findViewById(R.id.calendarView)
-        monthTitle = findViewById(R.id.monthTitle)
-
-        // 오늘 날짜 설정
-        selectDate = LocalDate.now()
-
-        setupCalendarView()
-
-    }
-    // 선택할 때 움직이는거 만들기
-    fun updateSelectDate(date: LocalDate) {
-        selectDate = date
-        calendarView.notifyCalendarChanged()
-    }
-
-    // 기본 틀 작성
-    private fun setupCalendarView() {
-        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
-            override fun bind(container: DayViewContainer, data: CalendarDay) {
-            }
-
-            override fun create(view: View) = DayViewContainer(view, this@CalendarMainActivity)
-        }
-        calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
-            override fun create(view: View) = MonthViewContainer(view)
-            override fun bind(container: MonthViewContainer, data: CalendarMonth) {}
-        }
-        val currentMonth = YearMonth.now()
-        val firstMonth = currentMonth.minusMonths(240)
-        val lastMonth = currentMonth.plusMonths(240)
-        val firstDayOfWeek = firstDayOfWeekFromLocale()
-
-        calendarView.setup(firstMonth, lastMonth, firstDayOfWeek)
-        calendarView.scrollToMonth(currentMonth)
-
-        val titleContainer = findViewById<LinearLayout>(R.id.titlesContainer)
-        val daysOfWeek = daysOfWeek()
-        titleContainer.children
-            .map { it as TextView }
-            .forEachIndexed { index, textView ->
-                val dayOfWeek = daysOfWeek[index]
-                textView.text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-
-                val textColor = when (dayOfWeek) {
-                    DayOfWeek.SATURDAY -> Color.BLUE
-                    DayOfWeek.SUNDAY -> Color.RED
-                    else -> Color.BLACK
-                }
-                textView.setTextColor(textColor)
-            }
-        calendarView.monthScrollListener = { month ->
-            updateMonthTitle(month)
-            setupDate(month)
-        }
-    }
-
-    private fun updateMonthTitle(month: CalendarMonth) {
-        val currentYear = YearMonth.now().year
-        val year = month.yearMonth.year
-        val title = month.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
-        monthTitle.text = if (year != currentYear) "${year}년 $title" else title
-    }
-
-    // 날짜 삽입
-    private fun setupDate(month: CalendarMonth) {
-        calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
-            override fun bind(container: DayViewContainer, data: CalendarDay) {
-                container.textView.text = data.date.dayOfMonth.toString()
-                val displayedMonthYear = data.date.monthValue // 현재 달의 YearMonth 값
-                val dayMonthYear = month.yearMonth.monthValue // 현재 날짜의 YearMonth 값
-
-
-                val isNotInCurrentMonth = dayMonthYear != displayedMonthYear
-                val dayOfWeek = data.date.dayOfWeek
-
-                val textColor = if (isNotInCurrentMonth) {
-                    Color.argb(
-                        100,
-                        Color.red(Color.BLACK),
-                        Color.green(Color.BLACK),
-                        Color.blue(Color.BLACK)
-                    )
-                } else {
-                    when (dayOfWeek) {
-                        DayOfWeek.SATURDAY -> Color.BLUE
-                        DayOfWeek.SUNDAY -> Color.RED
-                        else -> Color.BLACK
-                    }
-                }
-
-                container.textView.setTextColor(textColor)
-
-                //현재 날짜 표시
-                val today = LocalDate.now()
-                if (today == data.date) {
-                    container.textView.setBackgroundResource(R.drawable.today_bg)
-                    container.textView.setTextColor(Color.WHITE)
-                }
-                // 셀렉트 문
-                if (selectDate == data.date) {
-                    container.dayLayout.setBackgroundResource(R.drawable.select_day)
-                } else {
-                    container.dayLayout.setBackgroundResource(0)
-                }
-
-            }
-
-            override fun create(view: View): DayViewContainer {
-                return DayViewContainer(view, this@CalendarMainActivity)
-            }
-
-        }
-
-        calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
-            override fun create(view: View) = MonthViewContainer(view)
-            override fun bind(container: MonthViewContainer, data: CalendarMonth) {
-            }
-        }
-    }
-
-
-}*/
 class CalendarFragment : Fragment() {
     // UI 요소와 변수 선언
     lateinit var calendarView: CalendarView
     private lateinit var eventsRecyclerView: RecyclerView
     private lateinit var monthTitle: TextView
-    private lateinit var selectedDateView : TextView
+    private lateinit var selectedDateView: TextView
     private var selectedDate: LocalDate? = null
-    private val eventsAdapter = EventsAdapter()
+    private lateinit var calendarAdapter: CalendarAdapter
     private lateinit var calendarViewModel: CalendarViewModel
 
+    // 컬러 변수 추가
+    private val eventColors =
+        listOf(Color.RED, Color.BLUE, Color.GREEN, Color.LTGRAY, Color.DKGRAY, Color.MAGENTA)
+    private val random = Random()
 
-    // Fragment의 뷰를 생성하는 메소드
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -183,7 +53,6 @@ class CalendarFragment : Fragment() {
         return inflater.inflate(R.layout.activity_calender, container, false)
     }
 
-    // 뷰가 생성된 후 호출되는 메소드로, 여기서 초기 설정을 수행
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         calendarView = view.findViewById(R.id.calendarView)
@@ -191,20 +60,23 @@ class CalendarFragment : Fragment() {
         monthTitle = view.findViewById(R.id.monthTitle)
         selectedDateView = view.findViewById(R.id.selectedDateView)
         selectedDate = LocalDate.now()
-        calendarViewModel = CalendarViewModel(Application())
 
-        // RecyclerView와 CalendarView 설정
+        calendarViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
+        ).get(CalendarViewModel::class.java)
+
         setupRecyclerView()
         setupCalendarView()
     }
 
-    // RecyclerView 설정 메소드
     private fun setupRecyclerView() {
         eventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        eventsRecyclerView.adapter = eventsAdapter
+        // 초기에는 빈 리스트로 어댑터 설정
+        calendarAdapter = CalendarAdapter(emptyList())
+        eventsRecyclerView.adapter = calendarAdapter
     }
 
-    // CalendarView 설정 메소드
     private fun setupCalendarView() {
         val daysOfWeek = daysOfWeek()  // 요일 배열 생성
         val currentMonth = YearMonth.now()  // 현재 연월 가져오기
@@ -225,10 +97,8 @@ class CalendarFragment : Fragment() {
                 DayOfWeek.SUNDAY -> textView.setTextColor(Color.RED)
                 else -> textView.setTextColor(Color.BLACK)
             }
-
         }
 
-        // CalendarView의 dayBinder 설정
         calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, data: CalendarDay) {
@@ -236,7 +106,6 @@ class CalendarFragment : Fragment() {
                 container.textView.text = data.date.dayOfMonth.toString()
 
                 if (data.position == DayPosition.MonthDate) {
-                    // 토요일 일요일 색상 변경
                     when (data.date.dayOfWeek) {
                         DayOfWeek.SATURDAY -> container.textView.setTextColor(Color.BLUE)
                         DayOfWeek.SUNDAY -> container.textView.setTextColor(Color.RED)
@@ -253,95 +122,99 @@ class CalendarFragment : Fragment() {
                     container.dayLayout.setOnClickListener {
                         val oldDate = selectedDate
                         selectedDate = data.date
-
+//                        Toast.makeText(requireContext(), "${data.date}", Toast.LENGTH_SHORT).show()
                         if (oldDate != null) {
                             calendarView.notifyDateChanged(oldDate)
                         }
                         calendarView.notifyDateChanged(data.date)
-//                        updateEventsForDate(data.date)
+                        updateEventsForDate(data.date)
                     }
+
+                    updateEventViews(container.viewContainer, data.date, requireContext())
                 } else {
                     container.textView.setTextColor(Color.GRAY)
                     container.dayLayout.setBackgroundResource(0)
 
-                    // 클릭 시 해당 월로 이동하고 선택된 날짜 유지
                     container.dayLayout.setOnClickListener {
                         selectedDate = data.date
                         calendarView.smoothScrollToMonth(data.date.yearMonth)
-                        // 월 이동이 완료된 후 선택된 날짜를 갱신
-                        calendarView.post{
+                        calendarView.post {
                             selectedDate?.let { date ->
                                 calendarView.notifyDateChanged(date)
                             }
                         }
-
                     }
-
                 }
 
                 val today = LocalDate.now()
                 if (today == data.date) {
                     container.textView.setBackgroundResource(R.drawable.today_bg)
                     container.textView.setTextColor(Color.WHITE)
+                }else{
+                    container.textView.setBackgroundResource(0)
                 }
             }
         }
 
-        // CalendarView의 monthHeaderBinder 설정
         calendarView.monthHeaderBinder = object : MonthHeaderFooterBinder<MonthViewContainer> {
             override fun create(view: View) = MonthViewContainer(view)
             override fun bind(container: MonthViewContainer, data: CalendarMonth) {}
         }
 
-        // 월이 변경될 때 호출되는 리스너 설정
         calendarView.monthScrollListener = {
             updateMonthTitle(it)
         }
     }
 
-    // 월 타이틀을 업데이트하는 메소드
     private fun updateMonthTitle(month: CalendarMonth) {
-        val title =
-            month.yearMonth.month.getDisplayName(
-                TextStyle.FULL,
-                Locale.getDefault()
-            )
-
+        val title = month.yearMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
         monthTitle.text = title
     }
 
-}
-
-class EventsAdapter : RecyclerView.Adapter<EventsAdapter.EventViewHolder>() {
-    var events: List<CalendarEvent> = emptyList()
-
-    // 뷰 홀더를 생성하는 메소드
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.calendar_event_item_view, parent, false)
-        return EventViewHolder(view)
+    private fun updateEventsForDate(date: LocalDate) {
+        val events = calendarViewModel.getEventsOnDate(date)
+        calendarAdapter = CalendarAdapter(events) // 새로운 데이터를 가진 어댑터 생성
+        eventsRecyclerView.adapter = calendarAdapter // RecyclerView에 어댑터 설정
+        calendarAdapter.notifyDataSetChanged() // 데이터 변경 알림
     }
 
-    // 뷰 홀더에 데이터를 바인딩하는 메소드
-    override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
-        holder.bind(events[position])
+    private fun updateEventViews(viewContainer: LinearLayout, date: LocalDate, context: Context) {
+        viewContainer.removeAllViews()
+        val events = calendarViewModel.getEventsOnDate(date)
+        val usedColors = mutableSetOf<Int>()
+        val maxLine = 5
+
+        events.take(maxLine).forEach { event ->
+            val eventView = View(context)
+            val color = getRandomColor(usedColors)
+            usedColors.add(color)
+
+            val drawable = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(color)
+                cornerRadius = 5f
+            }
+
+            eventView.background = drawable
+
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                5
+            ).apply {
+                setMargins(4, 4, 4, 4)
+            }
+
+            eventView.layoutParams = layoutParams
+            viewContainer.addView(eventView)
+        }
     }
 
-    // 아이템 개수를 반환하는 메소드
-    override fun getItemCount(): Int = events.size
-
-    class EventViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val titleTextView: TextView = itemView.findViewById(R.id.eventTitleText)
-        private val timeTextView: TextView = itemView.findViewById(R.id.eventTimeText)
-        private val dateTextView: TextView = itemView.findViewById(R.id.eventDateText)
-
-        // 이벤트 데이터를 뷰에 바인딩하는 메소드
-        fun bind(event: CalendarEvent) {
-//            titleTextView.text = event.title
-//            timeTextView.text = event.time.format(DateTimeFormatter.ofPattern("HH:mm"))
-//            dateTextView.text = event.time.toLocalDate().toString()
+    private fun getRandomColor(usedColors: Set<Int>): Int {
+        val availableColors = eventColors.filter { it !in usedColors }
+        return if (availableColors.isNotEmpty()) {
+            availableColors[random.nextInt(availableColors.size)]
+        } else {
+            eventColors[random.nextInt(eventColors.size)]
         }
     }
 }
-
-

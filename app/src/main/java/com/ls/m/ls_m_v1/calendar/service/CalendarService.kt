@@ -1,6 +1,6 @@
 package com.ls.m.ls_m_v1.calendar.service
 
-import com.ls.m.ls_m_v1.entity.CalendarEntity
+import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -10,10 +10,10 @@ interface CalendarService {
     @GET("calendar/data")
     suspend fun requestCalendarData(
         // 보내는 데이터 집어넣는 곳
-    ) : List<CalendarEntity>
+    ): List<CalendarEntity>
 }
 
-object RetrofitInstance{
+object RetrofitInstanceCalender {
     private const val BASE_URL = "http://10.0.2.2:9000/api/v1/"
 
     val api: CalendarService by lazy {

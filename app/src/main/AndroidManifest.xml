@@ -2,21 +2,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ls_m_v1"
         tools:targetApi="31">
         <activity
+            android:name=".emp.activity_contact_detail"
+            android:exported="false" />
+        <activity
             android:name=".MainHome"
             android:exported="false" />
         <activity
-            android:name=".calendar.CalendarMainActivity"
+            android:name=".calendar.CalendarFragment"
             android:exported="false" />
         <activity
             android:name=".login.Login"
