@@ -1,18 +1,19 @@
 package com.ls.m.ls_m_v1.login
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.MainActivity
 import com.ls.m.ls_m_v1.R
-import com.ls.m.ls_m_v1.entity.LoginEntity
-import com.ls.m.ls_m_v1.login.service.LoginService
-import com.ls.m.ls_m_v1.login.service.RetrofitInstance
+import com.ls.m.ls_m_v1.calendar.service.RetrofitInstanceCalender
+import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
+import com.ls.m.ls_m_v1.login.entity.LoginEntity
+import com.ls.m.ls_m_v1.login.service.RetrofitInstanceLogin
+import com.ls.m.ls_m_v1.repository.CalendarRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,7 +24,11 @@ class Login : AppCompatActivity() {
     private lateinit var pw: EditText
     private lateinit var loginButton: Button
 
+    private lateinit var dbHelper: DatabaseHelper
+    private lateinit var calendarRepository: CalendarRepository
+
     //    private lateinit var sessionManager: SessionManager
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -31,11 +36,31 @@ class Login : AppCompatActivity() {
         id = findViewById(R.id.userID)
         pw = findViewById(R.id.userPassword)
         loginButton = findViewById(R.id.loginButton)
+
+        // 인스턴스 생성하고 데이터베이스 액세스
+        dbHelper = DatabaseHelper(this)
+        calendarRepository = CalendarRepository(this)
+
         //  session
         loginButton.setOnClickListener {
-            val userId = id.text.toString()
-            val userPw = pw.text.toString()
-            login(userId, userPw)
+//            val userId = id.text.toString()
+//            val userPw = pw.text.toString()
+//            login(userId, userPw)
+            // 로그인 구현할땐 삭제 (intent, update)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val datas = RetrofitInstanceCalender.api.requestCalendarData()
+                        dbHelper.onDelete(DatabaseHelper.CALENDER_TABLE)
+                        calendarRepository.insertCalendarData(datas)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            val intent = Intent(this@Login, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 
@@ -45,7 +70,7 @@ class Login : AppCompatActivity() {
         //코루틴을 사용하여 네트워크 요청을 비동기로 처리
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = RetrofitInstance.api.requestLoginData(loginEntity)
+                val response = RetrofitInstanceLogin.api.requestLoginData(loginEntity)
                 withContext(Dispatchers.Main) {
                     // 세션에 토큰 저장
                     //sessionManager.saveAuthToken(response.token)
@@ -66,12 +91,12 @@ class Login : AppCompatActivity() {
                     finish()
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     // UI 스레드에서 에러 메세지 표시
-                    Toast.makeText(this@Login, "Error: 아이디/비밀번호를 확인해 주세요", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@Login, "Error: 아이디/비밀번호를 확인해 주세요", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
     }
 }
-

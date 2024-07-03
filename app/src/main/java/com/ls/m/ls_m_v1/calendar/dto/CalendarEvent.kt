@@ -1,4 +1,4 @@
-package com.ls.m.ls_m_v1.dto
+package com.ls.m.ls_m_v1.calendar.dto
 
 import java.time.LocalDate
 
