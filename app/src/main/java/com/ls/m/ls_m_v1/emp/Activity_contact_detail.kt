@@ -1,20 +1,22 @@
 package com.ls.m.ls_m_v1.emp
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.databinding.ActivityContactDetailBinding
 
 class activity_contact_detail : AppCompatActivity() {
     private lateinit var binding : ActivityContactDetailBinding
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityContactDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
 
         val name = intent.getStringExtra("name")
         val email = intent.getStringExtra("email")
@@ -32,6 +34,28 @@ class activity_contact_detail : AppCompatActivity() {
         binding.mobilePhone.text = "휴대폰: $mobilePhone"
         binding.officePhone.text = "직통전화: $officePhone"
         binding.position.text = "직급: $position"
-        binding.birthday.text = "생일: $birthday"
+        binding.birthday.text = "생일: ${birthday ?: "-"}"
+
+        binding.backButton.setOnClickListener {
+            finish()
+        }
+        binding.callIc.setOnClickListener {
+            val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${mobilePhone}"))
+            startActivity(intent)
+        }
+        binding.emailIc.setOnClickListener {
+            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email"))
+            startActivity(intent)
+        }
+        binding.messageIc.setOnClickListener {
+            val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${mobilePhone}"))
+            startActivity(intent)
+        }
+        binding.chatIc.setOnClickListener {
+            // 대화하기 클릭 리스너 설정 (예: 채팅 앱으로 이동)
+        }
+
+        // 삭제 버튼 안보이게 하기
+        binding.deleteButton.visibility = View.INVISIBLE
     }
 }

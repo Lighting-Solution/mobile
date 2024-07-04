@@ -1,4 +1,4 @@
-package com.ls.m.ls_m_v1.emp
+package com.ls.m.ls_m_v1.p_contect
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,27 +14,28 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.m.ls_m_v1.R
+import com.ls.m.ls_m_v1.emp.ContactAdapter
+import com.ls.m.ls_m_v1.emp.activity_contact_detail
+import java.util.zip.Inflater
 
-class EMPFragment : Fragment() {
-
-    private val contactViewModel: ContactViewModel by viewModels()
+class InterpersonalFragment : Fragment() {
+    private val personalViewModel: PersonalViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_e_m_p, container, false)
+        saveInstanceState: Bundle?
+    ): View?{
+        return inflater.inflate(R.layout.fragment_inter_personal, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
+        val recyclerView : RecyclerView = view.findViewById(R.id.personalC_recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        contactViewModel.contacts.observe(viewLifecycleOwner, Observer { contacts ->
-            recyclerView.adapter = ContactAdapter(contacts) { contact ->
+        personalViewModel.contacts.observe(viewLifecycleOwner, Observer{ contacts ->
+            recyclerView.adapter = ContactAdapter(contacts) {contact ->
                 val intent = Intent(requireContext(), activity_contact_detail::class.java).apply {
                     putExtra("name", contact.name)
                     putExtra("email", contact.email)
@@ -43,7 +44,7 @@ class EMPFragment : Fragment() {
                     putExtra("mobilePhone", contact.mobilePhone)
                     putExtra("officePhone", contact.officePhone)
                     putExtra("position", contact.position)
-                    putExtra("birthday", contact.birthday?.toString())
+                    putExtra("birthday", contact.birthday)
                 }
                 startActivity(intent)
             }
@@ -51,15 +52,16 @@ class EMPFragment : Fragment() {
         try {
             // 폰트 요청 로직 추가
         } catch (e: DeadObjectException) {
-            Log.e("EMPFragment", "Content provider is dead", e)
+            Log.e("PersonalFragment", "Content provider is dead", e)
         } catch (e: Exception) {
-            Log.e("EMPFragment", "Unexpected error", e)
+            Log.e("PersonalFragment", "Unexpected error", e)
+        }
+
+        val addButton = view.findViewById<TextView>(R.id.addPersonal)
+
+        addButton.setOnClickListener {
+            val intent = Intent(this.requireContext(), AddPersonal::class.java)
+            startActivity(intent)
         }
     }
 }
-
-// 아이콘 누르면 intent하는거 하기
-        // 데이터 베이스에 직접 데이터 넣어서 데이터 꺼내오는거 하기
-        // DTO 만들지 고민할것
-
-

@@ -5,8 +5,11 @@
         android:title="Contact" />
     <item
         android:id="@+id/tab2"
-        android:title="Calendar" />
+        android:title="PersonalContact" />
     <item
         android:id="@+id/tab3"
+        android:title="Calendar" />
+    <item
+        android:id="@+id/tab4"
         android:title="@string/app_name" />
 </menu>

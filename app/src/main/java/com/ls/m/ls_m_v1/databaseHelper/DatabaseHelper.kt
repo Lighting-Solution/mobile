@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import com.ls.m.ls_m_v1.emp.entity.DepartmentDTO
 import com.ls.m.ls_m_v1.emp.entity.EmpDTO
 import com.ls.m.ls_m_v1.emp.entity.PositionDTO
@@ -143,12 +144,55 @@ class DatabaseHelper(context: Context) :
         onCreate(db)
     }
 
+    fun insertCalendarData(datas: List<CalendarEntity>) {
+        val db = this.writableDatabase
+        for (data in datas) {
+            val value = ContentValues().apply {
+                put("calendarTitle", data.calendarTitle)
+                put("calendarCreateAt", data.calendarCreateAt)
+                put("calendarContent", data.calendarContent)
+                put("calendarStartAt", data.calendarStartAt)
+                put("calendarEndAt", data.calendarEndAt)
+            }
+            db.insert(DatabaseHelper.CALENDAR_TABLE, null, value)
+        }
+        db.close()
+    }
+
+    fun getCalendarData(date: LocalDate): List<CalendarEntity> {
+        val datas = mutableListOf<CalendarEntity>()
+        val dateString = date.toString()
+        val selectQuery = "SELECT * FROM ${DatabaseHelper.CALENDAR_TABLE} WHERE ? BETWEEN calendarStartAt AND calendarEndAt"
+
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, arrayOf(dateString))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val data = CalendarEntity(
+                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
+                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
+                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
+                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
+                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
+                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
+                )
+                datas.add(data)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return datas
+    }
+
+
+
     fun onDelete(tableName: String) {
         val db = this.writableDatabase
         db.execSQL("DELETE TABLE $tableName")
         onCreate(db)
     }
-/*
+
     // Insert Emp
     fun insertEmp(emp: EmpDTO) {
         val db = this.writableDatabase
@@ -167,7 +211,7 @@ class DatabaseHelper(context: Context) :
             put("departmentId", emp.department.departmentId)
         }
         db.insert(EMP_TABLE, null, values)
-    }*/
+    }
 
     // Insert Personal Contact
     fun insertPersonalContact(contact: PersonalContactDTO) {
@@ -291,5 +335,95 @@ class DatabaseHelper(context: Context) :
         }.also {
             cursor.close()
         }
+    }
+    fun getPersonalContactsWithGroups(): List<Pair<PersonalContactDTO, List<PersonalGroupDTO>>> {
+        val contactsWithGroups = mutableListOf<Pair<PersonalContactDTO, List<PersonalGroupDTO>>>()
+        val db = this.readableDatabase
+
+        // 개인 주소록 데이터와 개인 그룹 데이터를 조인하는 쿼리
+        val selectQuery = """
+        SELECT 
+            pc.personalContactId, pc.positionName, pc.departmentName, pc.personalContactName, 
+            pc.personalContactNickName, pc.personalContactEmail, pc.personalContactMP, 
+            pc.personalContactMemo, pc.personalContactBirthday, pc.companyId, pc.empId, 
+            c.companyName, c.companyAddress, c.companyURL, c.companyNumber, c.companyFax,
+            pg.personalGroupId, pg.personalGroupName
+        FROM $PERSONAL_CONTACT_TABLE pc
+        LEFT JOIN $COMPANY_TABLE c ON pc.companyId = c.companyId
+        LEFT JOIN $PERSONAL_GROUP_TABLE pg ON pc.empId = pg.empId
+        ORDER BY pc.personalContactId
+    """.trimIndent()
+
+        val cursor = db.rawQuery(selectQuery, null)
+
+        var currentContact: PersonalContactDTO? = null
+        val currentGroups = mutableListOf<PersonalGroupDTO>()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val personalContactId = cursor.getInt(cursor.getColumnIndexOrThrow("personalContactId"))
+                if (currentContact == null || currentContact.personalContactId != personalContactId) {
+                    if (currentContact != null) {
+                        contactsWithGroups.add(Pair(currentContact, currentGroups.toList()))
+                    }
+                    currentGroups.clear()
+                    currentContact = PersonalContactDTO(
+                        personalContactId = personalContactId,
+                        positionName = cursor.getString(cursor.getColumnIndexOrThrow("positionName")),
+                        departmentName = cursor.getString(cursor.getColumnIndexOrThrow("departmentName")),
+                        personalContactName = cursor.getString(cursor.getColumnIndexOrThrow("personalContactName")),
+                        personalContactNickName = cursor.getString(cursor.getColumnIndexOrThrow("personalContactNickName")),
+                        personalContactEmail = cursor.getString(cursor.getColumnIndexOrThrow("personalContactEmail")),
+                        personalContactMP = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMP")),
+                        personalContactMemo = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMemo")),
+                        personalContactBirthday = LocalDate.parse(cursor.getString(cursor.getColumnIndexOrThrow("personalContactBirthday"))),
+                        company = CompanyDTO(
+                            companyId = cursor.getInt(cursor.getColumnIndexOrThrow("companyId")),
+                            companyName = cursor.getString(cursor.getColumnIndexOrThrow("companyName")),
+                            companyAddress = cursor.getString(cursor.getColumnIndexOrThrow("companyAddress")),
+                            companyURL = cursor.getString(cursor.getColumnIndexOrThrow("companyURL")),
+                            companyNumber = cursor.getString(cursor.getColumnIndexOrThrow("companyNumber")),
+                            companyFax = cursor.getString(cursor.getColumnIndexOrThrow("companyFax"))
+                        ),
+                        empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId"))
+                    )
+                }
+
+                val personalGroupId = cursor.getInt(cursor.getColumnIndexOrThrow("personalGroupId"))
+                if (personalGroupId != 0) {
+                    val personalGroup = PersonalGroupDTO(
+                        personalGroupId = personalGroupId,
+                        empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
+                        personalGroupName = cursor.getString(cursor.getColumnIndexOrThrow("personalGroupName"))
+                    )
+                    currentGroups.add(personalGroup)
+                }
+            } while (cursor.moveToNext())
+
+            if (currentContact != null) {
+                contactsWithGroups.add(Pair(currentContact, currentGroups.toList()))
+            }
+        }
+        cursor.close()
+        db.close()
+        return contactsWithGroups
+    }
+
+    fun getAllPersonalGroups(): List<PersonalGroupDTO> {
+        val personalGroups = mutableListOf<PersonalGroupDTO>()
+        val db = this.readableDatabase
+        val cursor: Cursor = db.query(PERSONAL_GROUP_TABLE, null, null, null, null, null, null)
+        if (cursor.moveToFirst()) {
+            do {
+                val personalGroup = PersonalGroupDTO(
+                    personalGroupId = cursor.getInt(cursor.getColumnIndexOrThrow("personalGroupId")),
+                    empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
+                    personalGroupName = cursor.getString(cursor.getColumnIndexOrThrow("personalGroupName"))
+                )
+                personalGroups.add(personalGroup)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return personalGroups
     }
 }
