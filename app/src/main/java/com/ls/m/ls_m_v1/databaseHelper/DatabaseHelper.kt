@@ -185,8 +185,6 @@ class DatabaseHelper(context: Context) :
         return datas
     }
 
-
-
     fun onDelete(tableName: String) {
         val db = this.writableDatabase
         db.execSQL("DELETE TABLE $tableName")
@@ -230,6 +228,20 @@ class DatabaseHelper(context: Context) :
             put("empId", contact.empId)
         }
         db.insert(PERSONAL_CONTACT_TABLE, null, values)
+    }
+    // Insert Company
+    fun insertCompany(company: CompanyDTO): Long{
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("companyName", company.companyName)
+            put("companyAddress", company.companyAddress)
+            put("companyURL", company.companyURL)
+            put("companyNumber", company.companyNumber)
+            put("companyFax", company.companyFax)
+        }
+        val id = db.insert(COMPANY_TABLE, null, values)
+        db.close()
+        return id
     }
 
     // Get All Emps
@@ -426,4 +438,6 @@ class DatabaseHelper(context: Context) :
         cursor.close()
         return personalGroups
     }
+
+
 }

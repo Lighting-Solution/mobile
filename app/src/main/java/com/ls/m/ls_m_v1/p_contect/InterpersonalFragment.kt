@@ -37,6 +37,7 @@ class InterpersonalFragment : Fragment() {
         personalViewModel.contacts.observe(viewLifecycleOwner, Observer{ contacts ->
             recyclerView.adapter = ContactAdapter(contacts) {contact ->
                 val intent = Intent(requireContext(), activity_contact_detail::class.java).apply {
+                    putExtra("id",contact.id)
                     putExtra("name", contact.name)
                     putExtra("email", contact.email)
                     putExtra("company", contact.company)
@@ -45,6 +46,7 @@ class InterpersonalFragment : Fragment() {
                     putExtra("officePhone", contact.officePhone)
                     putExtra("position", contact.position)
                     putExtra("birthday", contact.birthday)
+                    putExtra("buttonState", true)
                 }
                 startActivity(intent)
             }

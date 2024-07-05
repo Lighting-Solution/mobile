@@ -18,7 +18,6 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
         loadContacts()
 
     }
-
     private fun loadContacts() {
         val empList = dbHelper.getAllEmps()
         val contacts = mutableListOf<Any>()
@@ -59,6 +58,8 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
         }
         _contacts.value = contacts
     }
+
+
 //    private fun loadContacts() {
 //        val empList = dbHelper.getAllEmps()
 //        val contacts = mutableListOf<Any>()

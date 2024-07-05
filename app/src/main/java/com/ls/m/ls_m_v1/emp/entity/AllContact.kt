@@ -9,7 +9,8 @@ data class AllContact(
     val mobilePhone: String,
     val officePhone: String,
     val birthday: String,
-    val company: String
+    val company: String,
+    val buttonState : Boolean = false
 )
 
 data class SectionHeader(

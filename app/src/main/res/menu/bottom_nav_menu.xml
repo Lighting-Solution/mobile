@@ -2,12 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/tab1"
+        android:icon="@drawable/ic_phone_book"
         android:title="Contact" />
     <item
         android:id="@+id/tab2"
+        android:icon="@drawable/ic_phone_book_personal"
         android:title="PersonalContact" />
     <item
         android:id="@+id/tab3"
+        android:icon="@drawable/ic_calendar"
         android:title="Calendar" />
     <item
         android:id="@+id/tab4"
