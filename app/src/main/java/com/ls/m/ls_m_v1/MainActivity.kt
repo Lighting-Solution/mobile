@@ -1,15 +1,17 @@
 package com.ls.m.ls_m_v1
 
-import EMPFragment
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ls.m.ls_m_v1.calendar.CalendarFragment
+import com.ls.m.ls_m_v1.emp.EMPFragment
+import com.ls.m.ls_m_v1.p_contect.InterpersonalFragment
 
 class MainActivity : AppCompatActivity() {
     lateinit var calendarFragment : CalendarFragment
     lateinit var empFragment: EMPFragment
+    lateinit var interpersonalFragment: InterpersonalFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
         calendarFragment = CalendarFragment()
         empFragment = EMPFragment()
+        interpersonalFragment = InterpersonalFragment()
 
         supportFragmentManager.beginTransaction().replace(R.id.container, empFragment).commit()
 
@@ -30,6 +33,11 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.tab2 -> {
                     Toast.makeText(applicationContext, "두 번째 탭", Toast.LENGTH_SHORT).show()
+                    supportFragmentManager.beginTransaction().replace(R.id.container, interpersonalFragment).commit()
+                    true
+                }
+                R.id.tab3 -> {
+                    Toast.makeText(applicationContext, "세 번째 탭", Toast.LENGTH_SHORT).show()
                     supportFragmentManager.beginTransaction().replace(R.id.container, calendarFragment).commit()
                     true
                 }

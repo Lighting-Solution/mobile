@@ -22,7 +22,7 @@ data class PersonalContactDTO(
     val empId : Int
 )
 data class CompanyDTO  (
-    val companyId : Int,
+    var companyId : Int,
     val companyName : String,
     val companyAddress : String,
     val companyURL : String,

@@ -1,3 +1,5 @@
+package com.ls.m.ls_m_v1.emp
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,7 +9,7 @@ import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.emp.entity.AllContact
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
 
-class ContactAdapter(private val contacts: List<Any>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ContactAdapter(private val contacts: List<Any>, private val clickListener: (AllContact) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val VIEW_TYPE_SECTION = 0
@@ -35,6 +37,9 @@ class ContactAdapter(private val contacts: List<Any>) : RecyclerView.Adapter<Rec
         } else if (holder is ContactViewHolder) {
             val contact = contacts[position] as AllContact
             holder.bind(contact)
+            holder.itemView.setOnClickListener {
+                clickListener(contact)
+            }
         }
     }
 

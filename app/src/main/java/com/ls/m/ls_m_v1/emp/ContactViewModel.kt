@@ -1,37 +1,81 @@
 package com.ls.m.ls_m_v1.emp
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.ls.m.ls_m_v1.emp.entity.AllContact
-import com.ls.m.ls_m_v1.emp.entity.SectionHeader
+import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
+import com.ls.m.ls_m_v1.emp.entity.*
 
-class ContactViewModel : ViewModel() {
+class ContactViewModel(application: Application) : AndroidViewModel(application) {
     private val _contacts = MutableLiveData<List<Any>>()
-    val contacts : LiveData<List<Any>> get() = _contacts
+
+    val contacts: LiveData<List<Any>> get() = _contacts
+
+    private val dbHelper = DatabaseHelper(application)
 
     init {
         loadContacts()
-    }
 
+    }
     private fun loadContacts() {
-        val contacts = listOf(
-            SectionHeader("Sales"),
-            AllContact("1", "Alice", "Manager", "Sales"),
-            SectionHeader("Development"),
-            AllContact("2", "Bob", "Engineer", "Development"),
-            SectionHeader("Design"),
-            AllContact("3", "Carol", "Designer", "Design"),
-            SectionHeader("Human Resources"),
-            AllContact("4", "David", "HR", "Human Resources")
-            // 더 많은 데이터 추가
-        )
+        val empList = dbHelper.getAllEmps()
+        val contacts = mutableListOf<Any>()
+
+        // 부서와 팀을 구분하여 그룹화
+        val departments = empList.filter { it.department.departmentId % 10 == 0 }
+        val teams = empList.filter { it.department.departmentId % 10 != 0 }
+
+        for (department in departments) {
+            // 부서 섹션 추가
+            contacts.add(SectionHeader(department.department.departmentName))
+
+            // 해당 부서의 팀들을 찾아 그룹화
+            val departmentTeams = teams.filter {
+                it.department.departmentId / 10 == department.department.departmentId / 10
+            }
+
+            for (team in departmentTeams) {
+                // 팀 섹션 추가
+                contacts.add(SectionHeader("  ${team.department.departmentName}"))
+
+                // 팀원 추가
+                contacts.addAll(teams.filter { it.department.departmentId == team.department.departmentId }
+                    .map { emp ->
+                        AllContact(
+                            emp.empId.toString(),
+                            emp.empName,
+                            emp.position.positionName,
+                            emp.department.departmentName,
+                            emp.empEmail,
+                            emp.empMP,
+                            emp.company.companyNumber,
+                            emp.empBirthday.toString(),
+                            emp.company.companyName
+                        )
+                    })
+            }
+        }
         _contacts.value = contacts
     }
 
 
-
-
+//    private fun loadContacts() {
+//        val empList = dbHelper.getAllEmps()
+//        val contacts = mutableListOf<Any>()
+//
+//        // 데이터를 적절히 분류하여 SectionHeader와 함께 추가
+//        val sections = empList.groupBy { it.department.departmentName }
+//        for ((section, items) in sections) {
+//            contacts.add(SectionHeader(section))
+//            contacts.addAll(items.map { emp ->
+//                AllContact(emp.empId.toString(), emp.empName, emp.position.positionName, emp.department.departmentName, emp.empEmail, emp.empMP, emp.company.companyNumber, emp.empBirthday.toString(), emp.company.companyName)
+//            })
+//        }
+//
+//        _contacts.value = contacts
+//    }
+}
 // 이런 식으로 api가능
 //    private val calendarApi: CalendarApi
 //
@@ -69,4 +113,3 @@ class ContactViewModel : ViewModel() {
 //            }
 //        }
 //    }
-}

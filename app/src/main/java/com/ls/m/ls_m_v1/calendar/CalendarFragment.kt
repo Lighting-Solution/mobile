@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -29,7 +28,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
-import java.util.Random
 
 class CalendarFragment : Fragment() {
     // UI 요소와 변수 선언
@@ -44,7 +42,6 @@ class CalendarFragment : Fragment() {
     // 컬러 변수 추가
     private val eventColors =
         listOf(Color.RED, Color.BLUE, Color.GREEN, Color.LTGRAY, Color.DKGRAY, Color.MAGENTA)
-    private val random = Random()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,13 +65,19 @@ class CalendarFragment : Fragment() {
 
         setupRecyclerView()
         setupCalendarView()
+
+        // 초기 데이터 로드
+        calendarViewModel.loadEvents(selectedDate!!)
     }
 
     private fun setupRecyclerView() {
         eventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-        // 초기에는 빈 리스트로 어댑터 설정
-        calendarAdapter = CalendarAdapter(emptyList())
+        calendarAdapter = CalendarAdapter()
         eventsRecyclerView.adapter = calendarAdapter
+
+        calendarViewModel.events.observe(viewLifecycleOwner) { events ->
+            calendarAdapter.submitList(events)
+        }
     }
 
     private fun setupCalendarView() {
@@ -85,13 +88,11 @@ class CalendarFragment : Fragment() {
         calendarView.setup(startMonth, endMonth, daysOfWeek.first())
         calendarView.scrollToMonth(currentMonth)
 
-        // 타이틀 컨테이너 설정
         val titleContainer = view?.findViewById<LinearLayout>(R.id.titlesContainer)
         titleContainer?.children?.forEachIndexed { index, view ->
             val textView = view as TextView
             textView.text = daysOfWeek[index].getDisplayName(TextStyle.SHORT, Locale.getDefault())
 
-            // 요일 제목 색 변경
             when (daysOfWeek[index]) {
                 DayOfWeek.SATURDAY -> textView.setTextColor(Color.BLUE)
                 DayOfWeek.SUNDAY -> textView.setTextColor(Color.RED)
@@ -115,6 +116,7 @@ class CalendarFragment : Fragment() {
                     if (data.date == selectedDate) {
                         selectedDateView.text = "${data.date.monthValue}월 ${data.date.dayOfMonth}일"
                         container.dayLayout.setBackgroundResource(R.drawable.selected_day_background)
+                        updateEventsForDate(data.date)
                     } else {
                         container.dayLayout.setBackgroundResource(0)
                     }
@@ -122,12 +124,11 @@ class CalendarFragment : Fragment() {
                     container.dayLayout.setOnClickListener {
                         val oldDate = selectedDate
                         selectedDate = data.date
-//                        Toast.makeText(requireContext(), "${data.date}", Toast.LENGTH_SHORT).show()
                         if (oldDate != null) {
                             calendarView.notifyDateChanged(oldDate)
                         }
                         calendarView.notifyDateChanged(data.date)
-                        updateEventsForDate(data.date)
+
                     }
 
                     updateEventViews(container.viewContainer, data.date, requireContext())
@@ -150,7 +151,7 @@ class CalendarFragment : Fragment() {
                 if (today == data.date) {
                     container.textView.setBackgroundResource(R.drawable.today_bg)
                     container.textView.setTextColor(Color.WHITE)
-                }else{
+                } else {
                     container.textView.setBackgroundResource(0)
                 }
             }
@@ -172,22 +173,17 @@ class CalendarFragment : Fragment() {
     }
 
     private fun updateEventsForDate(date: LocalDate) {
-        val events = calendarViewModel.getEventsOnDate(date)
-        calendarAdapter = CalendarAdapter(events) // 새로운 데이터를 가진 어댑터 생성
-        eventsRecyclerView.adapter = calendarAdapter // RecyclerView에 어댑터 설정
-        calendarAdapter.notifyDataSetChanged() // 데이터 변경 알림
+        calendarViewModel.loadEvents(date)
     }
 
     private fun updateEventViews(viewContainer: LinearLayout, date: LocalDate, context: Context) {
         viewContainer.removeAllViews()
         val events = calendarViewModel.getEventsOnDate(date)
-        val usedColors = mutableSetOf<Int>()
         val maxLine = 5
 
         events.take(maxLine).forEach { event ->
             val eventView = View(context)
-            val color = getRandomColor(usedColors)
-            usedColors.add(color)
+            val color = getSequentialColor(date)
 
             val drawable = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
@@ -209,12 +205,8 @@ class CalendarFragment : Fragment() {
         }
     }
 
-    private fun getRandomColor(usedColors: Set<Int>): Int {
-        val availableColors = eventColors.filter { it !in usedColors }
-        return if (availableColors.isNotEmpty()) {
-            availableColors[random.nextInt(availableColors.size)]
-        } else {
-            eventColors[random.nextInt(eventColors.size)]
-        }
+    private fun getSequentialColor(date: LocalDate): Int {
+        val dayOfYear = date.dayOfYear
+        return eventColors[dayOfYear % eventColors.size]
     }
 }

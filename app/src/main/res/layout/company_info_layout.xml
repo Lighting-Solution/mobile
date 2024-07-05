@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/companyName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="회사 이름" />
+
+    <EditText
+        android:id="@+id/companyNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="회사 전화" />
+
+    <EditText
+        android:id="@+id/companyAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="회사 주소" />
+
+    <EditText
+        android:id="@+id/companyURL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textUri"
+        android:hint="회사 홈페이지" />
+
+    <EditText
+        android:id="@+id/companyFax"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:hint="회사 팩스" />
+</LinearLayout>

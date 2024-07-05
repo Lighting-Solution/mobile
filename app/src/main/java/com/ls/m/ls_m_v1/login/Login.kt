@@ -38,8 +38,8 @@ class Login : AppCompatActivity() {
         loginButton = findViewById(R.id.loginButton)
 
         // 인스턴스 생성하고 데이터베이스 액세스
-        dbHelper = DatabaseHelper(this)
-        calendarRepository = CalendarRepository(this)
+//        dbHelper = DatabaseHelper(this)
+//        calendarRepository = CalendarRepository(this)
 
         //  session
         loginButton.setOnClickListener {
@@ -48,15 +48,15 @@ class Login : AppCompatActivity() {
 //            login(userId, userPw)
             // 로그인 구현할땐 삭제 (intent, update)
 
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val datas = RetrofitInstanceCalender.api.requestCalendarData()
-                        dbHelper.onDelete(DatabaseHelper.CALENDAR_TABLE)
-                        calendarRepository.insertCalendarData(datas)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
+//            CoroutineScope(Dispatchers.IO).launch {
+//                try {
+//                    val datas = RetrofitInstanceCalender.api.requestCalendarData()
+//                        dbHelper.onDelete(DatabaseHelper.CALENDAR_TABLE)
+//                        calendarRepository.insertCalendarData(datas)
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                }
+//            }
 
             val intent = Intent(this@Login, MainActivity::class.java)
             startActivity(intent)
