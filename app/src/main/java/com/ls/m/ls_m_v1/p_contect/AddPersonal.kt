@@ -115,7 +115,6 @@ class AddPersonal : AppCompatActivity() {
                 ),empId = 21
                 // 로그인 할때 변경할 것
             )
-            val id: Long
             // 등록 데이터 api요청으로 날림
             if (binding.spinner.selectedItem == "직접 입력") {
                 // api 통신으로 보냄

@@ -2,8 +2,10 @@ package com.ls.m.ls_m_v1.p_contect
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -15,6 +17,8 @@ import com.ls.m.ls_m_v1.p_contect.dao.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
 import com.ls.m.ls_m_v1.p_contect.service.P_ContectService
 import com.ls.m.ls_m_v1.p_contect.service.contectRepository
+import retrofit2.Call
+import retrofit2.Response
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
@@ -37,8 +41,29 @@ class ModifyPersonal : AppCompatActivity() {
         val personalDao = AddPersonalDAOImpl(this)
         val companys = personalDao.getAllCompanyData()
 
+        val id = intent.getStringExtra("id")
+        val name = intent.getStringExtra("name")
+        val email = intent.getStringExtra("email")
+        val company = intent.getStringExtra("company")
+        val department = intent.getStringExtra("department")
+        val mobilePhone = intent.getStringExtra("mobilePhone")
+        val officePhone = intent.getStringExtra("officePhone")
+        val position = intent.getStringExtra("position")
+        val birthday = intent.getStringExtra("birthday")
+        val nickName = intent.getStringExtra("nickName")
+        val memo = intent.getStringExtra("memo")
+
         val items = companys.map { it.companyName }.toMutableList()
         items.add(0, "직접 입력")
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinner.adapter = adapter
+
+        // 특정 항목을 선택된 상태로 설정
+        val defaultSelection = company
+        val spinnerPosition = adapter.getPosition(defaultSelection)
+        binding.spinner.setSelection(spinnerPosition)
 
         // Spinner의 항목이 선택 되었을때 동작을 설정합니다.
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -66,15 +91,14 @@ class ModifyPersonal : AppCompatActivity() {
             }
         }
 
-        val id = intent.getStringExtra("id")
-        val name = intent.getStringExtra("name")
-        val email = intent.getStringExtra("email")
-        val company = intent.getStringExtra("company")
-        val department = intent.getStringExtra("department")
-        val mobilePhone = intent.getStringExtra("mobilePhone")
-        val officePhone = intent.getStringExtra("officePhone")
-        val position = intent.getStringExtra("position")
-        val birthday = intent.getStringExtra("birthday")
+        binding.personalContactName.setText(name)
+        binding.personalContactNickName.setText(nickName)
+        binding.departmentName.setText(department)
+        binding.positionName.setText(position)
+        binding.personalContactMP.setText(mobilePhone)
+        binding.personalContactEmail.setText(email)
+        binding.personalContactBirthday.setText(birthday)
+        binding.personalContactMemo.setText(memo)
 
         // X누르면 화면 종료
         binding.backButton1.setOnClickListener {
@@ -112,8 +136,61 @@ class ModifyPersonal : AppCompatActivity() {
                 ), empId = 21
                 // 로그인 할때 변경할 것
             )
+            // 등록 데이터 api요청으로 날림
+            if (binding.spinner.selectedItem == "직접 입력") {
+                // api 통신으로 보냄
+                // 세션인지 토큰인지 확인할것
+                val loginId: String = ""
+                personalService.updateP_ContectData(loginId, addData)
+                    .enqueue(object : retrofit2.Callback<String> {
+                        override fun onResponse(call: Call<String>, response: Response<String>) {
+                            Log.d("api", call.toString())
+                            Log.d("api", response.toString())
 
+                            if (response.isSuccessful) {
+                                // 성공적으로 업데이트됨
+                                Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
+                                // 성공하면 테이블 날리고 리프레쉬 할것.
 
+                            } else {
+                                // 업데이트 실패
+                                Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        }
+
+                        override fun onFailure(call: Call<String>, t: Throwable) {
+                            TODO("Not yet implemented")
+                        }
+
+                    })
+
+            }
+        }
+
+        binding.deleteContactButton.setOnClickListener {
+            if (id != null) {
+                personalService.deleteP_ContectData(id)
+                    .enqueue(object : retrofit2.Callback<String> {
+                        override fun onResponse(call: Call<String>, response: Response<String>) {
+
+                            if (response.isSuccessful) {
+                                // 성공적으로 업데이트됨
+                                Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
+                                // 성공하면 테이블 날리고 리프레쉬 할것.
+
+                            } else {
+                                // 업데이트 실패
+                                Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        }
+
+                        override fun onFailure(call: Call<String>, t: Throwable) {
+                            TODO("Not yet implemented")
+                        }
+                    })
+            }
         }
     }
 }

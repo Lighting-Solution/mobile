@@ -9,11 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.MainActivity
 import com.ls.m.ls_m_v1.R
-import com.ls.m.ls_m_v1.calendar.service.RetrofitInstanceCalender
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.login.entity.LoginEntity
 import com.ls.m.ls_m_v1.login.service.RetrofitInstanceLogin
-import com.ls.m.ls_m_v1.repository.CalendarRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +23,6 @@ class Login : AppCompatActivity() {
     private lateinit var loginButton: Button
 
     private lateinit var dbHelper: DatabaseHelper
-    private lateinit var calendarRepository: CalendarRepository
 
     //    private lateinit var sessionManager: SessionManager
     @SuppressLint("SuspiciousIndentation")

@@ -20,19 +20,10 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_weight="1"
-        android:paddingStart="20dp"
         android:textColor="@android:color/black"
         android:textSize="20sp"
         android:textStyle="bold"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="right"
-        android:text="추가"
-        android:layout_marginRight="10dp"
-        tools:ignore="RtlHardcoded" />
 </LinearLayout>
     <include
         android:id="@+id/titlesContainer"
@@ -70,5 +61,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/exThreeAddButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="20dp"
+        app:tint="@color/white"
+        app:backgroundTint="@color/sand"
+        app:srcCompat="@drawable/ic_add" />
 
 </LinearLayout>

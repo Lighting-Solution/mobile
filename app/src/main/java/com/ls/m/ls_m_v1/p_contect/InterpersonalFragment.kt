@@ -46,7 +46,9 @@ class InterpersonalFragment : Fragment() {
                     putExtra("officePhone", contact.company.companyNumber)
                     putExtra("position", contact.position)
                     putExtra("birthday", contact.birthday)
-                    putExtra("buttonState", false) // 예시로 true 값 사용
+                    putExtra("buttonState", true) // 예시로 true 값 사용
+                    putExtra("nickName", contact.nickname)
+                    putExtra("memo", contact.memo)
                 }
                 startActivity(intent)
             }
