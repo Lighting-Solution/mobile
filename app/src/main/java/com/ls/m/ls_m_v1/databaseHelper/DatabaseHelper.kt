@@ -26,6 +26,7 @@ class DatabaseHelper(context: Context) :
         const val PERSONAL_CONTACT_TABLE = "personal_contact"
         const val PERSONAL_GROUP_TABLE = "personal_group"
         const val CONTACT_GROUP_TABLE = "contact_group"
+        const val DIGITAL_APPROVAL_TABLE = "digital_approval"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -87,7 +88,7 @@ class DatabaseHelper(context: Context) :
 
         val createPersonalContactTable = """
             CREATE TABLE IF NOT EXISTS $PERSONAL_CONTACT_TABLE(
-                personalContactId INTEGER PRIMARY KEY,
+                personalContactId INTEGER PRIMARY KEY AUTOINCREMENT,
                 positionName TEXT NOT NULL,
                 departmentName TEXT NOT NULL,
                 personalContactName TEXT NOT NULL,
@@ -105,7 +106,7 @@ class DatabaseHelper(context: Context) :
 
         val createPersonalGroupTable = """
             CREATE TABLE IF NOT EXISTS $PERSONAL_GROUP_TABLE(
-                personalGroupId INTEGER PRIMARY KEY,
+                personalGroupId INTEGER PRIMARY KEY AUTOINCREMENT,
                 empId INTEGER,
                 personalGroupName TEXT NOT NULL,
                 FOREIGN KEY (empId) REFERENCES $EMP_TABLE(empId)
@@ -114,12 +115,27 @@ class DatabaseHelper(context: Context) :
 
         val createContactGroupTable = """
             CREATE TABLE IF NOT EXISTS $CONTACT_GROUP_TABLE(
-                contactGroupId INTEGER PRIMARY KEY,
+                contactGroupId INTEGER PRIMARY KEY AUTOINCREMENT,
                 personalContactId INTEGER,
                 personalGroupId INTEGER,
                 FOREIGN KEY (personalContactId) REFERENCES $PERSONAL_CONTACT_TABLE(personalContactId),
                 FOREIGN KEY (personalGroupId) REFERENCES $PERSONAL_GROUP_TABLE(personalGroupId)
             );
+        """.trimIndent()
+
+        val createDigitalApprovalTable = """
+           CREATE TABLE IF NOT EXISTS $DIGITAL_APPROVAL_TABLE(
+                digitalApproval_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                drafter_id INTEGER,
+                digitalApprovalName TEXT,
+                digitalApprovalPath TEXT,
+                digitalApprovalType INTEGER,
+                drafterStatus INTEGER,
+                managerStatus INTEGER,
+                ceoStatus INTEGER,
+                emp_id INTEGER,
+                FOREIGN KEY(empId) REFERENCES $EMP_TABLE(empId)
+           );
         """.trimIndent()
 
         db?.execSQL(createCalendarTable)
@@ -141,6 +157,13 @@ class DatabaseHelper(context: Context) :
         db?.execSQL("DROP TABLE IF EXISTS $PERSONAL_CONTACT_TABLE")
         db?.execSQL("DROP TABLE IF EXISTS $PERSONAL_GROUP_TABLE")
         db?.execSQL("DROP TABLE IF EXISTS $CONTACT_GROUP_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DIGITAL_APPROVAL_TABLE")
+        onCreate(db)
+    }
+
+    fun onDelete(tableName: String) {
+        val db = this.writableDatabase
+        db.execSQL("DELETE TABLE $tableName")
         onCreate(db)
     }
 
@@ -157,62 +180,6 @@ class DatabaseHelper(context: Context) :
             db.insert(DatabaseHelper.CALENDAR_TABLE, null, value)
         }
         db.close()
-    }
-    fun getAllCalendar():List<CalendarEntity>{
-        val datas = mutableListOf<CalendarEntity>()
-        val selectQuery = "select * from ${DatabaseHelper.CALENDAR_TABLE}"
-
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(selectQuery, null)
-
-        if (cursor.moveToFirst()) {
-            do {
-                val data = CalendarEntity(
-                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
-                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
-                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
-                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
-                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
-                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
-                )
-                datas.add(data)
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        db.close()
-        return datas
-    }
-
-    fun getCalendarData(date: LocalDate): List<CalendarEntity> {
-        val datas = mutableListOf<CalendarEntity>()
-        val dateString = date.toString()
-        val selectQuery = "SELECT * FROM ${DatabaseHelper.CALENDAR_TABLE} WHERE ? BETWEEN calendarStartAt AND calendarEndAt"
-
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(selectQuery, arrayOf(dateString))
-
-        if (cursor.moveToFirst()) {
-            do {
-                val data = CalendarEntity(
-                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
-                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
-                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
-                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
-                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
-                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
-                )
-                datas.add(data)
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        db.close()
-        return datas
-    }
-
-    fun onDelete(tableName: String) {
-        val db = this.writableDatabase
-        db.execSQL("DELETE TABLE $tableName")
-        onCreate(db)
     }
 
     // Insert Emp
@@ -253,8 +220,9 @@ class DatabaseHelper(context: Context) :
         }
         db.insert(PERSONAL_CONTACT_TABLE, null, values)
     }
+
     // Insert Company
-    fun insertCompany(company: CompanyDTO): Long{
+    fun insertCompany(company: CompanyDTO): Long {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put("companyName", company.companyName)
@@ -266,6 +234,58 @@ class DatabaseHelper(context: Context) :
         val id = db.insert(COMPANY_TABLE, null, values)
         db.close()
         return id
+    }
+
+    fun getAllCalendar(): List<CalendarEntity> {
+        val datas = mutableListOf<CalendarEntity>()
+        val selectQuery = "select * from ${DatabaseHelper.CALENDAR_TABLE}"
+
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val data = CalendarEntity(
+                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
+                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
+                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
+                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
+                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
+                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
+                )
+                datas.add(data)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return datas
+    }
+
+    fun getCalendarData(date: LocalDate): List<CalendarEntity> {
+        val datas = mutableListOf<CalendarEntity>()
+        val dateString = date.toString()
+        val selectQuery =
+            "SELECT * FROM $CALENDAR_TABLE WHERE ? BETWEEN calendarStartAt AND calendarEndAt"
+
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, arrayOf(dateString))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val data = CalendarEntity(
+                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
+                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
+                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
+                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
+                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
+                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
+                )
+                datas.add(data)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return datas
     }
 
     // Get All Emps
@@ -312,7 +332,13 @@ class DatabaseHelper(context: Context) :
                     personalContactEmail = cursor.getString(cursor.getColumnIndexOrThrow("personalContactEmail")),
                     personalContactMP = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMP")),
                     personalContactMemo = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMemo")),
-                    personalContactBirthday = LocalDate.parse(cursor.getString(cursor.getColumnIndexOrThrow("personalContactBirthday"))),
+                    personalContactBirthday = LocalDate.parse(
+                        cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                "personalContactBirthday"
+                            )
+                        )
+                    ),
                     company = getCompany(cursor.getInt(cursor.getColumnIndexOrThrow("companyId"))),
                     empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId"))
                 )
@@ -326,7 +352,15 @@ class DatabaseHelper(context: Context) :
     // Helper functions to get related entities
     private fun getCompany(companyId: Int): CompanyDTO {
         val db = this.readableDatabase
-        val cursor = db.query(COMPANY_TABLE, null, "companyId=?", arrayOf(companyId.toString()), null, null, null)
+        val cursor = db.query(
+            COMPANY_TABLE,
+            null,
+            "companyId=?",
+            arrayOf(companyId.toString()),
+            null,
+            null,
+            null
+        )
         return if (cursor.moveToFirst()) {
             CompanyDTO(
                 companyId = cursor.getInt(cursor.getColumnIndexOrThrow("companyId")),
@@ -345,7 +379,15 @@ class DatabaseHelper(context: Context) :
 
     private fun getPosition(positionId: Int): PositionDTO {
         val db = this.readableDatabase
-        val cursor = db.query(POSITION_TABLE, null, "positionId=?", arrayOf(positionId.toString()), null, null, null)
+        val cursor = db.query(
+            POSITION_TABLE,
+            null,
+            "positionId=?",
+            arrayOf(positionId.toString()),
+            null,
+            null,
+            null
+        )
         return if (cursor.moveToFirst()) {
             PositionDTO(
                 positionId = cursor.getInt(cursor.getColumnIndexOrThrow("positionId")),
@@ -360,7 +402,15 @@ class DatabaseHelper(context: Context) :
 
     private fun getDepartment(departmentId: Int): DepartmentDTO {
         val db = this.readableDatabase
-        val cursor = db.query(DEPARTMENT_TABLE, null, "departmentId=?", arrayOf(departmentId.toString()), null, null, null)
+        val cursor = db.query(
+            DEPARTMENT_TABLE,
+            null,
+            "departmentId=?",
+            arrayOf(departmentId.toString()),
+            null,
+            null,
+            null
+        )
         return if (cursor.moveToFirst()) {
             DepartmentDTO(
                 departmentId = cursor.getInt(cursor.getColumnIndexOrThrow("departmentId")),
@@ -372,6 +422,7 @@ class DatabaseHelper(context: Context) :
             cursor.close()
         }
     }
+
     fun getPersonalContactsWithGroups(): List<Pair<PersonalContactDTO, List<PersonalGroupDTO>>> {
         val contactsWithGroups = mutableListOf<Pair<PersonalContactDTO, List<PersonalGroupDTO>>>()
         val db = this.readableDatabase
@@ -397,7 +448,8 @@ class DatabaseHelper(context: Context) :
 
         if (cursor.moveToFirst()) {
             do {
-                val personalContactId = cursor.getInt(cursor.getColumnIndexOrThrow("personalContactId"))
+                val personalContactId =
+                    cursor.getInt(cursor.getColumnIndexOrThrow("personalContactId"))
                 if (currentContact == null || currentContact.personalContactId != personalContactId) {
                     if (currentContact != null) {
                         contactsWithGroups.add(Pair(currentContact, currentGroups.toList()))
@@ -412,7 +464,13 @@ class DatabaseHelper(context: Context) :
                         personalContactEmail = cursor.getString(cursor.getColumnIndexOrThrow("personalContactEmail")),
                         personalContactMP = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMP")),
                         personalContactMemo = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMemo")),
-                        personalContactBirthday = LocalDate.parse(cursor.getString(cursor.getColumnIndexOrThrow("personalContactBirthday"))),
+                        personalContactBirthday = LocalDate.parse(
+                            cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                    "personalContactBirthday"
+                                )
+                            )
+                        ),
                         company = CompanyDTO(
                             companyId = cursor.getInt(cursor.getColumnIndexOrThrow("companyId")),
                             companyName = cursor.getString(cursor.getColumnIndexOrThrow("companyName")),
@@ -462,6 +520,4 @@ class DatabaseHelper(context: Context) :
         cursor.close()
         return personalGroups
     }
-
-
 }

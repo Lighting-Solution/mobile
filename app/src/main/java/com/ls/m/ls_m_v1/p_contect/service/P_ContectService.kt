@@ -11,6 +11,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface P_ContectService {
     @GET("list/all-personal/android")
@@ -18,13 +19,14 @@ interface P_ContectService {
 
     @DELETE("contact")
     fun deleteP_ContectData(
-        @Body deleteData : DeletePersonalDTO
-    )
+        @Body deleteId : String
+    ):Call<String>
 
-    @PUT("contact")
+    @PUT("contact/{id}")
     fun updateP_ContectData(
-
-    ): Call<Void>
+        @Path("id") id: String,
+        @Body addPersonalDTO: AddPersonalDTO
+    ): Call<String>
 
     // insert
     @POST("contact")
