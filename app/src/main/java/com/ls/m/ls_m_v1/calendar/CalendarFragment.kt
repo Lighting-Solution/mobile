@@ -11,7 +11,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kizitonwose.calendar.core.CalendarDay
@@ -23,6 +24,7 @@ import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.ls.m.ls_m_v1.R
+import com.ls.m.ls_m_v1.calendar.dto.CalendarEvent
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -37,11 +39,7 @@ class CalendarFragment : Fragment() {
     private lateinit var selectedDateView: TextView
     private var selectedDate: LocalDate? = null
     private lateinit var calendarAdapter: CalendarAdapter
-    private lateinit var calendarViewModel: CalendarViewModel
-
-    // 컬러 변수 추가
-    private val eventColors =
-        listOf(Color.RED, Color.BLUE, Color.GREEN, Color.LTGRAY, Color.DKGRAY, Color.MAGENTA)
+    private val calendarViewModel: CalendarViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,26 +56,15 @@ class CalendarFragment : Fragment() {
         selectedDateView = view.findViewById(R.id.selectedDateView)
         selectedDate = LocalDate.now()
 
-        calendarViewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        ).get(CalendarViewModel::class.java)
-
         setupRecyclerView()
         setupCalendarView()
-
-        // 초기 데이터 로드
-        calendarViewModel.loadEvents(selectedDate!!)
+        showEventsForDate(LocalDate.now()) // 현재 날짜의 이벤트를 미리 보여줌
     }
 
     private fun setupRecyclerView() {
         eventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         calendarAdapter = CalendarAdapter()
         eventsRecyclerView.adapter = calendarAdapter
-
-        calendarViewModel.events.observe(viewLifecycleOwner) { events ->
-            calendarAdapter.submitList(events)
-        }
     }
 
     private fun setupCalendarView() {
@@ -100,11 +87,21 @@ class CalendarFragment : Fragment() {
             }
         }
 
+        calendarViewModel.events.observe(viewLifecycleOwner, Observer { events ->
+            calendarView.notifyCalendarChanged()
+            if (selectedDate != null) {
+                showEventsForDate(selectedDate!!)
+            }
+        })
+
         calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, data: CalendarDay) {
                 container.day = data
                 container.textView.text = data.date.dayOfMonth.toString()
+
+                // 이벤트 여부와 상관없이 항상 updateEventViews 실행
+                context?.let { updateEventViews(container.viewContainer, data.date, it) }
 
                 if (data.position == DayPosition.MonthDate) {
                     when (data.date.dayOfWeek) {
@@ -116,7 +113,6 @@ class CalendarFragment : Fragment() {
                     if (data.date == selectedDate) {
                         selectedDateView.text = "${data.date.monthValue}월 ${data.date.dayOfMonth}일"
                         container.dayLayout.setBackgroundResource(R.drawable.selected_day_background)
-                        updateEventsForDate(data.date)
                     } else {
                         container.dayLayout.setBackgroundResource(0)
                     }
@@ -128,10 +124,8 @@ class CalendarFragment : Fragment() {
                             calendarView.notifyDateChanged(oldDate)
                         }
                         calendarView.notifyDateChanged(data.date)
-
+                        showEventsForDate(data.date) // 선택된 날짜의 이벤트를 표시
                     }
-
-                    updateEventViews(container.viewContainer, data.date, requireContext())
                 } else {
                     container.textView.setTextColor(Color.GRAY)
                     container.dayLayout.setBackgroundResource(0)
@@ -172,10 +166,6 @@ class CalendarFragment : Fragment() {
         monthTitle.text = title
     }
 
-    private fun updateEventsForDate(date: LocalDate) {
-        calendarViewModel.loadEvents(date)
-    }
-
     private fun updateEventViews(viewContainer: LinearLayout, date: LocalDate, context: Context) {
         viewContainer.removeAllViews()
         val events = calendarViewModel.getEventsOnDate(date)
@@ -183,7 +173,7 @@ class CalendarFragment : Fragment() {
 
         events.take(maxLine).forEach { event ->
             val eventView = View(context)
-            val color = getSequentialColor(date)
+            val color = event.color
 
             val drawable = GradientDrawable().apply {
                 shape = GradientDrawable.RECTANGLE
@@ -195,7 +185,7 @@ class CalendarFragment : Fragment() {
 
             val layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                5
+                5 // 높이는 필요에 따라 조정
             ).apply {
                 setMargins(4, 4, 4, 4)
             }
@@ -205,8 +195,8 @@ class CalendarFragment : Fragment() {
         }
     }
 
-    private fun getSequentialColor(date: LocalDate): Int {
-        val dayOfYear = date.dayOfYear
-        return eventColors[dayOfYear % eventColors.size]
+    private fun showEventsForDate(date: LocalDate) {
+        val eventsForDate = calendarViewModel.getEventsOnDate(date)
+        calendarAdapter.submitList(eventsForDate)
     }
 }

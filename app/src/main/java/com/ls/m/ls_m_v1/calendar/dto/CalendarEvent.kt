@@ -7,6 +7,7 @@ data class CalendarEvent(
     val startDate: LocalDate,
     val endDate: LocalDate,
     val startTime: String,
-    val endTime: String
+    val endTime: String,
+    val color: Int
 )
 

@@ -11,6 +11,7 @@ data class AddPersonalDTO(
     val personalContactEmail :String,
     val personalContactMP :String,
     val personalContactMemo :String,
-    val personalContactBirthday :LocalDate,
-    val company : CompanyDTO
+    val personalContactBirthday :LocalDate?,
+    val company : CompanyDTO,
+    val empId : Int
 )

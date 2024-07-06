@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.databinding.ActivityContactDetailBinding
+import com.ls.m.ls_m_v1.p_contect.ModifyPersonal
+import com.ls.m.ls_m_v1.p_contect.dao.DeletePersonalDTO
 
 class activity_contact_detail : AppCompatActivity() {
     private lateinit var binding : ActivityContactDetailBinding
@@ -17,7 +19,7 @@ class activity_contact_detail : AppCompatActivity() {
         binding = ActivityContactDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
+        val id = intent.getStringExtra("id")
         val name = intent.getStringExtra("name")
         val email = intent.getStringExtra("email")
         val company = intent.getStringExtra("company")
@@ -26,6 +28,7 @@ class activity_contact_detail : AppCompatActivity() {
         val officePhone = intent.getStringExtra("officePhone")
         val position = intent.getStringExtra("position")
         val birthday = intent.getStringExtra("birthday")
+        val buttonState = intent.getBooleanExtra("buttonState",false)
 
         binding.contactName.text = "${name} ${position}"
         binding.contactEmail.text = email
@@ -55,7 +58,29 @@ class activity_contact_detail : AppCompatActivity() {
             // 대화하기 클릭 리스너 설정 (예: 채팅 앱으로 이동)
         }
 
-        // 삭제 버튼 안보이게 하기
-        binding.deleteButton.visibility = View.INVISIBLE
+        if (!buttonState){
+            // 삭제 버튼 안보이게 하기
+            binding.modifyButton.visibility = View.INVISIBLE
+        }
+        binding.modifyButton.setOnClickListener {
+//            // 삭제 하는 구현
+//            val deletePersonal  = id?.let { it1 ->
+//                DeletePersonalDTO(
+//                    personalContactId = it1.toInt()
+//                )
+//            }
+            val nextIntent = Intent(this, ModifyPersonal::class.java).apply {
+                putExtra("id", id)
+                putExtra("name", name)
+                putExtra("email", email)
+                putExtra("company", company)
+                putExtra("department", department)
+                putExtra("mobilePhone", mobilePhone)
+                putExtra("officePhone", officePhone)
+                putExtra("position", position)
+                putExtra("birthday", birthday)
+            }
+            startActivity(nextIntent)
+        }
     }
 }

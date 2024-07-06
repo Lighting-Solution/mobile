@@ -1,13 +1,49 @@
 package com.ls.m.ls_m_v1.p_contect.service
 
+import com.ls.m.ls_m_v1.p_contect.dao.AddPersonalDTO
+import com.ls.m.ls_m_v1.p_contect.dao.DeletePersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.ContanctAandroidDTO
 import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
 
 interface P_ContectService {
     @GET("list/all-personal/android")
     fun getP_ContectData(): Call<ContanctAandroidDTO>
+
+    @DELETE("contact")
+    fun deleteP_ContectData(
+        @Body deleteData : DeletePersonalDTO
+    )
+
+    @PUT("contact")
+    fun updateP_ContectData(
+
+    ): Call<Void>
+
+    // insert
+    @POST("contact")
+    fun addPersnalData(
+        @Body addPersonalDTO: AddPersonalDTO
+    ): Call<String>
 }
+class contectRepository {
+    private val BASE_URL = "http://10.0.2.2:9000/api/v1/intranet/contact/"
+
+    val api : P_ContectService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(P_ContectService::class.java)
+    }
+}
+
 // 참고
 /*
 * apiService.getEmpAndroidData().enqueue(object : Callback<EmpAndroidDTO> {

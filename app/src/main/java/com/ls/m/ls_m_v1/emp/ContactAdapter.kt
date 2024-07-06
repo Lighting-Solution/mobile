@@ -9,7 +9,10 @@ import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.emp.entity.AllContact
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
 
-class ContactAdapter(private val contacts: List<Any>, private val clickListener: (AllContact) -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ContactAdapter(
+    private var contacts: List<Any>,
+    private val clickListener: (AllContact) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private const val VIEW_TYPE_SECTION = 0

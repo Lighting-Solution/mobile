@@ -62,6 +62,8 @@ dependencies {
     // 캘린더 라이브러리
     implementation ("com.kizitonwose.calendar:view:2.5.2")
     implementation ("com.kizitonwose.calendar:compose:2.5.2")
+    // viewModel
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
 
     // api 통신
     implementation ("com.google.code.gson:gson:2.8.5") // json을 자동적으로 자바 클래스로 변형해주는 라이브러리

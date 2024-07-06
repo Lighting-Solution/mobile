@@ -158,6 +158,30 @@ class DatabaseHelper(context: Context) :
         }
         db.close()
     }
+    fun getAllCalendar():List<CalendarEntity>{
+        val datas = mutableListOf<CalendarEntity>()
+        val selectQuery = "select * from ${DatabaseHelper.CALENDAR_TABLE}"
+
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val data = CalendarEntity(
+                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
+                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
+                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
+                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
+                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
+                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
+                )
+                datas.add(data)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return datas
+    }
 
     fun getCalendarData(date: LocalDate): List<CalendarEntity> {
         val datas = mutableListOf<CalendarEntity>()
@@ -184,8 +208,6 @@ class DatabaseHelper(context: Context) :
         db.close()
         return datas
     }
-
-
 
     fun onDelete(tableName: String) {
         val db = this.writableDatabase
@@ -230,6 +252,20 @@ class DatabaseHelper(context: Context) :
             put("empId", contact.empId)
         }
         db.insert(PERSONAL_CONTACT_TABLE, null, values)
+    }
+    // Insert Company
+    fun insertCompany(company: CompanyDTO): Long{
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("companyName", company.companyName)
+            put("companyAddress", company.companyAddress)
+            put("companyURL", company.companyURL)
+            put("companyNumber", company.companyNumber)
+            put("companyFax", company.companyFax)
+        }
+        val id = db.insert(COMPANY_TABLE, null, values)
+        db.close()
+        return id
     }
 
     // Get All Emps
@@ -426,4 +462,6 @@ class DatabaseHelper(context: Context) :
         cursor.close()
         return personalGroups
     }
+
+
 }
