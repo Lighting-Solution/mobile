@@ -26,13 +26,16 @@ class CalendarAdapter :
     class CalendarViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val eventTitleText: TextView = view.findViewById(R.id.eventTitleText)
         private val eventTimeText: TextView = view.findViewById(R.id.eventTime)
+        private val eventColor: View = itemView.findViewById(R.id.eventColor)
 
         fun bind(event: CalendarEvent) {
             eventTitleText.text = event.title
             if (event.startDate == event.endDate) {
                 eventTimeText.text = "${event.startTime} ~ ${event.endTime}"
+                eventColor.setBackgroundColor(event.color)
             }else{
                 eventTimeText.text = "${event.startDate} ${event.startTime} - ${event.endDate} ${event.endTime}"
+                eventColor.setBackgroundColor(event.color)
             }
         }
     }

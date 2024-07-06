@@ -1,5 +1,7 @@
 package com.ls.m.ls_m_v1.emp.entity
 
+import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
+
 data class AllContact(
     val id: String,
     val name: String,
@@ -9,7 +11,7 @@ data class AllContact(
     val mobilePhone: String,
     val officePhone: String,
     val birthday: String,
-    val company: String,
+    val company: CompanyDTO,
     val buttonState : Boolean = false
 )
 

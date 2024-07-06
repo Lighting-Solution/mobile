@@ -22,14 +22,14 @@
             android:layout_weight="1"
             />
         <TextView
-            android:id="@+id/deleteButton"
+            android:id="@+id/modifyButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="end"
             android:layout_marginEnd="10dp"
             android:layout_gravity="center"
             android:textSize="15sp"
-            android:text="삭제"/>
+            android:text="편집"/>
     </LinearLayout>
 
     <ImageView

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.databinding.ActivityContactDetailBinding
+import com.ls.m.ls_m_v1.p_contect.ModifyPersonal
 import com.ls.m.ls_m_v1.p_contect.dao.DeletePersonalDTO
 
 class activity_contact_detail : AppCompatActivity() {
@@ -59,16 +60,27 @@ class activity_contact_detail : AppCompatActivity() {
 
         if (!buttonState){
             // 삭제 버튼 안보이게 하기
-            binding.deleteButton.visibility = View.INVISIBLE
+            binding.modifyButton.visibility = View.INVISIBLE
         }
-        binding.deleteButton.setOnClickListener {
-            // 삭제 하는 구현
-            val deletePersonal  = id?.let { it1 ->
-                DeletePersonalDTO(
-                    personalContactId = it1.toInt()
-                )
+        binding.modifyButton.setOnClickListener {
+//            // 삭제 하는 구현
+//            val deletePersonal  = id?.let { it1 ->
+//                DeletePersonalDTO(
+//                    personalContactId = it1.toInt()
+//                )
+//            }
+            val nextIntent = Intent(this, ModifyPersonal::class.java).apply {
+                putExtra("id", id)
+                putExtra("name", name)
+                putExtra("email", email)
+                putExtra("company", company)
+                putExtra("department", department)
+                putExtra("mobilePhone", mobilePhone)
+                putExtra("officePhone", officePhone)
+                putExtra("position", position)
+                putExtra("birthday", birthday)
             }
-
+            startActivity(nextIntent)
         }
     }
 }

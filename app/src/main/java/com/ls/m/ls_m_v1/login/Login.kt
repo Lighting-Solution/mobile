@@ -38,8 +38,9 @@ class Login : AppCompatActivity() {
         loginButton = findViewById(R.id.loginButton)
 
         // 인스턴스 생성하고 데이터베이스 액세스
-//        dbHelper = DatabaseHelper(this)
+
 //        calendarRepository = CalendarRepository(this)
+
 
         //  session
         loginButton.setOnClickListener {
@@ -57,6 +58,8 @@ class Login : AppCompatActivity() {
 //                    e.printStackTrace()
 //                }
 //            }
+            dbHelper = DatabaseHelper(this)
+            dbHelper.writableDatabase
 
             val intent = Intent(this@Login, MainActivity::class.java)
             startActivity(intent)

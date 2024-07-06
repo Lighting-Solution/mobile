@@ -44,8 +44,6 @@ class AddPersonal : AppCompatActivity() {
         val personalDao = AddPersonalDAOImpl(this)
         val companys = personalDao.getAllCompanyData()
 
-//        val companyInfoLayout: LinearLayout = findViewById(R.id.companyInfoLayout)
-
         val items = companys.map { it.companyName }.toMutableList()
         items.add(0, "직접 입력")
 
@@ -129,6 +127,8 @@ class AddPersonal : AppCompatActivity() {
                         if (response.isSuccessful) {
                             // 성공적으로 업데이트됨
                             Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
+                            // 성공하면 테이블 날리고 리프레쉬 할것.
+
                         } else {
                             // 업데이트 실패
                             Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()

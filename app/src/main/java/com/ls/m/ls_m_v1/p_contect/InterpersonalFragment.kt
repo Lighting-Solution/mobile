@@ -34,19 +34,19 @@ class InterpersonalFragment : Fragment() {
         val recyclerView : RecyclerView = view.findViewById(R.id.personalC_recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        personalViewModel.contacts.observe(viewLifecycleOwner, Observer{ contacts ->
-            recyclerView.adapter = ContactAdapter(contacts) {contact ->
+        personalViewModel.contacts.observe(viewLifecycleOwner, Observer { contacts ->
+            recyclerView.adapter = ContactAdapter(contacts) { contact ->
                 val intent = Intent(requireContext(), activity_contact_detail::class.java).apply {
-                    putExtra("id",contact.id)
+                    putExtra("id", contact.id)
                     putExtra("name", contact.name)
                     putExtra("email", contact.email)
-                    putExtra("company", contact.company)
+                    putExtra("company", contact.company.companyName)
                     putExtra("department", contact.department)
                     putExtra("mobilePhone", contact.mobilePhone)
-                    putExtra("officePhone", contact.officePhone)
+                    putExtra("officePhone", contact.company.companyNumber)
                     putExtra("position", contact.position)
                     putExtra("birthday", contact.birthday)
-                    putExtra("buttonState", true)
+                    putExtra("buttonState", false) // 예시로 true 값 사용
                 }
                 startActivity(intent)
             }

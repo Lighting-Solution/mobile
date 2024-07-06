@@ -39,7 +39,7 @@ class PersonalViewModel(application: Application): AndroidViewModel(application)
                         mobilePhone = personal.personalContactMP,
                         officePhone = personal.company.companyNumber,
                         birthday = personal.personalContactBirthday.toString(),
-                        company = personal.company.companyName,
+                        company = personal.company,
                         buttonState = false
                     )
                 })

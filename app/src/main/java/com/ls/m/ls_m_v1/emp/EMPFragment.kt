@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -23,7 +22,6 @@ class EMPFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_e_m_p, container, false)
     }
 
@@ -36,14 +34,16 @@ class EMPFragment : Fragment() {
         contactViewModel.contacts.observe(viewLifecycleOwner, Observer { contacts ->
             recyclerView.adapter = ContactAdapter(contacts) { contact ->
                 val intent = Intent(requireContext(), activity_contact_detail::class.java).apply {
+                    putExtra("id", contact.id)
                     putExtra("name", contact.name)
                     putExtra("email", contact.email)
-                    putExtra("company", contact.company)
+                    putExtra("company", contact.company.companyName)
                     putExtra("department", contact.department)
                     putExtra("mobilePhone", contact.mobilePhone)
-                    putExtra("officePhone", contact.officePhone)
+                    putExtra("officePhone", contact.company.companyNumber)
                     putExtra("position", contact.position)
-                    putExtra("birthday", contact.birthday?.toString())
+                    putExtra("birthday", contact.birthday)
+                    putExtra("buttonState", false) // 예시로 true 값 사용
                 }
                 startActivity(intent)
             }
@@ -51,9 +51,9 @@ class EMPFragment : Fragment() {
         try {
             // 폰트 요청 로직 추가
         } catch (e: DeadObjectException) {
-            Log.e("EMPFragment", "Content provider is dead", e)
+            Log.e("PersonalFragment", "Content provider is dead", e)
         } catch (e: Exception) {
-            Log.e("EMPFragment", "Unexpected error", e)
+            Log.e("PersonalFragment", "Unexpected error", e)
         }
     }
 }

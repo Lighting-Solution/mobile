@@ -158,6 +158,30 @@ class DatabaseHelper(context: Context) :
         }
         db.close()
     }
+    fun getAllCalendar():List<CalendarEntity>{
+        val datas = mutableListOf<CalendarEntity>()
+        val selectQuery = "select * from ${DatabaseHelper.CALENDAR_TABLE}"
+
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val data = CalendarEntity(
+                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
+                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
+                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
+                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
+                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
+                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
+                )
+                datas.add(data)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return datas
+    }
 
     fun getCalendarData(date: LocalDate): List<CalendarEntity> {
         val datas = mutableListOf<CalendarEntity>()
