@@ -73,4 +73,8 @@ dependencies {
     // 프래그먼트
     implementation ("androidx.fragment:fragment-ktx:1.5.1")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
+
+    // PDFviewer
+    implementation ("com.github.DImuthuUpe:AndroidPdfViewer:2.8.1")
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
 }

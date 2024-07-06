@@ -40,7 +40,9 @@ class PersonalViewModel(application: Application): AndroidViewModel(application)
                         officePhone = personal.company.companyNumber,
                         birthday = personal.personalContactBirthday.toString(),
                         company = personal.company,
-                        buttonState = false
+                        buttonState = true,
+                        nickname = personal.personalContactNickName,
+                        memo = personal.personalContactMemo
                     )
                 })
             }

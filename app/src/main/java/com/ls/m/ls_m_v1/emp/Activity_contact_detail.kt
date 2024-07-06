@@ -28,7 +28,9 @@ class activity_contact_detail : AppCompatActivity() {
         val officePhone = intent.getStringExtra("officePhone")
         val position = intent.getStringExtra("position")
         val birthday = intent.getStringExtra("birthday")
-        val buttonState = intent.getBooleanExtra("buttonState",false)
+        val buttonState = intent.getBooleanExtra("buttonState", false)
+        val nickName = intent.getStringExtra("nickName")
+        val memo = intent.getStringExtra("memo")
 
         binding.contactName.text = "${name} ${position}"
         binding.contactEmail.text = email
@@ -59,7 +61,7 @@ class activity_contact_detail : AppCompatActivity() {
         }
 
         if (!buttonState){
-            // 삭제 버튼 안보이게 하기
+            // 편집 버튼 안보이게 하기
             binding.modifyButton.visibility = View.INVISIBLE
         }
         binding.modifyButton.setOnClickListener {
@@ -79,6 +81,8 @@ class activity_contact_detail : AppCompatActivity() {
                 putExtra("officePhone", officePhone)
                 putExtra("position", position)
                 putExtra("birthday", birthday)
+                putExtra("nickName", nickName)
+                putExtra("memo", memo)
             }
             startActivity(nextIntent)
         }
