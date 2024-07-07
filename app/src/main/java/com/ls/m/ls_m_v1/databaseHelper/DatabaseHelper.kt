@@ -5,12 +5,15 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.ls.m.ls_m_v1.approval.entity.ApprovalEmpDTO
+import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import com.ls.m.ls_m_v1.emp.entity.DepartmentDTO
 import com.ls.m.ls_m_v1.emp.entity.EmpDTO
 import com.ls.m.ls_m_v1.emp.entity.PositionDTO
 import com.ls.m.ls_m_v1.p_contect.entity.*
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class DatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -26,10 +29,17 @@ class DatabaseHelper(context: Context) :
         const val PERSONAL_CONTACT_TABLE = "personal_contact"
         const val PERSONAL_GROUP_TABLE = "personal_group"
         const val CONTACT_GROUP_TABLE = "contact_group"
-        const val DIGITAL_APPROVAL_TABLE = "digital_approval"
+        const val APPROVAL_TABLE = "digital_approval"
+        const val MY_EMP = "repo"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
+        val createRepo = """
+            CREATE TABLE IF NOT EXISTE $MY_EMP(
+                empId INTEGER PRIMARY KEY
+            );
+        """.trimIndent()
+
         val createCalendarTable = """
             CREATE TABLE IF NOT EXISTS $CALENDAR_TABLE(
                 calendarId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -124,20 +134,25 @@ class DatabaseHelper(context: Context) :
         """.trimIndent()
 
         val createDigitalApprovalTable = """
-           CREATE TABLE IF NOT EXISTS $DIGITAL_APPROVAL_TABLE(
-                digitalApproval_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                drafter_id INTEGER,
+           CREATE TABLE IF NOT EXISTS $APPROVAL_TABLE (
+                digitalApprovalId INTEGER PRIMARY KEY,
+                empId INTEGER,
+                drafterId INTEGER,
                 digitalApprovalName TEXT,
                 digitalApprovalPath TEXT,
                 digitalApprovalType INTEGER,
                 drafterStatus INTEGER,
                 managerStatus INTEGER,
                 ceoStatus INTEGER,
-                emp_id INTEGER,
-                FOREIGN KEY(empId) REFERENCES $EMP_TABLE(empId)
+                digitalApprovalCreateAt DATETIME,
+                digitalApprovalAt DATETIME,
+                managerRejectAt DATETIME,
+                ceoRejectAt DATETIME,
+                FOREIGN KEY (empId) REFERENCES $EMP_TABLE(empId)
            );
         """.trimIndent()
 
+        db?.execSQL(createRepo)
         db?.execSQL(createCalendarTable)
         db?.execSQL(createEmpTable)
         db?.execSQL(createPositionTable)
@@ -146,6 +161,7 @@ class DatabaseHelper(context: Context) :
         db?.execSQL(createPersonalContactTable)
         db?.execSQL(createPersonalGroupTable)
         db?.execSQL(createContactGroupTable)
+        db?.execSQL(createDigitalApprovalTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -157,7 +173,7 @@ class DatabaseHelper(context: Context) :
         db?.execSQL("DROP TABLE IF EXISTS $PERSONAL_CONTACT_TABLE")
         db?.execSQL("DROP TABLE IF EXISTS $PERSONAL_GROUP_TABLE")
         db?.execSQL("DROP TABLE IF EXISTS $CONTACT_GROUP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DIGITAL_APPROVAL_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $APPROVAL_TABLE")
         onCreate(db)
     }
 
@@ -353,13 +369,7 @@ class DatabaseHelper(context: Context) :
     private fun getCompany(companyId: Int): CompanyDTO {
         val db = this.readableDatabase
         val cursor = db.query(
-            COMPANY_TABLE,
-            null,
-            "companyId=?",
-            arrayOf(companyId.toString()),
-            null,
-            null,
-            null
+            COMPANY_TABLE, null, "companyId=?", arrayOf(companyId.toString()), null, null, null
         )
         return if (cursor.moveToFirst()) {
             CompanyDTO(
@@ -380,13 +390,7 @@ class DatabaseHelper(context: Context) :
     private fun getPosition(positionId: Int): PositionDTO {
         val db = this.readableDatabase
         val cursor = db.query(
-            POSITION_TABLE,
-            null,
-            "positionId=?",
-            arrayOf(positionId.toString()),
-            null,
-            null,
-            null
+            POSITION_TABLE, null, "positionId=?", arrayOf(positionId.toString()), null, null, null
         )
         return if (cursor.moveToFirst()) {
             PositionDTO(
@@ -421,6 +425,90 @@ class DatabaseHelper(context: Context) :
         }.also {
             cursor.close()
         }
+    }
+
+    fun getApprovalWithEMPDrafter(empId : Int): List<Pair<ApprovalEntity, ApprovalEmpDTO>> {
+        val ApprovalWithEMP = mutableListOf<Pair<ApprovalEntity, ApprovalEmpDTO>>()
+        val db = this.readableDatabase
+/*
+        // 전자결재 데이터와 emp데이터를 조인하는 쿼리
+        val selectQuery = """
+            SELECT 
+                da.pdocument_id, da.drafter_id, da.name AS document_name, da.pdocumentPath,
+                da.dBoxType, da.drafter_status, da.manager_status, da.ceo_status,
+                da.created_at, da.approval_at,
+                e.empId, e.empName,
+                p.positionName AS position,
+                d.departmentName AS department
+            FROM digital_approval da
+            JOIN $EMP_TABLE e ON da.drafter_id = e.empId
+            JOIN $POSITION_TABLE p ON e.positionId = p.positionId
+            JOIN $DEPARTMENT_TABLE d ON e.departmentId = d.departmentId
+        """.trimIndent()*/
+
+        // SQL 쿼리: empId가 기안자이거나, 기안자의 부서의 부서장이거나, 대표이사일 경우에만 데이터를 가져옵니다.
+        val selectQuery = """
+            SELECT 
+                da.*, e.*, p.name AS $POSITION_TABLE, d.name AS $DEPARTMENT_TABLE
+            FROM digital_approval da
+            JOIN $EMP_TABLE e ON da.drafter_id = e.empId
+            JOIN $POSITION_TABLE p ON e.positionId = p.position_id
+            JOIN $DEPARTMENT_TABLE d ON e.departmentId = d.department_id
+            WHERE da.drafter_id = ? 
+            OR (da.drafter_id IN (SELECT empId FROM $EMP_TABLE WHERE departmentId = (SELECT departmentId FROM $EMP_TABLE WHERE empId = ?) AND positionId = 2))
+            OR (? IN (SELECT empId FROM $EMP_TABLE WHERE positionId = 1))
+        """.trimIndent()
+
+        val cursor = db.rawQuery(selectQuery, arrayOf(empId.toString(), empId.toString(), empId.toString()))
+
+        with(cursor) {
+            while (moveToNext()) {
+                val pdocumentId = getInt(getColumnIndexOrThrow("digitalApprovalId"))
+                val drafterId = getInt(getColumnIndexOrThrow("drafterId"))
+                val documentName = getString(getColumnIndexOrThrow("digitalApprovalName"))
+                val pdocumentPath = getString(getColumnIndexOrThrow("digitalApprovalPath"))
+                val dBoxType = getInt(getColumnIndexOrThrow("digitalApprovalType")) == 1
+                val drafterStatus = getInt(getColumnIndexOrThrow("drafterStatus")) == 1
+                val managerStatus = getInt(getColumnIndexOrThrow("managerStatus")) == 1
+                val ceoStatus = getInt(getColumnIndexOrThrow("ceoStatus")) == 1
+                val createdAt = getString(getColumnIndexOrThrow("digitalApprovalCreateAt"))
+                val approvalAt = getString(getColumnIndexOrThrow("digitalApprovalAt"))
+                val managerRejectAt = getString(getColumnIndexOrThrow("managerRejectAt"))
+                val ceoRejectAt = getString(getColumnIndexOrThrow("ceoRejectAt"))
+
+                val approvalEntity = ApprovalEntity(
+                    digitalApprovalId = pdocumentId,
+                    drafterId = drafterId,
+                    digitalApprovalName = documentName,
+                    digitalApprovalPath = pdocumentPath,
+                    digitalApprovalType = dBoxType,
+                    drafterStatus = drafterStatus,
+                    managerStatus = managerStatus,
+                    ceoStatus = ceoStatus,
+                    empId = drafterId,
+                    digitalApprovalCreateAt = LocalDateTime.parse(createdAt),
+                    digitalApprovalAt = LocalDateTime.parse(approvalAt),
+                    managerRejectAt = LocalDateTime.parse(managerRejectAt),
+                    ceoRejectAt = LocalDateTime.parse(ceoRejectAt)
+                )
+
+                val empId = getInt(getColumnIndexOrThrow("empId"))
+                val empName = getString(getColumnIndexOrThrow("empName"))
+                val position = getString(getColumnIndexOrThrow("position"))
+                val department = getString(getColumnIndexOrThrow("department"))
+
+                val approvalEmpDTO = ApprovalEmpDTO(
+                    empId = empId,
+                    empName = empName,
+                    position = position,
+                    department = department
+                )
+
+                ApprovalWithEMP.add(Pair(approvalEntity, approvalEmpDTO))
+            }
+        }
+        cursor.close()
+        return ApprovalWithEMP
     }
 
     fun getPersonalContactsWithGroups(): List<Pair<PersonalContactDTO, List<PersonalGroupDTO>>> {
