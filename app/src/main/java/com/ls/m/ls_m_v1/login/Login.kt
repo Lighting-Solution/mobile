@@ -36,15 +36,13 @@ class Login : AppCompatActivity() {
 
         // 인스턴스 생성하고 데이터베이스 액세스
 
-//        calendarRepository = CalendarRepository(this)
-
 
         //  session
         loginButton.setOnClickListener {
-//            val userId = id.text.toString()
-//            val userPw = pw.text.toString()
-//            login(userId, userPw)
-            // 로그인 구현할땐 삭제 (intent, update)
+            val userId = id.text.toString()
+            val userPw = pw.text.toString()
+            login(userId, userPw)
+            // 로그인 구현할땐 삭제
 
 //            CoroutineScope(Dispatchers.IO).launch {
 //                try {
@@ -55,8 +53,8 @@ class Login : AppCompatActivity() {
 //                    e.printStackTrace()
 //                }
 //            }
-            dbHelper = DatabaseHelper(this)
-            dbHelper.writableDatabase
+//            dbHelper = DatabaseHelper(this)
+//            dbHelper.insertRopo()
 
             val intent = Intent(this@Login, MainActivity::class.java)
             startActivity(intent)
@@ -71,6 +69,7 @@ class Login : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // 데이터 통신이 된다면 데이터 베이스 삭제 후 다시 업로드
+                
                 val response = RetrofitInstanceLogin.api.requestLoginData(loginEntity)
                 withContext(Dispatchers.Main) {
                     // 세션에 토큰 저장

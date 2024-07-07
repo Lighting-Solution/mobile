@@ -1,7 +1,8 @@
 package com.ls.m.ls_m_v1.login.service
 
 import com.ls.m.ls_m_v1.login.entity.LoginEntity
-import com.ls.m.ls_m_v1.login.entity.ResponseEntity
+import com.ls.m.ls_m_v1.login.entity.ResponseDto
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -12,7 +13,7 @@ interface LoginService {
     @POST("Login/data")
     suspend fun requestLoginData(
         @Body loginEntity: LoginEntity
-    ) : ResponseEntity// 받아올 데이터 형식 확인 후 수정할 것
+    ) : Call<ResponseDto>// 받아올 데이터 형식 확인 후 수정할 것
 }
 
 object RetrofitInstanceLogin{

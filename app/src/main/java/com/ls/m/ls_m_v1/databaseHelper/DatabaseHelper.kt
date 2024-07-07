@@ -11,12 +11,15 @@ import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import com.ls.m.ls_m_v1.emp.entity.DepartmentDTO
 import com.ls.m.ls_m_v1.emp.entity.EmpDTO
 import com.ls.m.ls_m_v1.emp.entity.PositionDTO
+import com.ls.m.ls_m_v1.login.entity.ResponseDto
 import com.ls.m.ls_m_v1.p_contect.entity.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 class DatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+
+
     companion object {
         const val DATABASE_NAME = "lighting_solution.db"
         const val DATABASE_VERSION = 1
@@ -35,8 +38,9 @@ class DatabaseHelper(context: Context) :
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createRepo = """
-            CREATE TABLE IF NOT EXISTE $MY_EMP(
-                empId INTEGER PRIMARY KEY
+            CREATE TABLE IF NOT EXISTS $MY_EMP(
+                empId INTEGER PRIMARY KEY,
+                token TEXT NOT NULL,
             );
         """.trimIndent()
 
@@ -183,6 +187,15 @@ class DatabaseHelper(context: Context) :
         onCreate(db)
     }
 
+    fun insertRopo(data : ResponseDto){
+        val db = this.writableDatabase
+        val value = ContentValues().apply {
+            put("epmId", data.empId)
+            put("token", data.token)
+        }
+        db.insert(MY_EMP, null,value)
+        db.close()
+    }
     fun insertCalendarData(datas: List<CalendarEntity>) {
         val db = this.writableDatabase
         for (data in datas) {
@@ -193,7 +206,7 @@ class DatabaseHelper(context: Context) :
                 put("calendarStartAt", data.calendarStartAt)
                 put("calendarEndAt", data.calendarEndAt)
             }
-            db.insert(DatabaseHelper.CALENDAR_TABLE, null, value)
+            db.insert(CALENDAR_TABLE, null, value)
         }
         db.close()
     }
