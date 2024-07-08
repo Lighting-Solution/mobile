@@ -1,4 +1,4 @@
-package com.ls.m.ls_m_v1.p_contect.dao
+package com.ls.m.ls_m_v1.p_contect.dto
 
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
 import java.time.LocalDate

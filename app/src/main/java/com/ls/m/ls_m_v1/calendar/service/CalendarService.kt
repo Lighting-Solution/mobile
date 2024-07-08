@@ -3,13 +3,17 @@ package com.ls.m.ls_m_v1.calendar.service
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Path
 
 interface CalendarService {
     // 서버 통신하는 곳
     @GET("calendar/data")
     suspend fun requestCalendarData(
-        // 보내는 데이터 집어넣는 곳
+//        @Header("token") token :String,
+        @Body empId : Int
     ): List<CalendarEntity>
 }
 

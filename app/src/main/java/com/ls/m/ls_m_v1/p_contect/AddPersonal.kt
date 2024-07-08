@@ -11,12 +11,10 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.R
-import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.databinding.ActivityAddPersonalBinding
-import com.ls.m.ls_m_v1.p_contect.dao.AddPersonalDAOImpl
-import com.ls.m.ls_m_v1.p_contect.dao.AddPersonalDTO
+import com.ls.m.ls_m_v1.p_contect.dto.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
-import com.ls.m.ls_m_v1.p_contect.entity.PersonalContactDTO
+import com.ls.m.ls_m_v1.p_contect.repository.PersonalContactRepository
 import com.ls.m.ls_m_v1.p_contect.service.P_ContectService
 import com.ls.m.ls_m_v1.p_contect.service.contectRepository
 import retrofit2.Call
@@ -31,6 +29,7 @@ class AddPersonal : AppCompatActivity() {
     private var companyName: String? = null
     private var companyInfoLayout: LinearLayout? = null
     private lateinit var personalService: P_ContectService
+    private val repository = PersonalContactRepository(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,11 +39,9 @@ class AddPersonal : AppCompatActivity() {
         context = this
         personalService = contectRepository().api
 
-        val dbHelper = DatabaseHelper(context)
-        val personalDao = AddPersonalDAOImpl(this)
-        val companys = personalDao.getAllCompanyData()
+        val companyList = repository.getAllCompanyData()
 
-        val items = companys.map { it.companyName }.toMutableList()
+        val items = companyList.map { it.companyName }.toMutableList()
         items.add(0, "직접 입력")
 
 
@@ -64,7 +61,7 @@ class AddPersonal : AppCompatActivity() {
                 // 회사가 선택되면 회사 정보 레이아웃을 표시하고, 그렇지 않으면 숨김
                 if (selectedItem != "직접 입력") {
                     binding.companyInfoStub.visibility = View.GONE
-                    val selectedCompany = companys.find { it.companyName == selectedItem }
+                    val selectedCompany = companyList.find { it.companyName == selectedItem }
                     selectedCompany?.let {
                         companyId = it.companyId
                         companyName = it.companyName
@@ -120,13 +117,12 @@ class AddPersonal : AppCompatActivity() {
                 // api 통신으로 보냄
                 personalService.addPersnalData(addData).enqueue(object : retrofit2.Callback<String> {
                     override fun onResponse(call: Call<String>, response: Response<String>) {
-                        Log.d("api", call.toString())
-                        Log.d("api", response.toString())
 
                         if (response.isSuccessful) {
                             // 성공적으로 업데이트됨
                             Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
                             // 성공하면 테이블 날리고 리프레쉬 할것.
+
 
                         } else {
                             // 업데이트 실패
@@ -138,25 +134,6 @@ class AddPersonal : AppCompatActivity() {
                     }
 
                 })
-
-//                // 데이터 베이스에 company 부터 저장하고 id값 받아옴
-//                id = dbHelper.insertCompany(addData.company)
-//                val personalContextDTO = PersonalContactDTO(
-//                    personalContactId = 0,
-//                    positionName = addData.positionName,
-//                    departmentName = addData.departmentName,
-//                    personalContactName = addData.personalContactName,
-//                    personalContactNickName = addData.personalContactNickName,
-//                    personalContactEmail = addData.personalContactEmail,
-//                    personalContactMP = addData.personalContactMP,
-//                    personalContactMemo = addData.personalContactMemo,
-//                    personalContactBirthday = birthday,
-//                    company = addData.company,
-//                    empId = 1
-//                )
-//                personalContextDTO.company.companyId = id.toInt()
-//
-//                dbHelper.insertPersonalContact(personalContextDTO)
 
             } else {
                 // 선택한 회사가 있으면 회사 정보를 읽어옴

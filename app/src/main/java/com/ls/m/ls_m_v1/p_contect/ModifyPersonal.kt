@@ -12,9 +12,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.databinding.ActivityModifyPersonalBinding
-import com.ls.m.ls_m_v1.p_contect.dao.AddPersonalDAOImpl
-import com.ls.m.ls_m_v1.p_contect.dao.AddPersonalDTO
+import com.ls.m.ls_m_v1.p_contect.dto.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
+import com.ls.m.ls_m_v1.p_contect.repository.PersonalContactRepository
 import com.ls.m.ls_m_v1.p_contect.service.P_ContectService
 import com.ls.m.ls_m_v1.p_contect.service.contectRepository
 import retrofit2.Call
@@ -29,6 +29,7 @@ class ModifyPersonal : AppCompatActivity() {
     private var companyId: Int? = null
     private var companyName: String? = null
     private var companyInfoLayout: LinearLayout? = null
+    private val repository = PersonalContactRepository(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +39,7 @@ class ModifyPersonal : AppCompatActivity() {
         context = this
         personalService = contectRepository().api
 
-        val personalDao = AddPersonalDAOImpl(this)
-        val companys = personalDao.getAllCompanyData()
+        val companyList = repository.getAllCompanyData()
 
         val id = intent.getStringExtra("id")
         val name = intent.getStringExtra("name")
@@ -53,7 +53,7 @@ class ModifyPersonal : AppCompatActivity() {
         val nickName = intent.getStringExtra("nickName")
         val memo = intent.getStringExtra("memo")
 
-        val items = companys.map { it.companyName }.toMutableList()
+        val items = companyList.map { it.companyName }.toMutableList()
         items.add(0, "직접 입력")
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
@@ -77,7 +77,7 @@ class ModifyPersonal : AppCompatActivity() {
                 // 회사가 선택되면 회사 정보 레이아웃을 표시하고, 그렇지 않으면 숨김
                 if (selectedItem != "직접 입력") {
                     binding.companyInfoStub.visibility = View.GONE
-                    val selectedCompany = companys.find { it.companyName == selectedItem }
+                    val selectedCompany = companyList.find { it.companyName == selectedItem }
                     selectedCompany?.let {
                         companyId = it.companyId
                         companyName = it.companyName

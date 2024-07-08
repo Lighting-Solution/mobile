@@ -1,6 +1,5 @@
 package com.ls.m.ls_m_v1.approval
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.ls.m.ls_m_v1.ApprovalDetail
 import com.ls.m.ls_m_v1.R
 
 class ApprovalFragment : Fragment() {

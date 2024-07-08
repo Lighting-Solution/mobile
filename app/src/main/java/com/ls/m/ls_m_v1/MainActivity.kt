@@ -28,11 +28,15 @@ class MainActivity : AppCompatActivity() {
             when(item.itemId){
                 R.id.tab1 -> {
                     Toast.makeText(applicationContext, "첫 번째 탭", Toast.LENGTH_SHORT).show()
+                    //emp는 초기에 들고옴. 그래도 다시 받아오는게 나은가..?
+                    // 그럼 몇개 테이블을 날려야하지..?
+                    // emp, company, department,
                     supportFragmentManager.beginTransaction().replace(R.id.container, empFragment).commit()
                     true
                 }
                 R.id.tab2 -> {
                     Toast.makeText(applicationContext, "두 번째 탭", Toast.LENGTH_SHORT).show()
+
                     supportFragmentManager.beginTransaction().replace(R.id.container, interpersonalFragment).commit()
                     true
                 }
