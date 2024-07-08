@@ -15,9 +15,11 @@ class CalendarAdapter :
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.calendar_event, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.calendar_event, parent, false)
         return CalendarViewHolder(view)
     }
+
     override fun onBindViewHolder(holder: CalendarViewHolder, position: Int) {
         val event = getItem(position)
         holder.bind(event)
@@ -29,16 +31,22 @@ class CalendarAdapter :
         private val eventColor: View = itemView.findViewById(R.id.eventColor)
 
         fun bind(event: CalendarEvent) {
-            eventTitleText.text = event.title
-            if (event.startDate == event.endDate) {
-                eventTimeText.text = "${event.startTime} ~ ${event.endTime}"
-                eventColor.setBackgroundColor(event.color)
-            }else{
-                eventTimeText.text = "${event.startDate} ${event.startTime} - ${event.endDate} ${event.endTime}"
-                eventColor.setBackgroundColor(event.color)
+            if (event.allDay) {
+                eventTimeText.text ="하루 종일"
+            } else {
+                eventTitleText.text = event.title
+                if (event.startDate == event.endDate) {
+                    eventTimeText.text = "${event.startTime} ~ ${event.endTime}"
+                    eventColor.setBackgroundColor(event.color)
+                } else {
+                    eventTimeText.text =
+                        "${event.startDate} ${event.startTime} - ${event.endDate} ${event.endTime}"
+                    eventColor.setBackgroundColor(event.color)
+                }
             }
         }
     }
+
     class CalendarEventDiffCallback : DiffUtil.ItemCallback<CalendarEvent>() {
         override fun areItemsTheSame(oldItem: CalendarEvent, newItem: CalendarEvent): Boolean {
             return oldItem.title == newItem.title && oldItem.startDate == newItem.startDate && oldItem.endDate == newItem.endDate

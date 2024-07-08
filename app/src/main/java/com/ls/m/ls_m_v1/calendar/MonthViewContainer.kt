@@ -4,5 +4,4 @@ import android.view.View
 import com.kizitonwose.calendar.view.ViewContainer
 
 class MonthViewContainer(view: View) : ViewContainer(view) {
-//    val monthTitle = view.findViewById<TextView>(R.id.monthTitle)
 }

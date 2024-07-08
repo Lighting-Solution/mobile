@@ -13,6 +13,7 @@ import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.calendar.entity.SelectedUser
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.databinding.ActivityCalendarSelectBinding
+import com.ls.m.ls_m_v1.emp.SelectedUserAdapter
 import com.ls.m.ls_m_v1.emp.entity.EmpDTO
 import com.ls.m.ls_m_v1.emp.repository.EmpRepository
 import java.util.ArrayList
@@ -31,6 +32,9 @@ class CalendarSelect : AppCompatActivity() {
         binding = ActivityCalendarSelectBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // EmpRepository 초기화
+        empRepository = EmpRepository(this)
+
         empDTOList = empRepository.getAllEmps()
         selectedUser = empDTOList.map { empDto ->
             SelectedUser(
@@ -39,9 +43,6 @@ class CalendarSelect : AppCompatActivity() {
                 position = empDto.position.positionName,
                 department = empDto.department.departmentName,
                 mobilePhone = empDto.empMP,
-                officePhone = empDto.company.companyNumber,
-                company = empDto.company,
-                memo= "",
                 isSelected = false
             )
         }

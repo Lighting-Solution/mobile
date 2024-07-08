@@ -27,7 +27,7 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="일정등록"
+            android:text="참석자"
             android:textSize="18sp"
             android:textStyle="bold" />
 
