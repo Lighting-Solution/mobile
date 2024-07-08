@@ -9,13 +9,15 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.ls.m.ls_m_v1.calendar.dto.CalendarEvent
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
+import com.ls.m.ls_m_v1.calendar.repository.CalendarRepository
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
+import com.ls.m.ls_m_v1.p_contect.service.contectRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class CalendarViewModel(application: Application) : AndroidViewModel(application) {
-    private val dbHelper = DatabaseHelper(application)
+    private val calendarRepository = CalendarRepository(application)
     private val _events = MutableLiveData<List<CalendarEvent>>()
     val events: LiveData<List<CalendarEvent>> get() = _events
 
@@ -33,7 +35,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 
     private fun loadEvents() {
         viewModelScope.launch(Dispatchers.IO) {
-            val datas = dbHelper.getAllCalendar()
+            val datas = calendarRepository.getAllCalendar()
             val eventsData = mutableListOf<CalendarEvent>()
 
             for ((index, data) in datas.withIndex()) {
@@ -46,7 +48,8 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     startTime = startDateTime.getOrNull(1) ?: "",
                     endTime = endDateTime.getOrNull(1) ?: "",
                     color = eventColors[index % eventColors.size],
-                    contants = data.calendarContent
+                    contants = data.calendarContent,
+                    allDay = data.allDay
                 )
 
                 eventsData.add(event)

@@ -9,6 +9,7 @@ data class CalendarEvent(
     val startTime: String,
     val endTime: String,
     val contants: String,
-    val color: Int
+    val color: Int,
+    val allDay:Boolean = false
 )
 

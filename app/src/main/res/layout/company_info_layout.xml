@@ -4,35 +4,116 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/companyName"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="회사 이름" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="회사 이름"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
-    <EditText
-        android:id="@+id/companyNumber"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="회사 전화" />
+        <EditText
+            android:id="@+id/companyName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:background="@drawable/textview_layout_bg"
+            android:textSize="16sp"
+            android:hint="회사 이름" />
+    </LinearLayout>
 
-    <EditText
-        android:id="@+id/companyAddress"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="회사 주소" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="회사 전화"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
-    <EditText
-        android:id="@+id/companyURL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textUri"
-        android:hint="회사 홈페이지" />
+        <EditText
+            android:id="@+id/companyNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:background="@drawable/textview_layout_bg"
+            android:textSize="16sp"
+            android:hint="회사 전화" />
+    </LinearLayout>
 
-    <EditText
-        android:id="@+id/companyFax"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="phone"
-        android:hint="회사 팩스" />
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="회사 주소"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/companyAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:background="@drawable/textview_layout_bg"
+            android:textSize="16sp"
+            android:hint="회사 주소" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="홈페이지"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/companyURL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:background="@drawable/textview_layout_bg"
+            android:textSize="16sp"
+            android:inputType="textUri"
+            android:hint="회사 홈페이지" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="회사 팩스"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/companyFax"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="phone"
+            android:padding="10dp"
+            android:background="@drawable/textview_layout_bg"
+            android:textSize="16sp"
+            android:hint="회사 팩스" />
+    </LinearLayout>
+
 </LinearLayout>

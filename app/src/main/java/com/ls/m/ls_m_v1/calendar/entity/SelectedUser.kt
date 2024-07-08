@@ -12,8 +12,5 @@ data class SelectedUser(
     val position: String,
     val department:String,
     val mobilePhone: String,
-    val officePhone: String,
-    val company: @RawValue CompanyDTO,
-    val memo: String = "",
-    var isSelected : Boolean
+    var isSelected : Boolean = false
 ):Parcelable

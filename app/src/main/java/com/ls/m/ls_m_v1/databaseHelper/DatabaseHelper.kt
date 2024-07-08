@@ -42,25 +42,26 @@ class DatabaseHelper(context: Context) :
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createRepo = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.MY_EMP(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.MY_EMP} (
                 empId INTEGER PRIMARY KEY,
-                token TEXT NOT NULL,
+                token TEXT NOT NULL
             );
         """.trimIndent()
 
         val createCalendarTable = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.CALENDAR_TABLE(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.CALENDAR_TABLE} (
                 calendarId INTEGER PRIMARY KEY AUTOINCREMENT,
                 calendarTitle TEXT NOT NULL,
                 calendarCreateAt TEXT NOT NULL,
                 calendarContent TEXT,
                 calendarStartAt TEXT NOT NULL,
-                calendarEndAt TEXT NOT NULL
+                calendarEndAt TEXT NOT NULL,
+                allDay INTEGER
             );
         """.trimIndent()
 
         val createEmpTable = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.EMP_TABLE(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.EMP_TABLE} (
                 empId INTEGER PRIMARY KEY,
                 empName TEXT NOT NULL,
                 empEmail TEXT NOT NULL,
@@ -72,29 +73,26 @@ class DatabaseHelper(context: Context) :
                 empBirthday TEXT,
                 companyId INTEGER,
                 positionId INTEGER,
-                departmentId INTEGER,
+                departmentId INTEGER
             );
         """.trimIndent()
-//                FOREIGN KEY (companyId) REFERENCES $DatabaseConstants.COMPANY_TABLE(companyId),
-//                FOREIGN KEY (positionId) REFERENCES $DatabaseConstants.POSITION_TABLE(positionId),
-//                FOREIGN KEY (departmentId) REFERENCES $DatabaseConstants.DEPARTMENT_TABLE(departmentId)
 
         val createPositionTable = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.POSITION_TABLE(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.POSITION_TABLE} (
                 positionId INTEGER PRIMARY KEY,
                 positionName TEXT NOT NULL
             );
         """.trimIndent()
 
         val createDepartmentTable = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.DEPARTMENT_TABLE(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.DEPARTMENT_TABLE} (
                 departmentId INTEGER PRIMARY KEY,
                 departmentName TEXT NOT NULL
             );
         """.trimIndent()
 
         val createCompanyTable = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.COMPANY_TABLE(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.COMPANY_TABLE} (
                 companyId INTEGER PRIMARY KEY,
                 companyName TEXT NOT NULL,
                 companyAddress TEXT,
@@ -104,9 +102,8 @@ class DatabaseHelper(context: Context) :
             );
         """.trimIndent()
 
-
         val createPersonalContactTable = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.PERSONAL_CONTACT_TABLE(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.PERSONAL_CONTACT_TABLE} (
                 personalContactId INTEGER PRIMARY KEY AUTOINCREMENT,
                 positionName TEXT NOT NULL,
                 departmentName TEXT NOT NULL,
@@ -117,33 +114,28 @@ class DatabaseHelper(context: Context) :
                 personalContactMemo TEXT,
                 personalContactBirthday TEXT,
                 companyId INTEGER,
-                empId INTEGER,
+                empId INTEGER
             );
         """.trimIndent()
-//                FOREIGN KEY (companyId) REFERENCES $DatabaseConstants.COMPANY_TABLE(companyId),
-//                FOREIGN KEY (empId) REFERENCES $DatabaseConstants.EMP_TABLE(empId)
 
         val createPersonalGroupTable = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.PERSONAL_GROUP_TABLE(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.PERSONAL_GROUP_TABLE} (
                 personalGroupId INTEGER PRIMARY KEY AUTOINCREMENT,
                 empId INTEGER,
-                personalGroupName TEXT NOT NULL,
+                personalGroupName TEXT NOT NULL
             );
         """.trimIndent()
-//                FOREIGN KEY (empId) REFERENCES $DatabaseConstants.EMP_TABLE(empId)
 
         val createContactGroupTable = """
-            CREATE TABLE IF NOT EXISTS $DatabaseConstants.CONTACT_GROUP_TABLE(
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.CONTACT_GROUP_TABLE} (
                 contactGroupId INTEGER PRIMARY KEY AUTOINCREMENT,
                 personalContactId INTEGER,
-                personalGroupId INTEGER,
+                personalGroupId INTEGER
             );
         """.trimIndent()
-//                FOREIGN KEY (personalContactId) REFERENCES $DatabaseConstants.PERSONAL_CONTACT_TABLE(personalContactId),
-//                FOREIGN KEY (personalGroupId) REFERENCES $DatabaseConstants.PERSONAL_GROUP_TABLE(personalGroupId)
 
         val createDigitalApprovalTable = """
-           CREATE TABLE IF NOT EXISTS $DatabaseConstants.APPROVAL_TABLE (
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.APPROVAL_TABLE} (
                 digitalApprovalId INTEGER PRIMARY KEY,
                 empId INTEGER,
                 drafterId INTEGER,
@@ -156,17 +148,16 @@ class DatabaseHelper(context: Context) :
                 digitalApprovalCreateAt DATETIME,
                 digitalApprovalAt DATETIME,
                 managerRejectAt DATETIME,
-                ceoRejectAt DATETIME,
-           );
+                ceoRejectAt DATETIME
+            );
         """.trimIndent()
-//                FOREIGN KEY (empId) REFERENCES $DatabaseConstants.EMP_TABLE(empId)
 
-        // company에 기본 데이터 저장
         val insertCompanyDefaultData = """
-            INSERT INTO ${DatabaseConstants.COMPANY_TABLE} (company_id, name, address, url, number, 
-            fax) VALUES(
-            1, '라이팅 솔루션', '서울특별시 강남구 테헤란로 123', 
-            'http://www.lightingsolution.co.kr', '1010-1010', '02-0101-0101'
+            INSERT INTO ${DatabaseConstants.COMPANY_TABLE} (
+                companyId, companyName, companyAddress, companyURL, companyNumber, companyFax
+            ) VALUES (
+                1, '라이팅 솔루션', '서울특별시 강남구 테헤란로 123', 
+                'http://www.lightingsolution.co.kr', '1010-1010', '02-0101-0101'
             );
         """.trimIndent()
 
@@ -176,13 +167,13 @@ class DatabaseHelper(context: Context) :
         db?.execSQL(createPositionTable)
         db?.execSQL(createDepartmentTable)
         db?.execSQL(createCompanyTable)
-        // company 기본 데이터 넣기
         db?.execSQL(insertCompanyDefaultData)
         db?.execSQL(createPersonalContactTable)
         db?.execSQL(createPersonalGroupTable)
         db?.execSQL(createContactGroupTable)
         db?.execSQL(createDigitalApprovalTable)
     }
+
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CALENDAR_TABLE")
@@ -203,73 +194,7 @@ class DatabaseHelper(context: Context) :
         onCreate(db)
     }
 
-    fun insertCalendarData(datas: List<CalendarEntity>) {
-        val db = this.writableDatabase
-        for (data in datas) {
-            val value = ContentValues().apply {
-                put("calendarTitle", data.calendarTitle)
-                put("calendarCreateAt", data.calendarCreateAt)
-                put("calendarContent", data.calendarContent)
-                put("calendarStartAt", data.calendarStartAt)
-                put("calendarEndAt", data.calendarEndAt)
-            }
-            db.insert(DatabaseConstants.CALENDAR_TABLE, null, value)
-        }
-        db.close()
-    }
 
-    fun getAllCalendar(): List<CalendarEntity> {
-        val datas = mutableListOf<CalendarEntity>()
-        val selectQuery = "select * from ${DatabaseConstants.CALENDAR_TABLE}"
-
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(selectQuery, null)
-
-        if (cursor.moveToFirst()) {
-            do {
-                val data = CalendarEntity(
-                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
-                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
-                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
-                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
-                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
-                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
-
-                )
-                datas.add(data)
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        db.close()
-        return datas
-    }
-
-    fun getCalendarData(date: LocalDate): List<CalendarEntity> {
-        val datas = mutableListOf<CalendarEntity>()
-        val dateString = date.toString()
-        val selectQuery =
-            "SELECT * FROM $DatabaseConstants.CALENDAR_TABLE WHERE ? BETWEEN calendarStartAt AND calendarEndAt"
-
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(selectQuery, arrayOf(dateString))
-
-        if (cursor.moveToFirst()) {
-            do {
-                val data = CalendarEntity(
-                    calendarId = cursor.getInt(cursor.getColumnIndexOrThrow("calendarId")),
-                    calendarTitle = cursor.getString(cursor.getColumnIndexOrThrow("calendarTitle")),
-                    calendarCreateAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarCreateAt")),
-                    calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
-                    calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
-                    calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
-                )
-                datas.add(data)
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        db.close()
-        return datas
-    }
 
     fun getPosition(positionId: Int): PositionDTO {
         val db = this.readableDatabase

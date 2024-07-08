@@ -4,12 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.ls.m.ls_m_v1.calendar.entity.SelectedUser
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.emp.entity.AllContact
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
 import com.ls.m.ls_m_v1.emp.repository.EmpRepository
 
-class ContactViewModel(application: Application) : AndroidViewModel(application) {
+class AddCalendarViewModel(application: Application) : AndroidViewModel(application) {
     private val _contacts = MutableLiveData<List<Any>>()
     val contacts: LiveData<List<Any>> get() = _contacts
 
@@ -38,17 +39,12 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
 
                 contacts.addAll(teams.filter { it.department.departmentId == team.department.departmentId }
                     .map { emp ->
-                        AllContact(
+                        SelectedUser(
                             id = emp.empId.toString(),
                             name = emp.empName,
                             position = emp.position.positionName,
                             department = emp.department.departmentName,
-                            email = emp.empEmail,
-                            mobilePhone = emp.empMP,
-                            officePhone = emp.company.companyNumber,
-                            birthday = emp.empBirthday.toString(),
-                            company = emp.company,
-                            buttonState = false
+                            mobilePhone = emp.empMP
                         )
                     })
             }

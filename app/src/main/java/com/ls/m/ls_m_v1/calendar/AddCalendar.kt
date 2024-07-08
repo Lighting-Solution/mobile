@@ -3,6 +3,7 @@ package com.ls.m.ls_m_v1.calendar
 import android.R
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,9 +17,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.chip.Chip
+import android.graphics.Color
+import com.ls.m.ls_m_v1.calendar.entity.CalendarDto
+import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import com.ls.m.ls_m_v1.calendar.entity.SelectedUser
 import com.ls.m.ls_m_v1.databinding.ActivityAddCalendarBinding
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.Locale
 import java.util.zip.Inflater
@@ -122,10 +127,37 @@ class AddCalendar : AppCompatActivity() {
             binding.startTime.isEnabled = !isChecked
             binding.endTime.isEnabled = !isChecked
         }
+        // 메모 활성화 컬러
+        binding.personalContactMemo.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus){
+                binding.memoLayout.setBoxStrokeColorStateList(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
+                binding.personalContactMemo.setHintTextColor(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
+            }
+        }
+
         binding.submit.setOnClickListener {
+            val addData = CalendarDto(
+                calendarTitle = binding.addTitle.text.toString(),
+                calendarCreateAt = LocalDateTime.now().toString(),
+                calendarContent = binding.personalContactMemo.text.toString(),
+                calendarStartAt = binding.startDate.text.toString() + "T" + binding.startTime.selectedItem.toString(),
+                calendarEndAt = binding.endDate.text.toString() + "T" +binding.endTime.selectedItem.toString(),
+//                user = CalendarDto(
+//                )
+            )
+
+            if (!binding.startTime.isEnabled && !binding.endTime.isEnabled){
+                addData.allDay = true
+            }
+
+            // 등록 데이터 api 요청
+
+
+
 
         }
     }
+
         private fun getClosestTimePosition(currentFormattedTime: String, sdf: SimpleDateFormat): Int {
             var closestPosition = -1
             var minDifference = Long.MAX_VALUE
@@ -171,7 +203,7 @@ class AddCalendar : AppCompatActivity() {
         val datePickerDialog = DatePickerDialog(
             this,
             { _, selectedYear, selectedMonth, selectedDay ->
-                val date = "$selectedYear-${selectedMonth + 1}-$selectedDay"
+                val date = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 onDateSelected(date)
             },
             year, month, day
