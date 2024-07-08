@@ -1,7 +1,6 @@
 package com.ls.m.ls_m_v1.p_contect.service
 
-import com.ls.m.ls_m_v1.p_contect.dao.AddPersonalDTO
-import com.ls.m.ls_m_v1.p_contect.dao.DeletePersonalDTO
+import com.ls.m.ls_m_v1.p_contect.dto.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.ContanctAandroidDTO
 import retrofit2.Call
 import retrofit2.Retrofit

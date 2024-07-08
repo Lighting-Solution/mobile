@@ -11,16 +11,20 @@ import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import com.ls.m.ls_m_v1.emp.entity.DepartmentDTO
 import com.ls.m.ls_m_v1.emp.entity.EmpDTO
 import com.ls.m.ls_m_v1.emp.entity.PositionDTO
-import com.ls.m.ls_m_v1.login.entity.ResponseDto
+import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
 import com.ls.m.ls_m_v1.p_contect.entity.*
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 class DatabaseHelper(context: Context) :
-    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+    SQLiteOpenHelper(
+        context,
+        DatabaseConstants.DATABASE_NAME,
+        null,
+        DatabaseConstants.DATABASE_VERSION
+    ) {
 
-
-    companion object {
+    object DatabaseConstants {
         const val DATABASE_NAME = "lighting_solution.db"
         const val DATABASE_VERSION = 1
 
@@ -38,14 +42,14 @@ class DatabaseHelper(context: Context) :
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createRepo = """
-            CREATE TABLE IF NOT EXISTS $MY_EMP(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.MY_EMP(
                 empId INTEGER PRIMARY KEY,
                 token TEXT NOT NULL,
             );
         """.trimIndent()
 
         val createCalendarTable = """
-            CREATE TABLE IF NOT EXISTS $CALENDAR_TABLE(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.CALENDAR_TABLE(
                 calendarId INTEGER PRIMARY KEY AUTOINCREMENT,
                 calendarTitle TEXT NOT NULL,
                 calendarCreateAt TEXT NOT NULL,
@@ -56,7 +60,7 @@ class DatabaseHelper(context: Context) :
         """.trimIndent()
 
         val createEmpTable = """
-            CREATE TABLE IF NOT EXISTS $EMP_TABLE(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.EMP_TABLE(
                 empId INTEGER PRIMARY KEY,
                 empName TEXT NOT NULL,
                 empEmail TEXT NOT NULL,
@@ -69,28 +73,28 @@ class DatabaseHelper(context: Context) :
                 companyId INTEGER,
                 positionId INTEGER,
                 departmentId INTEGER,
-                FOREIGN KEY (companyId) REFERENCES $COMPANY_TABLE(companyId),
-                FOREIGN KEY (positionId) REFERENCES $POSITION_TABLE(positionId),
-                FOREIGN KEY (departmentId) REFERENCES $DEPARTMENT_TABLE(departmentId)
             );
         """.trimIndent()
+//                FOREIGN KEY (companyId) REFERENCES $DatabaseConstants.COMPANY_TABLE(companyId),
+//                FOREIGN KEY (positionId) REFERENCES $DatabaseConstants.POSITION_TABLE(positionId),
+//                FOREIGN KEY (departmentId) REFERENCES $DatabaseConstants.DEPARTMENT_TABLE(departmentId)
 
         val createPositionTable = """
-            CREATE TABLE IF NOT EXISTS $POSITION_TABLE(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.POSITION_TABLE(
                 positionId INTEGER PRIMARY KEY,
                 positionName TEXT NOT NULL
             );
         """.trimIndent()
 
         val createDepartmentTable = """
-            CREATE TABLE IF NOT EXISTS $DEPARTMENT_TABLE(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.DEPARTMENT_TABLE(
                 departmentId INTEGER PRIMARY KEY,
                 departmentName TEXT NOT NULL
             );
         """.trimIndent()
 
         val createCompanyTable = """
-            CREATE TABLE IF NOT EXISTS $COMPANY_TABLE(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.COMPANY_TABLE(
                 companyId INTEGER PRIMARY KEY,
                 companyName TEXT NOT NULL,
                 companyAddress TEXT,
@@ -100,8 +104,9 @@ class DatabaseHelper(context: Context) :
             );
         """.trimIndent()
 
+
         val createPersonalContactTable = """
-            CREATE TABLE IF NOT EXISTS $PERSONAL_CONTACT_TABLE(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.PERSONAL_CONTACT_TABLE(
                 personalContactId INTEGER PRIMARY KEY AUTOINCREMENT,
                 positionName TEXT NOT NULL,
                 departmentName TEXT NOT NULL,
@@ -113,32 +118,32 @@ class DatabaseHelper(context: Context) :
                 personalContactBirthday TEXT,
                 companyId INTEGER,
                 empId INTEGER,
-                FOREIGN KEY (companyId) REFERENCES $COMPANY_TABLE(companyId),
-                FOREIGN KEY (empId) REFERENCES $EMP_TABLE(empId)
             );
         """.trimIndent()
+//                FOREIGN KEY (companyId) REFERENCES $DatabaseConstants.COMPANY_TABLE(companyId),
+//                FOREIGN KEY (empId) REFERENCES $DatabaseConstants.EMP_TABLE(empId)
 
         val createPersonalGroupTable = """
-            CREATE TABLE IF NOT EXISTS $PERSONAL_GROUP_TABLE(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.PERSONAL_GROUP_TABLE(
                 personalGroupId INTEGER PRIMARY KEY AUTOINCREMENT,
                 empId INTEGER,
                 personalGroupName TEXT NOT NULL,
-                FOREIGN KEY (empId) REFERENCES $EMP_TABLE(empId)
             );
         """.trimIndent()
+//                FOREIGN KEY (empId) REFERENCES $DatabaseConstants.EMP_TABLE(empId)
 
         val createContactGroupTable = """
-            CREATE TABLE IF NOT EXISTS $CONTACT_GROUP_TABLE(
+            CREATE TABLE IF NOT EXISTS $DatabaseConstants.CONTACT_GROUP_TABLE(
                 contactGroupId INTEGER PRIMARY KEY AUTOINCREMENT,
                 personalContactId INTEGER,
                 personalGroupId INTEGER,
-                FOREIGN KEY (personalContactId) REFERENCES $PERSONAL_CONTACT_TABLE(personalContactId),
-                FOREIGN KEY (personalGroupId) REFERENCES $PERSONAL_GROUP_TABLE(personalGroupId)
             );
         """.trimIndent()
+//                FOREIGN KEY (personalContactId) REFERENCES $DatabaseConstants.PERSONAL_CONTACT_TABLE(personalContactId),
+//                FOREIGN KEY (personalGroupId) REFERENCES $DatabaseConstants.PERSONAL_GROUP_TABLE(personalGroupId)
 
         val createDigitalApprovalTable = """
-           CREATE TABLE IF NOT EXISTS $APPROVAL_TABLE (
+           CREATE TABLE IF NOT EXISTS $DatabaseConstants.APPROVAL_TABLE (
                 digitalApprovalId INTEGER PRIMARY KEY,
                 empId INTEGER,
                 drafterId INTEGER,
@@ -152,8 +157,17 @@ class DatabaseHelper(context: Context) :
                 digitalApprovalAt DATETIME,
                 managerRejectAt DATETIME,
                 ceoRejectAt DATETIME,
-                FOREIGN KEY (empId) REFERENCES $EMP_TABLE(empId)
            );
+        """.trimIndent()
+//                FOREIGN KEY (empId) REFERENCES $DatabaseConstants.EMP_TABLE(empId)
+
+        // company에 기본 데이터 저장
+        val insertCompanyDefaultData = """
+            INSERT INTO ${DatabaseConstants.COMPANY_TABLE} (company_id, name, address, url, number, 
+            fax) VALUES(
+            1, '라이팅 솔루션', '서울특별시 강남구 테헤란로 123', 
+            'http://www.lightingsolution.co.kr', '1010-1010', '02-0101-0101'
+            );
         """.trimIndent()
 
         db?.execSQL(createRepo)
@@ -162,6 +176,8 @@ class DatabaseHelper(context: Context) :
         db?.execSQL(createPositionTable)
         db?.execSQL(createDepartmentTable)
         db?.execSQL(createCompanyTable)
+        // company 기본 데이터 넣기
+        db?.execSQL(insertCompanyDefaultData)
         db?.execSQL(createPersonalContactTable)
         db?.execSQL(createPersonalGroupTable)
         db?.execSQL(createContactGroupTable)
@@ -169,15 +185,15 @@ class DatabaseHelper(context: Context) :
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $CALENDAR_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $EMP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $POSITION_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DEPARTMENT_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $COMPANY_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $PERSONAL_CONTACT_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $PERSONAL_GROUP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $CONTACT_GROUP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $APPROVAL_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CALENDAR_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.EMP_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.POSITION_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.DEPARTMENT_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.COMPANY_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.PERSONAL_CONTACT_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.PERSONAL_GROUP_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CONTACT_GROUP_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.APPROVAL_TABLE")
         onCreate(db)
     }
 
@@ -187,15 +203,6 @@ class DatabaseHelper(context: Context) :
         onCreate(db)
     }
 
-    fun insertRopo(data : ResponseDto){
-        val db = this.writableDatabase
-        val value = ContentValues().apply {
-            put("epmId", data.empId)
-            put("token", data.token)
-        }
-        db.insert(MY_EMP, null,value)
-        db.close()
-    }
     fun insertCalendarData(datas: List<CalendarEntity>) {
         val db = this.writableDatabase
         for (data in datas) {
@@ -206,68 +213,14 @@ class DatabaseHelper(context: Context) :
                 put("calendarStartAt", data.calendarStartAt)
                 put("calendarEndAt", data.calendarEndAt)
             }
-            db.insert(CALENDAR_TABLE, null, value)
+            db.insert(DatabaseConstants.CALENDAR_TABLE, null, value)
         }
         db.close()
-    }
-
-    // Insert Emp
-    fun insertEmp(emp: EmpDTO) {
-        val db = this.writableDatabase
-        val values = ContentValues().apply {
-            put("empId", emp.empId)
-            put("empName", emp.empName)
-            put("empEmail", emp.empEmail)
-            put("empMP", emp.empMP)
-            put("empMemo", emp.empMemo)
-            put("empHP", emp.empHP)
-            put("empHomeAddress", emp.empHomeAddress)
-            put("empHomeFax", emp.empHomeFax)
-            put("empBirthday", emp.empBirthday.toString())
-            put("companyId", emp.company.companyId)
-            put("positionId", emp.position.positionId)
-            put("departmentId", emp.department.departmentId)
-        }
-        db.insert(EMP_TABLE, null, values)
-    }
-
-    // Insert Personal Contact
-    fun insertPersonalContact(contact: PersonalContactDTO) {
-        val db = this.writableDatabase
-        val values = ContentValues().apply {
-            put("personalContactId", contact.personalContactId)
-            put("positionName", contact.positionName)
-            put("departmentName", contact.departmentName)
-            put("personalContactName", contact.personalContactName)
-            put("personalContactNickName", contact.personalContactNickName)
-            put("personalContactEmail", contact.personalContactEmail)
-            put("personalContactMP", contact.personalContactMP)
-            put("personalContactMemo", contact.personalContactMemo)
-            put("personalContactBirthday", contact.personalContactBirthday.toString())
-            put("companyId", contact.company.companyId)
-            put("empId", contact.empId)
-        }
-        db.insert(PERSONAL_CONTACT_TABLE, null, values)
-    }
-
-    // Insert Company
-    fun insertCompany(company: CompanyDTO): Long {
-        val db = this.writableDatabase
-        val values = ContentValues().apply {
-            put("companyName", company.companyName)
-            put("companyAddress", company.companyAddress)
-            put("companyURL", company.companyURL)
-            put("companyNumber", company.companyNumber)
-            put("companyFax", company.companyFax)
-        }
-        val id = db.insert(COMPANY_TABLE, null, values)
-        db.close()
-        return id
     }
 
     fun getAllCalendar(): List<CalendarEntity> {
         val datas = mutableListOf<CalendarEntity>()
-        val selectQuery = "select * from ${DatabaseHelper.CALENDAR_TABLE}"
+        val selectQuery = "select * from ${DatabaseConstants.CALENDAR_TABLE}"
 
         val db = this.readableDatabase
         val cursor = db.rawQuery(selectQuery, null)
@@ -281,6 +234,7 @@ class DatabaseHelper(context: Context) :
                     calendarContent = cursor.getString(cursor.getColumnIndexOrThrow("calendarContent")),
                     calendarStartAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarStartAt")),
                     calendarEndAt = cursor.getString(cursor.getColumnIndexOrThrow("calendarEndAt"))
+
                 )
                 datas.add(data)
             } while (cursor.moveToNext())
@@ -294,7 +248,7 @@ class DatabaseHelper(context: Context) :
         val datas = mutableListOf<CalendarEntity>()
         val dateString = date.toString()
         val selectQuery =
-            "SELECT * FROM $CALENDAR_TABLE WHERE ? BETWEEN calendarStartAt AND calendarEndAt"
+            "SELECT * FROM $DatabaseConstants.CALENDAR_TABLE WHERE ? BETWEEN calendarStartAt AND calendarEndAt"
 
         val db = this.readableDatabase
         val cursor = db.rawQuery(selectQuery, arrayOf(dateString))
@@ -317,93 +271,16 @@ class DatabaseHelper(context: Context) :
         return datas
     }
 
-    // Get All Emps
-    fun getAllEmps(): List<EmpDTO> {
-        val emps = mutableListOf<EmpDTO>()
-        val db = this.readableDatabase
-        val cursor: Cursor = db.query(EMP_TABLE, null, null, null, null, null, null)
-        if (cursor.moveToFirst()) {
-            do {
-                val emp = EmpDTO(
-                    empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
-                    empName = cursor.getString(cursor.getColumnIndexOrThrow("empName")),
-                    empEmail = cursor.getString(cursor.getColumnIndexOrThrow("empEmail")),
-                    empMP = cursor.getString(cursor.getColumnIndexOrThrow("empMP")),
-                    empMemo = cursor.getString(cursor.getColumnIndexOrThrow("empMemo")),
-                    empHP = cursor.getString(cursor.getColumnIndexOrThrow("empHP")),
-                    empHomeAddress = cursor.getString(cursor.getColumnIndexOrThrow("empHomeAddress")),
-                    empHomeFax = cursor.getString(cursor.getColumnIndexOrThrow("empHomeFax")),
-                    empBirthday = LocalDate.parse(cursor.getString(cursor.getColumnIndexOrThrow("empBirthday"))),
-                    company = getCompany(cursor.getInt(cursor.getColumnIndexOrThrow("companyId"))),
-                    position = getPosition(cursor.getInt(cursor.getColumnIndexOrThrow("positionId"))),
-                    department = getDepartment(cursor.getInt(cursor.getColumnIndexOrThrow("departmentId")))
-                )
-                emps.add(emp)
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        return emps
-    }
-
-    // Get All Personal Contacts
-    fun getAllPersonalContacts(): List<PersonalContactDTO> {
-        val contacts = mutableListOf<PersonalContactDTO>()
-        val db = this.readableDatabase
-        val cursor: Cursor = db.query(PERSONAL_CONTACT_TABLE, null, null, null, null, null, null)
-        if (cursor.moveToFirst()) {
-            do {
-                val contact = PersonalContactDTO(
-                    personalContactId = cursor.getInt(cursor.getColumnIndexOrThrow("personalContactId")),
-                    positionName = cursor.getString(cursor.getColumnIndexOrThrow("positionName")),
-                    departmentName = cursor.getString(cursor.getColumnIndexOrThrow("departmentName")),
-                    personalContactName = cursor.getString(cursor.getColumnIndexOrThrow("personalContactName")),
-                    personalContactNickName = cursor.getString(cursor.getColumnIndexOrThrow("personalContactNickName")),
-                    personalContactEmail = cursor.getString(cursor.getColumnIndexOrThrow("personalContactEmail")),
-                    personalContactMP = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMP")),
-                    personalContactMemo = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMemo")),
-                    personalContactBirthday = LocalDate.parse(
-                        cursor.getString(
-                            cursor.getColumnIndexOrThrow(
-                                "personalContactBirthday"
-                            )
-                        )
-                    ),
-                    company = getCompany(cursor.getInt(cursor.getColumnIndexOrThrow("companyId"))),
-                    empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId"))
-                )
-                contacts.add(contact)
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        return contacts
-    }
-
-    // Helper functions to get related entities
-    private fun getCompany(companyId: Int): CompanyDTO {
+    fun getPosition(positionId: Int): PositionDTO {
         val db = this.readableDatabase
         val cursor = db.query(
-            COMPANY_TABLE, null, "companyId=?", arrayOf(companyId.toString()), null, null, null
-        )
-        return if (cursor.moveToFirst()) {
-            CompanyDTO(
-                companyId = cursor.getInt(cursor.getColumnIndexOrThrow("companyId")),
-                companyName = cursor.getString(cursor.getColumnIndexOrThrow("companyName")),
-                companyAddress = cursor.getString(cursor.getColumnIndexOrThrow("companyAddress")),
-                companyURL = cursor.getString(cursor.getColumnIndexOrThrow("companyURL")),
-                companyNumber = cursor.getString(cursor.getColumnIndexOrThrow("companyNumber")),
-                companyFax = cursor.getString(cursor.getColumnIndexOrThrow("companyFax"))
-            )
-        } else {
-            CompanyDTO(0, "", "", "", "", "")
-        }.also {
-            cursor.close()
-        }
-    }
-
-    private fun getPosition(positionId: Int): PositionDTO {
-        val db = this.readableDatabase
-        val cursor = db.query(
-            POSITION_TABLE, null, "positionId=?", arrayOf(positionId.toString()), null, null, null
+            DatabaseConstants.POSITION_TABLE,
+            null,
+            "positionId=?",
+            arrayOf(positionId.toString()),
+            null,
+            null,
+            null
         )
         return if (cursor.moveToFirst()) {
             PositionDTO(
@@ -417,10 +294,10 @@ class DatabaseHelper(context: Context) :
         }
     }
 
-    private fun getDepartment(departmentId: Int): DepartmentDTO {
+    fun getDepartment(departmentId: Int): DepartmentDTO {
         val db = this.readableDatabase
         val cursor = db.query(
-            DEPARTMENT_TABLE,
+            DatabaseConstants.DEPARTMENT_TABLE,
             null,
             "departmentId=?",
             arrayOf(departmentId.toString()),
@@ -440,39 +317,40 @@ class DatabaseHelper(context: Context) :
         }
     }
 
-    fun getApprovalWithEMPDrafter(empId : Int): List<Pair<ApprovalEntity, ApprovalEmpDTO>> {
+    fun getApprovalWithEMPDrafter(empId: Int): List<Pair<ApprovalEntity, ApprovalEmpDTO>> {
         val ApprovalWithEMP = mutableListOf<Pair<ApprovalEntity, ApprovalEmpDTO>>()
         val db = this.readableDatabase
-/*
-        // 전자결재 데이터와 emp데이터를 조인하는 쿼리
-        val selectQuery = """
-            SELECT 
-                da.pdocument_id, da.drafter_id, da.name AS document_name, da.pdocumentPath,
-                da.dBoxType, da.drafter_status, da.manager_status, da.ceo_status,
-                da.created_at, da.approval_at,
-                e.empId, e.empName,
-                p.positionName AS position,
-                d.departmentName AS department
-            FROM digital_approval da
-            JOIN $EMP_TABLE e ON da.drafter_id = e.empId
-            JOIN $POSITION_TABLE p ON e.positionId = p.positionId
-            JOIN $DEPARTMENT_TABLE d ON e.departmentId = d.departmentId
-        """.trimIndent()*/
+        /*
+                // 전자결재 데이터와 emp데이터를 조인하는 쿼리
+                val selectQuery = """
+                    SELECT
+                        da.pdocument_id, da.drafter_id, da.name AS document_name, da.pdocumentPath,
+                        da.dBoxType, da.drafter_status, da.manager_status, da.ceo_status,
+                        da.created_at, da.approval_at,
+                        e.empId, e.empName,
+                        p.positionName AS position,
+                        d.departmentName AS department
+                    FROM digital_approval da
+                    JOIN $EMP_TABLE e ON da.drafter_id = e.empId
+                    JOIN $POSITION_TABLE p ON e.positionId = p.positionId
+                    JOIN $DEPARTMENT_TABLE d ON e.departmentId = d.departmentId
+                """.trimIndent()*/
 
         // SQL 쿼리: empId가 기안자이거나, 기안자의 부서의 부서장이거나, 대표이사일 경우에만 데이터를 가져옵니다.
         val selectQuery = """
             SELECT 
-                da.*, e.*, p.name AS $POSITION_TABLE, d.name AS $DEPARTMENT_TABLE
+                da.*, e.*, p.name AS $DatabaseConstants.POSITION_TABLE, d.name AS $DatabaseConstants.DEPARTMENT_TABLE
             FROM digital_approval da
-            JOIN $EMP_TABLE e ON da.drafter_id = e.empId
-            JOIN $POSITION_TABLE p ON e.positionId = p.position_id
-            JOIN $DEPARTMENT_TABLE d ON e.departmentId = d.department_id
+            JOIN $DatabaseConstants.EMP_TABLE e ON da.drafter_id = e.empId
+            JOIN $DatabaseConstants.POSITION_TABLE p ON e.positionId = p.position_id
+            JOIN $DatabaseConstants.DEPARTMENT_TABLE d ON e.departmentId = d.department_id
             WHERE da.drafter_id = ? 
-            OR (da.drafter_id IN (SELECT empId FROM $EMP_TABLE WHERE departmentId = (SELECT departmentId FROM $EMP_TABLE WHERE empId = ?) AND positionId = 2))
-            OR (? IN (SELECT empId FROM $EMP_TABLE WHERE positionId = 1))
+            OR (da.drafter_id IN (SELECT empId FROM $DatabaseConstants.EMP_TABLE WHERE departmentId = (SELECT departmentId FROM $DatabaseConstants.EMP_TABLE WHERE empId = ?) AND positionId = 2))
+            OR (? IN (SELECT empId FROM $DatabaseConstants.EMP_TABLE WHERE positionId = 1))
         """.trimIndent()
 
-        val cursor = db.rawQuery(selectQuery, arrayOf(empId.toString(), empId.toString(), empId.toString()))
+        val cursor =
+            db.rawQuery(selectQuery, arrayOf(empId.toString(), empId.toString(), empId.toString()))
 
         with(cursor) {
             while (moveToNext()) {
@@ -524,101 +402,45 @@ class DatabaseHelper(context: Context) :
         return ApprovalWithEMP
     }
 
-    fun getPersonalContactsWithGroups(): List<Pair<PersonalContactDTO, List<PersonalGroupDTO>>> {
-        val contactsWithGroups = mutableListOf<Pair<PersonalContactDTO, List<PersonalGroupDTO>>>()
-        val db = this.readableDatabase
-
-        // 개인 주소록 데이터와 개인 그룹 데이터를 조인하는 쿼리
-        val selectQuery = """
-        SELECT 
-            pc.personalContactId, pc.positionName, pc.departmentName, pc.personalContactName, 
-            pc.personalContactNickName, pc.personalContactEmail, pc.personalContactMP, 
-            pc.personalContactMemo, pc.personalContactBirthday, pc.companyId, pc.empId, 
-            c.companyName, c.companyAddress, c.companyURL, c.companyNumber, c.companyFax,
-            pg.personalGroupId, pg.personalGroupName
-        FROM $PERSONAL_CONTACT_TABLE pc
-        LEFT JOIN $COMPANY_TABLE c ON pc.companyId = c.companyId
-        LEFT JOIN $PERSONAL_GROUP_TABLE pg ON pc.empId = pg.empId
-        ORDER BY pc.personalContactId
-    """.trimIndent()
-
-        val cursor = db.rawQuery(selectQuery, null)
-
-        var currentContact: PersonalContactDTO? = null
-        val currentGroups = mutableListOf<PersonalGroupDTO>()
-
-        if (cursor.moveToFirst()) {
-            do {
-                val personalContactId =
-                    cursor.getInt(cursor.getColumnIndexOrThrow("personalContactId"))
-                if (currentContact == null || currentContact.personalContactId != personalContactId) {
-                    if (currentContact != null) {
-                        contactsWithGroups.add(Pair(currentContact, currentGroups.toList()))
-                    }
-                    currentGroups.clear()
-                    currentContact = PersonalContactDTO(
-                        personalContactId = personalContactId,
-                        positionName = cursor.getString(cursor.getColumnIndexOrThrow("positionName")),
-                        departmentName = cursor.getString(cursor.getColumnIndexOrThrow("departmentName")),
-                        personalContactName = cursor.getString(cursor.getColumnIndexOrThrow("personalContactName")),
-                        personalContactNickName = cursor.getString(cursor.getColumnIndexOrThrow("personalContactNickName")),
-                        personalContactEmail = cursor.getString(cursor.getColumnIndexOrThrow("personalContactEmail")),
-                        personalContactMP = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMP")),
-                        personalContactMemo = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMemo")),
-                        personalContactBirthday = LocalDate.parse(
-                            cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                    "personalContactBirthday"
-                                )
-                            )
-                        ),
-                        company = CompanyDTO(
-                            companyId = cursor.getInt(cursor.getColumnIndexOrThrow("companyId")),
-                            companyName = cursor.getString(cursor.getColumnIndexOrThrow("companyName")),
-                            companyAddress = cursor.getString(cursor.getColumnIndexOrThrow("companyAddress")),
-                            companyURL = cursor.getString(cursor.getColumnIndexOrThrow("companyURL")),
-                            companyNumber = cursor.getString(cursor.getColumnIndexOrThrow("companyNumber")),
-                            companyFax = cursor.getString(cursor.getColumnIndexOrThrow("companyFax"))
-                        ),
-                        empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId"))
-                    )
-                }
-
-                val personalGroupId = cursor.getInt(cursor.getColumnIndexOrThrow("personalGroupId"))
-                if (personalGroupId != 0) {
-                    val personalGroup = PersonalGroupDTO(
-                        personalGroupId = personalGroupId,
-                        empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
-                        personalGroupName = cursor.getString(cursor.getColumnIndexOrThrow("personalGroupName"))
-                    )
-                    currentGroups.add(personalGroup)
-                }
-            } while (cursor.moveToNext())
-
-            if (currentContact != null) {
-                contactsWithGroups.add(Pair(currentContact, currentGroups.toList()))
-            }
-        }
-        cursor.close()
-        db.close()
-        return contactsWithGroups
+    fun clearDatabase() {
+        val db = this.writableDatabase
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CALENDAR_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.EMP_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.POSITION_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.DEPARTMENT_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.PERSONAL_CONTACT_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.PERSONAL_GROUP_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CONTACT_GROUP_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.APPROVAL_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.MY_EMP")
+        // 1번 데이터를 제외하고 삭제
+        db?.execSQL("DELETE FROM $DatabaseConstants.COMPANY_TABLE WHERE id > 1")
     }
 
-    fun getAllPersonalGroups(): List<PersonalGroupDTO> {
-        val personalGroups = mutableListOf<PersonalGroupDTO>()
+    fun getCompany(companyId: Int): CompanyDTO {
         val db = this.readableDatabase
-        val cursor: Cursor = db.query(PERSONAL_GROUP_TABLE, null, null, null, null, null, null)
-        if (cursor.moveToFirst()) {
-            do {
-                val personalGroup = PersonalGroupDTO(
-                    personalGroupId = cursor.getInt(cursor.getColumnIndexOrThrow("personalGroupId")),
-                    empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
-                    personalGroupName = cursor.getString(cursor.getColumnIndexOrThrow("personalGroupName"))
-                )
-                personalGroups.add(personalGroup)
-            } while (cursor.moveToNext())
+        val cursor = db.query(
+            DatabaseHelper.DatabaseConstants.COMPANY_TABLE,
+            null,
+            "companyId=?",
+            arrayOf(companyId.toString()),
+            null,
+            null,
+            null
+        )
+        return if (cursor.moveToFirst()) {
+            CompanyDTO(
+                companyId = cursor.getInt(cursor.getColumnIndexOrThrow("companyId")),
+                companyName = cursor.getString(cursor.getColumnIndexOrThrow("companyName")),
+                companyAddress = cursor.getString(cursor.getColumnIndexOrThrow("companyAddress")),
+                companyURL = cursor.getString(cursor.getColumnIndexOrThrow("companyURL")),
+                companyNumber = cursor.getString(cursor.getColumnIndexOrThrow("companyNumber")),
+                companyFax = cursor.getString(cursor.getColumnIndexOrThrow("companyFax"))
+            )
+        } else {
+            CompanyDTO(0, "", "", "", "", "")
+        }.also {
+            cursor.close()
         }
-        cursor.close()
-        return personalGroups
     }
 }

@@ -58,8 +58,5 @@ class EMPFragment : Fragment() {
     }
 }
 
-// 아이콘 누르면 intent하는거 하기
-        // 데이터 베이스에 직접 데이터 넣어서 데이터 꺼내오는거 하기
-        // DTO 만들지 고민할것
 
 

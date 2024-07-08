@@ -7,19 +7,20 @@ import androidx.lifecycle.MutableLiveData
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.emp.entity.AllContact
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
+import com.ls.m.ls_m_v1.emp.repository.EmpRepository
 
 class ContactViewModel(application: Application) : AndroidViewModel(application) {
     private val _contacts = MutableLiveData<List<Any>>()
     val contacts: LiveData<List<Any>> get() = _contacts
 
-    private val dbHelper = DatabaseHelper(application)
+    private val empRepository = EmpRepository(application)
 
     init {
         loadContacts()
     }
 
     private fun loadContacts() {
-        val empList = dbHelper.getAllEmps()
+        val empList = empRepository.getAllEmps()
         val contacts = mutableListOf<Any>()
 
         val departments = empList.filter { it.department.departmentId % 10 == 0 }

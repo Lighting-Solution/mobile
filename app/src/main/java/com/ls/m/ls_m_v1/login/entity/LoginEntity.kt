@@ -9,7 +9,7 @@ data class LoginEntity(
     // 나 모바일임 하고 같이 보냄
 )
 
-data class ResponseDto(
+data class LoginResponseDto(
     var token : String,
     var empId: Int
 )

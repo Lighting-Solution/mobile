@@ -8,7 +8,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.databinding.ActivityContactDetailBinding
 import com.ls.m.ls_m_v1.p_contect.ModifyPersonal
-import com.ls.m.ls_m_v1.p_contect.dao.DeletePersonalDTO
 
 class activity_contact_detail : AppCompatActivity() {
     private lateinit var binding : ActivityContactDetailBinding

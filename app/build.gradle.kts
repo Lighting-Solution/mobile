@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.androidx.material3.android)
     implementation(libs.androidx.ui.tooling.preview.android)
     implementation(libs.androidx.lifecycle.viewmodel.android)
+    implementation(libs.firebase.firestore.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,4 +79,8 @@ dependencies {
     // PDFviewer
     implementation ("com.github.DImuthuUpe:AndroidPdfViewer:2.8.1")
     implementation("com.tom-roush:pdfbox-android:2.0.27.0")
+
+    // ChipGroup
+    implementation ("com.google.android.material:material:1.4.0")
+
 }

@@ -1,12 +1,14 @@
 package com.ls.m.ls_m_v1.calendar
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
@@ -15,6 +17,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
@@ -24,7 +27,6 @@ import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.ls.m.ls_m_v1.R
-import com.ls.m.ls_m_v1.calendar.dto.CalendarEvent
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -37,6 +39,7 @@ class CalendarFragment : Fragment() {
     private lateinit var eventsRecyclerView: RecyclerView
     private lateinit var monthTitle: TextView
     private lateinit var selectedDateView: TextView
+    private lateinit var addButton : FloatingActionButton
     private var selectedDate: LocalDate? = null
     private lateinit var calendarAdapter: CalendarAdapter
     private val calendarViewModel: CalendarViewModel by viewModels()
@@ -55,10 +58,16 @@ class CalendarFragment : Fragment() {
         monthTitle = view.findViewById(R.id.monthTitle)
         selectedDateView = view.findViewById(R.id.selectedDateView)
         selectedDate = LocalDate.now()
+        addButton = view.findViewById(R.id.AddButton)
 
         setupRecyclerView()
         setupCalendarView()
         showEventsForDate(LocalDate.now()) // 현재 날짜의 이벤트를 미리 보여줌
+
+        addButton.setOnClickListener {
+            val intent = Intent(requireContext(), AddCalendar::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun setupRecyclerView() {
@@ -194,6 +203,7 @@ class CalendarFragment : Fragment() {
             viewContainer.addView(eventView)
         }
     }
+
 
     private fun showEventsForDate(date: LocalDate) {
         val eventsForDate = calendarViewModel.getEventsOnDate(date)
