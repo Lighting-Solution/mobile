@@ -1,5 +1,7 @@
 package com.ls.m.ls_m_v1.p_contect.entity
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 
 data class ContanctAandroidDTO(
@@ -21,6 +23,7 @@ data class PersonalContactDTO(
     val company :CompanyDTO,
     val empId : Int
 )
+@Parcelize
 data class CompanyDTO  (
     var companyId : Int,
     val companyName : String,
@@ -28,7 +31,8 @@ data class CompanyDTO  (
     val companyURL : String,
     val companyNumber : String,
     val companyFax : String
-)
+) : Parcelable
+
 data class PersonalGroupDTO (
     val personalGroupId : Int,
     val empId : Int,

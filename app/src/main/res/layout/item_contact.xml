@@ -3,24 +3,40 @@
     android:id="@+id/contact_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/b_yellow"
     android:orientation="horizontal"
-    android:padding="10dp"
-    android:layout_marginLeft="13dp"
-    >
-
-    <TextView
-        android:id="@+id/contact_name"
-        android:layout_width="wrap_content"
+    android:padding="10dp">
+<ImageView
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:src="@drawable/ic_profile"
+    android:layout_gravity="center"
+    android:layout_marginStart="10dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        />
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        >
 
-    <TextView
-        android:id="@+id/contact_position"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:textSize="10sp"
-        />
+
+        <TextView
+            android:id="@+id/contact_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="13dp"
+            android:text="이름"
+            android:textColor="@color/dark"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/contact_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="17dp"
+            android:text="직급 / 부서"
+            android:textColor="#5A5A5A"
+            android:textSize="13sp" />
+    </LinearLayout>
 </LinearLayout>

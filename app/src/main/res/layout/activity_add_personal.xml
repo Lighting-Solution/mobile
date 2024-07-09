@@ -4,13 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".p_contect.AddPersonal">
+    tools:context=".p_contect.AddPersonal"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:background="@color/sand"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp">
 
         <ImageView
             android:id="@+id/backButton_1"
@@ -18,7 +21,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:gravity="start"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/backbutton" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -26,7 +29,8 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="center"
-            android:textSize="18sp"
+            android:textSize="20sp"
+            android:textColor="#fff"
             android:textStyle="bold"
             android:text="연락처 추가" />
 
@@ -37,6 +41,8 @@
             android:layout_gravity="center"
             android:layout_marginRight="10dp"
             android:gravity="right"
+            android:textStyle="bold"
+            android:textColor="@color/white"
             android:text="확인" />
 
     </LinearLayout>
@@ -208,6 +214,7 @@
 
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/parsonalMemoLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:importantForAutofill="no"

@@ -54,7 +54,7 @@ class ContactAdapter(
 
         fun bind(contact: AllContact) {
             nameTextView.text = contact.name
-            positionTextView.text = contact.position
+            positionTextView.text = "${contact.position} / ${contact.department}"
         }
     }
 

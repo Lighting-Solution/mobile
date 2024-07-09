@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.calendar.dto.CalendarEvent
+import com.ls.m.ls_m_v1.calendar.entity.CalendarEmp
 
-class CalendarAdapter :
-    ListAdapter<CalendarEvent, CalendarAdapter.CalendarViewHolder>(CalendarEventDiffCallback()) {
+class CalendarAdapter() : ListAdapter<CalendarEvent, CalendarAdapter.CalendarViewHolder>(CalendarEventDiffCallback()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CalendarViewHolder {
@@ -23,6 +23,9 @@ class CalendarAdapter :
     override fun onBindViewHolder(holder: CalendarViewHolder, position: Int) {
         val event = getItem(position)
         holder.bind(event)
+//        holder.itemView.setOnClickListener {
+//
+//        }
     }
 
     class CalendarViewHolder(view: View) : RecyclerView.ViewHolder(view) {

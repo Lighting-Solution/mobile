@@ -12,35 +12,32 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ls.m.ls_m_v1.R
 
 class ApprovalFragment : Fragment() {
-    private val approvalViewModel : ApprovalViewModel by viewModels()
+    private val viewModel: ApprovalViewModel by viewModels()
+    private lateinit var pendingDocumentsRecyclerView: RecyclerView
+    private lateinit var rejectedDocumentsRecyclerView: RecyclerView
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
+        inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_approval, container, false)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recyclerView : RecyclerView = view.findViewById(R.id.pendingDocumentsRecyclerView)
-        val rejectRecyclerView : RecyclerView = view.findViewById(R.id.rejectedDocumentsRecyclerView)
+        pendingDocumentsRecyclerView = view.findViewById(R.id.pendingDocumentsRecyclerView)
+        rejectedDocumentsRecyclerView = view.findViewById(R.id.rejectedDocumentsRecyclerView)
 
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        pendingDocumentsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        rejectedDocumentsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        approvalViewModel.contents.observe(viewLifecycleOwner, Observer {items ->
-            recyclerView.adapter = ApprovalAdapter(items){item ->
-//                val intent = Intent(requireContext(), ApprovalDetail::class.java, false)
-
-            }
+        viewModel.pendingDocuments.observe(viewLifecycleOwner, Observer { approvals ->
+            pendingDocumentsRecyclerView.adapter = ApprovalAdapter(approvals)
         })
 
-
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        viewModel.rejectedDocuments.observe(viewLifecycleOwner, Observer { approvals ->
+            rejectedDocumentsRecyclerView.adapter = ApprovalAdapter(approvals)
+        })
     }
 }

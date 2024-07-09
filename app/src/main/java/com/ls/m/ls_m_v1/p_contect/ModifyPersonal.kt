@@ -1,6 +1,8 @@
 package com.ls.m.ls_m_v1.p_contect
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -165,6 +167,14 @@ class ModifyPersonal : AppCompatActivity() {
 
                     })
 
+            }
+        }
+
+        // 메모 활성화 컬러
+        binding.personalContactMemo.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus){
+                binding.parsonalMemoLayout.setBoxStrokeColorStateList(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
+                binding.personalContactMemo.setHintTextColor(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
             }
         }
 

@@ -7,13 +7,12 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.m.ls_m_v1.R
-import com.ls.m.ls_m_v1.calendar.entity.SelectedUser
-import com.ls.m.ls_m_v1.emp.entity.AllContact
+import com.ls.m.ls_m_v1.calendar.entity.CalendarEmp
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
 
 class SelectedUserAdapter(
-    private var contacts: List<Any>,
-    private val clickListener: (SelectedUser) -> Unit
+    var contacts: List<Any>,
+    private val clickListener: (CalendarEmp) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -40,15 +39,17 @@ class SelectedUserAdapter(
             val sectionHeader = contacts[position] as SectionHeader
             holder.bind(sectionHeader)
         } else if (holder is ContactViewHolder) {
-            val contact = contacts[position] as SelectedUser
+            val contact = contacts[position] as CalendarEmp
             holder.bind(contact)
             holder.itemView.setOnClickListener {
                 clickListener(contact)
             }
+            holder.checkBox.setOnCheckedChangeListener(null)  // CheckBox 리스너 초기화
+            holder.checkBox.isChecked = contact.isSelected
             holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
                 contact.isSelected = isChecked
+                clickListener(contact)
             }
-
         }
     }
 
@@ -59,12 +60,10 @@ class SelectedUserAdapter(
         private val positionTextView: TextView = itemView.findViewById(R.id.contact_position)
         val checkBox: CheckBox = itemView.findViewById(R.id.select_checkBox)
 
-
-        fun bind(contact: SelectedUser) {
+        fun bind(contact: CalendarEmp) {
             nameTextView.text = contact.name
             positionTextView.text = contact.position
             checkBox.isChecked = contact.isSelected
-
         }
     }
 

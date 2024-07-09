@@ -85,4 +85,30 @@ class EmpRepository(context: Context) {
         return emps
     }
 
+    fun getOneEmps(empId : Int): EmpDTO? {
+        val db = dbHelper.readableDatabase
+        val cursor: Cursor = db.rawQuery("SELECT * FROM ${DatabaseHelper.DatabaseConstants.EMP_TABLE} WHERE empId = ?", arrayOf(empId.toString()))
+
+        var value : EmpDTO? = null
+        if (cursor.moveToFirst()){
+            value = EmpDTO(
+                empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
+                empName = cursor.getString(cursor.getColumnIndexOrThrow("empName")),
+                empEmail = cursor.getString(cursor.getColumnIndexOrThrow("empEmail")),
+                empMP = cursor.getString(cursor.getColumnIndexOrThrow("empMP")),
+                empMemo = cursor.getString(cursor.getColumnIndexOrThrow("empMemo")),
+                empHP = cursor.getString(cursor.getColumnIndexOrThrow("empHP")),
+                empHomeAddress = cursor.getString(cursor.getColumnIndexOrThrow("empHomeAddress")),
+                empHomeFax = cursor.getString(cursor.getColumnIndexOrThrow("empHomeFax")),
+                empBirthday = LocalDate.parse(cursor.getString(cursor.getColumnIndexOrThrow("empBirthday"))),
+                company = dbHelper.getCompany(cursor.getInt(cursor.getColumnIndexOrThrow("companyId"))),
+                position = dbHelper.getPosition(cursor.getInt(cursor.getColumnIndexOrThrow("positionId"))),
+                department = dbHelper.getDepartment(cursor.getInt(cursor.getColumnIndexOrThrow("departmentId")))
+            )
+            cursor.close()
+        }
+        return value
+    }
+
+
 }

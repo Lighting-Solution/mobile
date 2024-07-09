@@ -4,33 +4,39 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEmpDTO
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
+import com.ls.m.ls_m_v1.approval.repository.ApprovalRepository
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
+import com.ls.m.ls_m_v1.emp.repository.EmpRepository
 import com.ls.m.ls_m_v1.login.repository.LoginRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ApprovalViewModel(application: Application) : AndroidViewModel(application) {
-    private val _contents = MutableLiveData<List<Pair<ApprovalEntity, ApprovalEmpDTO>>>()
+    private val _pendingDocuments = MutableLiveData<List<ApprovalEntity>>()
+    val pendingDocuments: LiveData<List<ApprovalEntity>> get() = _pendingDocuments
 
-    val contents: LiveData<List<Pair<ApprovalEntity, ApprovalEmpDTO>>> get() = _contents
+    private val _rejectedDocuments = MutableLiveData<List<ApprovalEntity>>()
+    val rejectedDocuments: LiveData<List<ApprovalEntity>> get() = _rejectedDocuments
 
-    private val dbHelper = DatabaseHelper(application)
+    private val approvalRepository = ApprovalRepository(application)
     private val loginRepository = LoginRepository(application)
 
     init {
-        loadData()
+        loadApprovals()
     }
 
-    private fun loadData() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val empId = loginRepository.getloginData()
-
-            val approvalWithEmp = dbHelper.getApprovalWithEMPDrafter(empId.empId)
-            val filteredData = approvalWithEmp.filter { it.first.ceoStatus == false }
-            _contents.value = filteredData
+    private fun loadApprovals() {
+        viewModelScope.launch {
+            val loginData = loginRepository.getloginData()
+            val empId = loginData.empId
+            val allApprovals = approvalRepository.getApprovalsForUser(empId)
+            _pendingDocuments.postValue(allApprovals.filter { it.digitalApprovalType == 1 })
+            _rejectedDocuments.postValue(allApprovals.filter { it.digitalApprovalType == 0 })
         }
     }
 }
