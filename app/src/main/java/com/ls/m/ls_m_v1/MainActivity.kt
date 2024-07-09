@@ -3,7 +3,6 @@ package com.ls.m.ls_m_v1
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.replace
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.ls.m.ls_m_v1.approval.ApprovalFragment
 import com.ls.m.ls_m_v1.calendar.CalendarFragment

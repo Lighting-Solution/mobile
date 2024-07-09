@@ -10,7 +10,7 @@ import com.ls.m.ls_m_v1.approval.entity.ApprovalEmpDTO
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
 
 class ApprovalAdapter(
-    private var content: List<Pair<ApprovalEntity, ApprovalEmpDTO>>,
+    var content: List<Pair<ApprovalEntity, ApprovalEmpDTO>>,
     private val clickListener: (ApprovalEntity) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -21,15 +21,11 @@ class ApprovalAdapter(
 
     override fun getItemViewType(position: Int): Int {
         val (approval, _) = content[position]
-        return if (approval.digitalApprovalType) VIEW_TYPE_REJECTED else VIEW_TYPE_PENDING
+        return if (approval.digitalApprovalType == 1) VIEW_TYPE_REJECTED else VIEW_TYPE_PENDING
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = if (viewType == VIEW_TYPE_REJECTED) {
-            LayoutInflater.from(parent.context).inflate(R.layout.item_approver, parent, false)
-        } else {
-            LayoutInflater.from(parent.context).inflate(R.layout.item_approver, parent, false)
-        }
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_approver, parent, false)
         return ApprovalViewHolder(view)
     }
 
@@ -55,7 +51,7 @@ class ApprovalAdapter(
         fun bind(content: ApprovalEntity, approvalEmp: ApprovalEmpDTO) {
             approvalTitle.text = content.digitalApprovalName
             createAt.text = content.digitalApprovalCreateAt.toString()
-            approvalState.text = if (content.drafterStatus && content.managerStatus && content.ceoStatus) "true" else "false"
+            approvalState.text = if (content.drafterStatus == 1 && content.managerStatus == 1 && content.ceoStatus == 1) "true" else "false"
             name.text = approvalEmp.empName
             position.text = approvalEmp.position
         }
