@@ -31,7 +31,7 @@ class Splash : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 // 보안 끝나면 주석 풀것
-//        // 데이터베이스 생성 및 초기화
+        // 데이터베이스 생성 및 초기화
 //        dbHelper = DatabaseHelper(this)
 //        dbHelper.writableDatabase
 //

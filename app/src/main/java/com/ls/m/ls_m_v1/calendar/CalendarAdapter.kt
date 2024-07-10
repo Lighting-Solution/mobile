@@ -1,5 +1,7 @@
 package com.ls.m.ls_m_v1.calendar
 
+import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.calendar.dto.CalendarEvent
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEmp
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class CalendarAdapter() : ListAdapter<CalendarEvent, CalendarAdapter.CalendarViewHolder>(CalendarEventDiffCallback()) {
 
@@ -23,9 +27,6 @@ class CalendarAdapter() : ListAdapter<CalendarEvent, CalendarAdapter.CalendarVie
     override fun onBindViewHolder(holder: CalendarViewHolder, position: Int) {
         val event = getItem(position)
         holder.bind(event)
-//        holder.itemView.setOnClickListener {
-//
-//        }
     }
 
     class CalendarViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -33,17 +34,21 @@ class CalendarAdapter() : ListAdapter<CalendarEvent, CalendarAdapter.CalendarVie
         private val eventTimeText: TextView = view.findViewById(R.id.eventTime)
         private val eventColor: View = itemView.findViewById(R.id.eventColor)
 
+
+        @SuppressLint("SetTextI18n")
         fun bind(event: CalendarEvent) {
+            val startTimeForm = event.startTime.substring(0,5)
+            val endTimeForm = event.endTime.substring(0,5)
             if (event.allDay) {
                 eventTimeText.text ="하루 종일"
             } else {
                 eventTitleText.text = event.title
                 if (event.startDate == event.endDate) {
-                    eventTimeText.text = "${event.startTime} ~ ${event.endTime}"
+                    eventTimeText.text = "${startTimeForm} ~ ${endTimeForm}"
                     eventColor.setBackgroundColor(event.color)
                 } else {
                     eventTimeText.text =
-                        "${event.startDate} ${event.startTime} - ${event.endDate} ${event.endTime}"
+                        "${event.startDate} ${startTimeForm} - ${event.endDate} ${endTimeForm}"
                     eventColor.setBackgroundColor(event.color)
                 }
             }

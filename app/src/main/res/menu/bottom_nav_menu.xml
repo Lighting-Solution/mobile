@@ -14,5 +14,5 @@
         android:title="Calendar" />
     <item
         android:id="@+id/tab4"
-        android:title="@string/app_name" />
+        android:title="결재" />
 </menu>

@@ -21,11 +21,20 @@ class ApprovalRepository(context: Context) {
             JOIN position p ON e.positionId = p.positionId
             JOIN department d ON e.departmentId = d.departmentId
             WHERE da.drafterId = ? 
-            OR (da.drafterId IN (SELECT empId FROM emp WHERE ABS(departmentId / 100) % 10 = (SELECT ABS(departmentId / 100) % 10 FROM emp WHERE empId = ?) AND positionId = 2))
+            OR (EXISTS (
+                SELECT 1 
+                FROM emp e2 
+                WHERE ABS(e2.departmentId / 100) % 10 = 
+                      (SELECT ABS(e.departmentId / 100) % 10 
+                       FROM emp e 
+                       WHERE e.empId = da.drafterId)
+                AND e2.positionId = 2
+                AND e2.empId = ?
+            ))
             OR (? IN (SELECT empId FROM emp WHERE positionId = 1))
         """.trimIndent()
 
-        val cursor = db.rawQuery(selectQuery, arrayOf(empId.toString(), empId.toString(), empId.toString()))
+        val cursor = db.rawQuery(selectQuery, arrayOf(empId.toString(), empId.toString(),empId.toString()))
 
         try {
             if (cursor.moveToFirst()) {

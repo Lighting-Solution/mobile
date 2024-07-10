@@ -1,6 +1,9 @@
 package com.ls.m.ls_m_v1
 
 import android.os.Bundle
+import android.view.Menu
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -60,6 +63,36 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.bottom_nav_menu, menu)
+
+        // 커스텀 레이아웃 설정
+        menu?.findItem(R.id.tab1)?.let { menuItem ->
+            val customView = layoutInflater.inflate(R.layout.menu_item, null)
+            customView.findViewById<ImageView>(R.id.menu_icon).setImageResource(R.drawable.ic_phone_book)
+            menuItem.actionView = customView
+        }
+
+        menu?.findItem(R.id.tab2)?.let { menuItem ->
+            val customView = layoutInflater.inflate(R.layout.menu_item, null)
+            customView.findViewById<ImageView>(R.id.menu_icon).setImageResource(R.drawable.ic_phone_book_personal)
+            menuItem.actionView = customView
+        }
+
+        menu?.findItem(R.id.tab3)?.let { menuItem ->
+            val customView = layoutInflater.inflate(R.layout.menu_item, null)
+            customView.findViewById<ImageView>(R.id.menu_icon).setImageResource(R.drawable.ic_calendar)
+            menuItem.actionView = customView
+        }
+
+        menu?.findItem(R.id.tab4)?.let { menuItem ->
+            val customView = layoutInflater.inflate(R.layout.menu_item, null)
+            menuItem.actionView = customView
+        }
+
+        return true
+    }
+
 
 
 }

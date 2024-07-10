@@ -3,6 +3,7 @@ package com.ls.m.ls_m_v1.emp.repository
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
+import com.ls.m.ls_m_v1.approval.entity.ApprovalEmpDTO
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.emp.entity.DepartmentDTO
 import com.ls.m.ls_m_v1.emp.entity.EmpDTO
@@ -108,6 +109,78 @@ class EmpRepository(context: Context) {
             cursor.close()
         }
         return value
+    }
+
+    fun getDrafter(empId: Int): ApprovalEmpDTO?{
+        val db = dbHelper.readableDatabase
+        val query = """
+            SELECT empId, empName, positionId, departmentId FROM ${DatabaseHelper.DatabaseConstants.EMP_TABLE} WHERE empId = ?
+        """.trimIndent()
+        val cursor = db.rawQuery(query, arrayOf(empId.toString()))
+        return if (cursor.moveToFirst()){
+            ApprovalEmpDTO(
+                empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
+                empName = cursor.getString(cursor.getColumnIndexOrThrow("empName")),
+                department = dbHelper.getDepartment(cursor.getInt(cursor.getColumnIndexOrThrow("departmentId"))).departmentName,
+                position = dbHelper.getPosition(cursor.getInt(cursor.getColumnIndexOrThrow("positionId"))).positionName
+            )
+        }else{
+            null
+        }.also {
+            cursor.close()
+            db.close()
+        }
+    }
+    fun getManager(empId : Int): ApprovalEmpDTO? {
+        val db = dbHelper.readableDatabase
+        val query = """
+            SELECT e2.*
+            FROM ${DatabaseHelper.DatabaseConstants.EMP_TABLE} e2
+            WHERE ABS(e2.departmentId / 100) % 10 = (
+                SELECT ABS(e.departmentId / 100) % 10 
+                FROM ${DatabaseHelper.DatabaseConstants.EMP_TABLE} e 
+                WHERE e.empId = ?
+            )
+            AND e2.positionId = 2;
+        """.trimIndent()
+        val cursor = db.rawQuery(query, arrayOf(empId.toString()))
+        return if (cursor.moveToFirst()){
+            ApprovalEmpDTO(
+                empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
+                empName = cursor.getString(cursor.getColumnIndexOrThrow("empName")),
+                department = dbHelper.getDepartment(cursor.getInt(cursor.getColumnIndexOrThrow("departmentId"))).departmentName,
+                position = dbHelper.getPosition(cursor.getInt(cursor.getColumnIndexOrThrow("positionId"))).positionName
+            )
+        }else{
+            null
+        }.also {
+            cursor.close()
+            db.close()
+        }
+    }
+
+    fun getCeo(): ApprovalEmpDTO?{
+        val db = dbHelper.readableDatabase
+        val query = """
+            SELECT * FROM ${DatabaseHelper.DatabaseConstants.EMP_TABLE} WHERE  positionId = 1
+        """.trimIndent()
+
+        val cursor = db.rawQuery(query, null)
+
+        return if (cursor.moveToFirst()){
+
+            ApprovalEmpDTO(
+                empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId")),
+                empName = cursor.getString(cursor.getColumnIndexOrThrow("empName")),
+                department = dbHelper.getDepartment(cursor.getInt(cursor.getColumnIndexOrThrow("departmentId"))).departmentName,
+                position = dbHelper.getPosition(cursor.getInt(cursor.getColumnIndexOrThrow("positionId"))).positionName
+            )
+        }else{
+            null
+        }.also {
+            cursor.close()
+            db.close()
+        }
     }
 
 

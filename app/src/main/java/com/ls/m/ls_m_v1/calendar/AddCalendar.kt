@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
 import com.ls.m.ls_m_v1.calendar.entity.CalendarDto
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEmp
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
@@ -27,6 +28,7 @@ import com.ls.m.ls_m_v1.login.repository.LoginRepository
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.log
 
 class AddCalendar : AppCompatActivity() {
     private lateinit var binding: ActivityAddCalendarBinding
@@ -43,19 +45,11 @@ class AddCalendar : AppCompatActivity() {
         binding = ActivityAddCalendarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 기본적으로 오늘 날짜를 설정
-        val todayDate = getCurrentDate()
-        binding.startDate.text = todayDate
-        binding.endDate.text = todayDate
         empRepository = EmpRepository(this)
-        setupTimeList()
-        setupTimeSpinners()
-        setupListeners()
-        initializeStartTime()
 
-        lifecycleScope.launch {
-            empId = getLoginData()
-            value = empRepository.getOneEmps(empId)
+        val loginData = intent.getSerializableExtra("loginData")as? LoginResponseDto
+        loginData?.let {
+            value = empRepository.getOneEmps(loginData.empId)
             if (value != null) {
                 calendarEmp = CalendarEmp(
                     id = value!!.empId.toString(),
@@ -66,18 +60,28 @@ class AddCalendar : AppCompatActivity() {
                     mobilePhone = value!!.empMP,
                     isSelected = true
                 )
+            addChip(calendarEmp!!)
             }
+
         }
-        calendarEmp?.let { addChip(it) }
 
+        // 기본적으로 오늘 날짜를 설정
+        val todayDate = getCurrentDate()
+        binding.startDate.text = todayDate
+        binding.endDate.text = todayDate
+        empRepository = EmpRepository(this)
+        setupTimeList()
+        setupTimeSpinners()
+        setupListeners()
+        initializeStartTime()
 
     }
 
-    private suspend fun getLoginData(): Int {
-        loginRepository = LoginRepository(this)
-        val value = loginRepository.getloginData()
-        return value.empId
-    }
+//    private suspend fun getLoginData(): Int {
+//        loginRepository = LoginRepository(this)
+//        val value = loginRepository.getloginData()
+//        return value.empId
+//    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -166,7 +170,6 @@ class AddCalendar : AppCompatActivity() {
                 calendarEndAt = "${binding.endDate.text}T${binding.endTime.selectedItem}",
                 attendees = Datas
             )
-            Log.d("ddddddd", addData.attendees.get(1).toString())
             // TODO: API 요청 코드 추가
         }
     }

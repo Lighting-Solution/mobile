@@ -85,7 +85,8 @@ class Login : AppCompatActivity() {
                                         loginRepository.dropLoginTable()
                                         loginRepository.insertTokenData(
                                             loginResponse.token,
-                                            loginResponse.empId
+                                            loginResponse.empId,
+                                            loginResponse.positionId
                                         )
                                         // 개인 아이디가 필요한 데이터 가져오기
                                         // 캘린더, 개인 주소록, 전자결재..

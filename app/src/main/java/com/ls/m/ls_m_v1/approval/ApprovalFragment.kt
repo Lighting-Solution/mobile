@@ -1,15 +1,22 @@
 package com.ls.m.ls_m_v1.approval
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.m.ls_m_v1.R
+import com.ls.m.ls_m_v1.approval.service.downloadAndSavePDF
+import com.ls.m.ls_m_v1.login.repository.LoginRepository
+import kotlinx.coroutines.launch
+import java.io.Serializable
 
 class ApprovalFragment : Fragment() {
 
@@ -20,6 +27,8 @@ class ApprovalFragment : Fragment() {
 
     private lateinit var pendingAdapter: ApprovalAdapter
     private lateinit var rejectedAdapter: ApprovalAdapter
+
+    private lateinit var loginRepository: LoginRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,17 +46,44 @@ class ApprovalFragment : Fragment() {
         pendingRecyclerView.layoutManager = LinearLayoutManager(context)
         rejectedRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        pendingAdapter = ApprovalAdapter(emptyList()) { approval ->
-            // 클릭 리스너 설정
-        }
-        rejectedAdapter = ApprovalAdapter(emptyList()) { approval ->
-            // 클릭 리스너 설정
-        }
+        loginRepository = LoginRepository(requireContext())
 
-        pendingRecyclerView.adapter = pendingAdapter
-        rejectedRecyclerView.adapter = rejectedAdapter
+        // loginData를 가져온 후에 어댑터를 설정하고 observeViewModel 호출
+        lifecycleScope.launch {
+            val loginData = loginRepository.getloginData()
 
-        observeViewModel()
+            pendingAdapter = ApprovalAdapter(emptyList(), loginData) { approval ->
+//                lifecycleScope.launch {
+//                    val success = downloadAndSavePDF(requireContext(), approval.digitalApprovalId)
+//                    if (success) {
+//                        Toast.makeText(requireContext(), "PDF 다운로드 성공", Toast.LENGTH_SHORT).show()
+//                    } else {
+//                        Toast.makeText(requireContext(), "PDF 다운로드 실패", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+                val intent = Intent(requireContext(), ApprovalDetail::class.java).apply {
+                    putExtra("approval_data", approval as Serializable)
+                }
+                startActivity(intent)
+
+            }
+            rejectedAdapter = ApprovalAdapter(emptyList(), loginData) { approval ->
+                lifecycleScope.launch {
+                    val success = downloadAndSavePDF(requireContext(), approval.digitalApprovalId)
+                    if (success) {
+                        Toast.makeText(requireContext(), "PDF 다운로드 성공", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "PDF 다운로드 실패", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            pendingRecyclerView.adapter = pendingAdapter
+            rejectedRecyclerView.adapter = rejectedAdapter
+
+            approvalViewModel.loadApprovals(loginData)
+            observeViewModel()
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

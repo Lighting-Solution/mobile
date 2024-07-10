@@ -1,5 +1,7 @@
 package com.ls.m.ls_m_v1.approval.entity
 
+import java.io.Serializable
+
 data class ApprovalEntity(
     val digitalApprovalId: Int,            // 개인문서 함
     val empId: Int,                        // 사원
@@ -14,7 +16,7 @@ data class ApprovalEntity(
     val digitalApprovalAt: String,  // 결재 완료 일
     val managerRejectAt: String,     // 부장 반려일
     val ceoRejectAt: String           // 대표이사 반려일
-)
+):Serializable
 
 data class ApprovalEmpDTO(
     val empId : Int,

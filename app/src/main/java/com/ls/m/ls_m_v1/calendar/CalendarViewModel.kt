@@ -22,12 +22,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     val events: LiveData<List<CalendarEvent>> get() = _events
 
     private val eventColors = listOf(
-        Color.RED,
-        Color.GREEN,
-        Color.BLUE,
-        Color.YELLOW,
-        Color.CYAN,
-        Color.MAGENTA
+        Color.parseColor("#87CEEB"),
+        Color.parseColor("#FFC0CB"),
+        Color.parseColor("#F08080"),
+        Color.parseColor("#FFDAB9"),
+        Color.parseColor("#9370DB"),
+        Color.parseColor("#90EE90")
     )
     init {
         loadEvents()

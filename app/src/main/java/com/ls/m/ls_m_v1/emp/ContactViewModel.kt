@@ -26,12 +26,8 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
         val departments = empList.filter { it.department.departmentId % 10 == 0 }
         val teams = empList.filter { it.department.departmentId % 10 != 0 }
 
-        Log.d("ContactViewModel", "Departments: $departments")
-        Log.d("ContactViewModel", "Teams: $teams")
-
         for (department in departments) {
             contacts.add(SectionHeader(department.department.departmentName))
-            Log.d("ContactViewModel", "Added Department Header: ${department.department.departmentName}")
 
             // 부서에 속한 사람들 추가
             contacts.addAll(empList.filter { it.department.departmentId == department.department.departmentId }
@@ -48,7 +44,6 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
                         company = emp.company,
                         buttonState = false
                     ).also {
-                        Log.d("ContactViewModel", "Added Department Contact: $it")
                     }
                 })
 
@@ -59,7 +54,6 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
 
             for (team in departmentTeams) {
                 contacts.add(SectionHeader("   - ${team.department.departmentName}"))
-                Log.d("ContactViewModel", "Added Team Header: ${team.department.departmentName}")
 
                 contacts.addAll(teams.filter { it.department.departmentId == team.department.departmentId }
                     .map { emp ->
@@ -75,12 +69,10 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
                             company = emp.company,
                             buttonState = false
                         ).also {
-                            Log.d("ContactViewModel", "Added Team Contact: $it")
                         }
                     })
             }
         }
         _contacts.value = contacts
-        Log.d("ContactViewModel", "Final Contacts: $contacts")
     }
 }
