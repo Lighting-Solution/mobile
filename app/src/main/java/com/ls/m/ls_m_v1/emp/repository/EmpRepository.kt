@@ -183,5 +183,12 @@ class EmpRepository(context: Context) {
         }
     }
 
+    fun forRefreash() {
+        val db = dbHelper.writableDatabase
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.EMP_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.DEPARTMENT_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.POSITION_TABLE}")
+        dbHelper.onCreate(db)
+    }
 
 }

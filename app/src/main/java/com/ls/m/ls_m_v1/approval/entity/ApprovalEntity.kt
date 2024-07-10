@@ -10,8 +10,8 @@ data class ApprovalEntity(
     val digitalApprovalPath: String,       // 문서 경로
     val digitalApprovalType: Int,      // 문서함 종류
     val drafterStatus: Int,            // 기안자 결재 상태
-    val managerStatus: Int,            // 부장 결재 상태
-    val ceoStatus: Int,                // 대표이사 결재상태
+    var managerStatus: Int,            // 부장 결재 상태
+    var ceoStatus: Int,                // 대표이사 결재상태
     val digitalApprovalCreateAt: String,// 작성일
     val digitalApprovalAt: String,  // 결재 완료 일
     val managerRejectAt: String,     // 부장 반려일

@@ -30,27 +30,27 @@ class Splash : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-// 보안 끝나면 주석 풀것
+
         // 데이터베이스 생성 및 초기화
-//        dbHelper = DatabaseHelper(this)
-//        dbHelper.writableDatabase
-//
-//        empService = RetrofitInstanceEMP.api
-//
-//        empRepository = EmpRepository(this)
-//        // EMP 데이터 업데이트
-//        updateEmpData()
-//
-//        // 로그인 데이터 확인 및 화면 전환
-//        handleLoginData()
+        dbHelper = DatabaseHelper(this)
+        dbHelper.writableDatabase
+
+        empService = RetrofitInstanceEMP.api
+
+        empRepository = EmpRepository(this)
+        // EMP 데이터 업데이트
+        updateEmpData()
+
+        // 로그인 데이터 확인 및 화면 전환
+        handleLoginData()
 
 
         //// 작업 다하면 지울것-------------------
-        Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this@Splash, Login::class.java)
-            startActivity(intent)
-            finish()
-        }, 2000)
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            val intent = Intent(this@Splash, Login::class.java)
+//            startActivity(intent)
+//            finish()
+//        }, 1000)
     }
 
     private fun updateEmpData() {
@@ -93,15 +93,11 @@ class Splash : AppCompatActivity() {
             try {
                 val user = loginRepository.getloginData()
 
-
-                //테이블 읽어와야함, 아이디를 넘겨줘야하기 때문
-                // 개인 데이터가 필요한 테이블들 api로 불러올것
-                // 캘린더, 개인 주소록,
-
                 // 로그인 데이터가 있을 경우 메인 화면으로 이동
                 val intent = Intent(this@Splash, MainActivity::class.java)
                 startActivity(intent)
                 finish()
+
             } catch (e: IllegalStateException) {
                 // 로그인 데이터가 없을 경우 로그인 화면으로 이동
                 val intent = Intent(this@Splash, Login::class.java)

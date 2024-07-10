@@ -196,7 +196,7 @@ class DatabaseHelper(context: Context) :
 
     fun onDelete(tableName: String) {
         val db = this.writableDatabase
-        db.execSQL("DELETE TABLE $tableName")
+        db.execSQL("DROP TABLE IF EXISTS $tableName")
         onCreate(db)
     }
 

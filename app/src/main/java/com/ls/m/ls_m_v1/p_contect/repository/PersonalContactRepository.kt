@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
+import com.ls.m.ls_m_v1.p_contect.entity.ContactGroupDTO
 import com.ls.m.ls_m_v1.p_contect.entity.PersonalContactDTO
 import com.ls.m.ls_m_v1.p_contect.entity.PersonalGroupDTO
 import java.time.LocalDate
@@ -165,20 +166,20 @@ class PersonalContactRepository(context: Context) {
         cursor.close()
         return personalGroups
     }
-    fun insertCompany(company: CompanyDTO): Long {
-        // 1번 제외 후 저장 할것
-        val db = dbHelper.writableDatabase
-        val values = ContentValues().apply {
-            put("companyName", company.companyName)
-            put("companyAddress", company.companyAddress)
-            put("companyURL", company.companyURL)
-            put("companyNumber", company.companyNumber)
-            put("companyFax", company.companyFax)
-        }
-        val id = db.insert(DatabaseHelper.DatabaseConstants.COMPANY_TABLE, null, values)
-        db.close()
-        return id
-    }
+//    fun insertCompany(company: CompanyDTO): Long {
+//        // 1번 제외 후 저장 할것
+//        val db = dbHelper.writableDatabase
+//        val values = ContentValues().apply {
+//            put("companyName", company.companyName)
+//            put("companyAddress", company.companyAddress)
+//            put("companyURL", company.companyURL)
+//            put("companyNumber", company.companyNumber)
+//            put("companyFax", company.companyFax)
+//        }
+//        val id = db.insert(DatabaseHelper.DatabaseConstants.COMPANY_TABLE, null, values)
+//        db.close()
+//        return id
+//    }
 
    fun getAllCompanyData(): List<CompanyDTO> {
         val db: SQLiteDatabase = dbHelper.readableDatabase
@@ -203,5 +204,49 @@ class PersonalContactRepository(context: Context) {
         cursor.close()
         db.close()
         return companys
+    }
+
+    fun insertCompany(company: CompanyDTO) {
+        if (company.companyId != 1) {
+            val db = dbHelper.writableDatabase
+            val values = ContentValues().apply {
+                put("companyId", company.companyId)
+                put("companyName", company.companyName)
+                put("companyAddress", company.companyAddress)
+                put("companyURL", company.companyURL)
+                put("companyNumber", company.companyNumber)
+                put("companyFax", company.companyFax)
+            }
+            db.insert("company", null, values)
+        }
+    }
+
+    fun insertPersonalGroup(group: PersonalGroupDTO) {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("personalGroupId", group.personalGroupId)
+            put("empId", group.empId)
+            put("personalGroupName", group.personalGroupName)
+        }
+        db.insert("personal_group", null, values)
+    }
+
+    fun insertContactGroup(contactGroup: ContactGroupDTO) {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("contactGroupId", contactGroup.contactGroupId)
+            put("personalContactId", contactGroup.personalContactId)
+            put("personalGroupId", contactGroup.personalGroupId)
+        }
+        db.insert("contact_group", null, values)
+    }
+
+    fun forRefresh(){
+        val db = dbHelper.writableDatabase
+        db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE}")
+        db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.PERSONAL_GROUP_TABLE}")
+        db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.CONTACT_GROUP_TABLE}")
+        db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.COMPANY_TABLE}")
+        dbHelper.onCreate(db)
     }
 }
