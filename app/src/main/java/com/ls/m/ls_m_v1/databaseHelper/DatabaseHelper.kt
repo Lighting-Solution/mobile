@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEmpDTO
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
@@ -44,7 +45,8 @@ class DatabaseHelper(context: Context) :
         val createRepo = """
             CREATE TABLE IF NOT EXISTS ${DatabaseConstants.MY_EMP} (
                 empId INTEGER PRIMARY KEY,
-                token TEXT NOT NULL
+                token TEXT NOT NULL,
+                positionId INTEGER
             );
         """.trimIndent()
 
@@ -160,37 +162,41 @@ class DatabaseHelper(context: Context) :
                 'http://www.lightingsolution.co.kr', '1010-1010', '02-0101-0101'
             );
         """.trimIndent()
+        try {
+            db?.execSQL(createRepo)
+            db?.execSQL(createCalendarTable)
+            db?.execSQL(createEmpTable)
+            db?.execSQL(createPositionTable)
+            db?.execSQL(createDepartmentTable)
+            db?.execSQL(createCompanyTable)
+            db?.execSQL(insertCompanyDefaultData)
+            db?.execSQL(createPersonalContactTable)
+            db?.execSQL(createPersonalGroupTable)
+            db?.execSQL(createContactGroupTable)
+            db?.execSQL(createDigitalApprovalTable)
+        }catch (e : Exception){
+            Log.e("DatabaseHelper", "Error while creating database tables: ${e.message}")
+        }
 
-        db?.execSQL(createRepo)
-        db?.execSQL(createCalendarTable)
-        db?.execSQL(createEmpTable)
-        db?.execSQL(createPositionTable)
-        db?.execSQL(createDepartmentTable)
-        db?.execSQL(createCompanyTable)
-        db?.execSQL(insertCompanyDefaultData)
-        db?.execSQL(createPersonalContactTable)
-        db?.execSQL(createPersonalGroupTable)
-        db?.execSQL(createContactGroupTable)
-        db?.execSQL(createDigitalApprovalTable)
     }
 
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CALENDAR_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.EMP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.POSITION_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.DEPARTMENT_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.COMPANY_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.PERSONAL_CONTACT_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.PERSONAL_GROUP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CONTACT_GROUP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.APPROVAL_TABLE")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CALENDAR_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.EMP_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.POSITION_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.DEPARTMENT_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.COMPANY_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PERSONAL_CONTACT_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PERSONAL_GROUP_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CONTACT_GROUP_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.APPROVAL_TABLE}")
         onCreate(db)
     }
 
     fun onDelete(tableName: String) {
         val db = this.writableDatabase
-        db.execSQL("DELETE TABLE $tableName")
+        db.execSQL("DROP TABLE IF EXISTS $tableName")
         onCreate(db)
     }
 
@@ -242,110 +248,29 @@ class DatabaseHelper(context: Context) :
         }
     }
 
-    fun getApprovalWithEMPDrafter(empId: Int): List<Pair<ApprovalEntity, ApprovalEmpDTO>> {
-        val ApprovalWithEMP = mutableListOf<Pair<ApprovalEntity, ApprovalEmpDTO>>()
-        val db = this.readableDatabase
-        /*
-                // 전자결재 데이터와 emp데이터를 조인하는 쿼리
-                val selectQuery = """
-                    SELECT
-                        da.pdocument_id, da.drafter_id, da.name AS document_name, da.pdocumentPath,
-                        da.dBoxType, da.drafter_status, da.manager_status, da.ceo_status,
-                        da.created_at, da.approval_at,
-                        e.empId, e.empName,
-                        p.positionName AS position,
-                        d.departmentName AS department
-                    FROM digital_approval da
-                    JOIN $EMP_TABLE e ON da.drafter_id = e.empId
-                    JOIN $POSITION_TABLE p ON e.positionId = p.positionId
-                    JOIN $DEPARTMENT_TABLE d ON e.departmentId = d.departmentId
-                """.trimIndent()*/
-
-        // SQL 쿼리: empId가 기안자이거나, 기안자의 부서의 부서장이거나, 대표이사일 경우에만 데이터를 가져옵니다.
-        val selectQuery = """
-            SELECT 
-                da.*, e.*, p.name AS $DatabaseConstants.POSITION_TABLE, d.name AS $DatabaseConstants.DEPARTMENT_TABLE
-            FROM digital_approval da
-            JOIN $DatabaseConstants.EMP_TABLE e ON da.drafter_id = e.empId
-            JOIN $DatabaseConstants.POSITION_TABLE p ON e.positionId = p.position_id
-            JOIN $DatabaseConstants.DEPARTMENT_TABLE d ON e.departmentId = d.department_id
-            WHERE da.drafter_id = ? 
-            OR (da.drafter_id IN (SELECT empId FROM $DatabaseConstants.EMP_TABLE WHERE departmentId = (SELECT departmentId FROM $DatabaseConstants.EMP_TABLE WHERE empId = ?) AND positionId = 2))
-            OR (? IN (SELECT empId FROM $DatabaseConstants.EMP_TABLE WHERE positionId = 1))
-        """.trimIndent()
-
-        val cursor =
-            db.rawQuery(selectQuery, arrayOf(empId.toString(), empId.toString(), empId.toString()))
-
-        with(cursor) {
-            while (moveToNext()) {
-                val pdocumentId = getInt(getColumnIndexOrThrow("digitalApprovalId"))
-                val drafterId = getInt(getColumnIndexOrThrow("drafterId"))
-                val documentName = getString(getColumnIndexOrThrow("digitalApprovalName"))
-                val pdocumentPath = getString(getColumnIndexOrThrow("digitalApprovalPath"))
-                val dBoxType = getInt(getColumnIndexOrThrow("digitalApprovalType")) == 1
-                val drafterStatus = getInt(getColumnIndexOrThrow("drafterStatus")) == 1
-                val managerStatus = getInt(getColumnIndexOrThrow("managerStatus")) == 1
-                val ceoStatus = getInt(getColumnIndexOrThrow("ceoStatus")) == 1
-                val createdAt = getString(getColumnIndexOrThrow("digitalApprovalCreateAt"))
-                val approvalAt = getString(getColumnIndexOrThrow("digitalApprovalAt"))
-                val managerRejectAt = getString(getColumnIndexOrThrow("managerRejectAt"))
-                val ceoRejectAt = getString(getColumnIndexOrThrow("ceoRejectAt"))
-
-                val approvalEntity = ApprovalEntity(
-                    digitalApprovalId = pdocumentId,
-                    drafterId = drafterId,
-                    digitalApprovalName = documentName,
-                    digitalApprovalPath = pdocumentPath,
-                    digitalApprovalType = dBoxType,
-                    drafterStatus = drafterStatus,
-                    managerStatus = managerStatus,
-                    ceoStatus = ceoStatus,
-                    empId = drafterId,
-                    digitalApprovalCreateAt = LocalDateTime.parse(createdAt),
-                    digitalApprovalAt = LocalDateTime.parse(approvalAt),
-                    managerRejectAt = LocalDateTime.parse(managerRejectAt),
-                    ceoRejectAt = LocalDateTime.parse(ceoRejectAt)
-                )
-
-                val empId = getInt(getColumnIndexOrThrow("empId"))
-                val empName = getString(getColumnIndexOrThrow("empName"))
-                val position = getString(getColumnIndexOrThrow("position"))
-                val department = getString(getColumnIndexOrThrow("department"))
-
-                val approvalEmpDTO = ApprovalEmpDTO(
-                    empId = empId,
-                    empName = empName,
-                    position = position,
-                    department = department
-                )
-
-                ApprovalWithEMP.add(Pair(approvalEntity, approvalEmpDTO))
-            }
-        }
-        cursor.close()
-        return ApprovalWithEMP
-    }
-
     fun clearDatabase() {
         val db = this.writableDatabase
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CALENDAR_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.EMP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.POSITION_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.DEPARTMENT_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.PERSONAL_CONTACT_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.PERSONAL_GROUP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.CONTACT_GROUP_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.APPROVAL_TABLE")
-        db?.execSQL("DROP TABLE IF EXISTS $DatabaseConstants.MY_EMP")
+        try {
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CALENDAR_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.EMP_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.POSITION_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.DEPARTMENT_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PERSONAL_CONTACT_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PERSONAL_GROUP_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CONTACT_GROUP_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.APPROVAL_TABLE}")
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.MY_EMP}")
         // 1번 데이터를 제외하고 삭제
         db?.execSQL("DELETE FROM $DatabaseConstants.COMPANY_TABLE WHERE id > 1")
+        }catch (e: Exception) {
+            Log.e("DatabaseHelper", "Error while clearing database: ${e.message}")
+        }
     }
 
     fun getCompany(companyId: Int): CompanyDTO {
         val db = this.readableDatabase
         val cursor = db.query(
-            DatabaseHelper.DatabaseConstants.COMPANY_TABLE,
+            DatabaseConstants.COMPANY_TABLE,
             null,
             "companyId=?",
             arrayOf(companyId.toString()),

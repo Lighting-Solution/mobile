@@ -41,18 +41,16 @@ class Login : AppCompatActivity() {
 
         // 인스턴스 생성하고 데이터베이스 액세스
 
-
-        //  session
         loginButton.setOnClickListener {
             val userId = id.text.toString()
             val userPw = pw.text.toString()
             // api통신으로 받아와 데이터 베이스 저장까지 완료
-//            login(userId, userPw)
-
+            login(userId, userPw)
             // 화면 전환
-            val intent = Intent(this@Login, MainActivity::class.java)
-            startActivity(intent)
-            finish()
+//            val intent = Intent(this@Login, MainActivity::class.java)
+//            startActivity(intent)
+//            finish()
+
         }
 
     }
@@ -65,7 +63,6 @@ class Login : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // 데이터 통신이 된다면 데이터 베이스 삭제 후 다시 업로드
-
                 RetrofitInstanceLogin.api.requestLoginData(loginEntity)
                     .enqueue(object : Callback<LoginResponseDto> {
                         override fun onResponse(
@@ -85,10 +82,16 @@ class Login : AppCompatActivity() {
                                         loginRepository.dropLoginTable()
                                         loginRepository.insertTokenData(
                                             loginResponse.token,
-                                            loginResponse.empId
+                                            loginResponse.empId,
+                                            loginResponse.positionId
                                         )
                                         // 개인 아이디가 필요한 데이터 가져오기
                                         // 캘린더, 개인 주소록, 전자결재..
+
+                                        // 화면 전환
+                                        val intent = Intent(this@Login, MainActivity::class.java)
+                                        startActivity(intent)
+                                        finish()
 
                                     }
                                 } else {

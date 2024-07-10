@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -59,6 +60,14 @@
             </LinearLayout>
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/viewColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/circle_background"
+            android:layout_gravity="center"
+            android:layout_marginEnd="5dp"
+            app:tint="#989898" />
         <TextView
             android:id="@+id/approvalState"
             android:layout_width="wrap_content"
@@ -68,5 +77,9 @@
             android:background="@drawable/rounded_backround"
             android:layout_gravity="center"/>
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:background="#989898"/>
 
 </LinearLayout>

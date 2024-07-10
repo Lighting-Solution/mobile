@@ -1,10 +1,10 @@
 package com.ls.m.ls_m_v1.emp
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.emp.entity.AllContact
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
 import com.ls.m.ls_m_v1.emp.repository.EmpRepository
@@ -29,12 +29,31 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
         for (department in departments) {
             contacts.add(SectionHeader(department.department.departmentName))
 
+            // 부서에 속한 사람들 추가
+            contacts.addAll(empList.filter { it.department.departmentId == department.department.departmentId }
+                .map { emp ->
+                    AllContact(
+                        id = emp.empId.toString(),
+                        name = emp.empName,
+                        position = emp.position.positionName,
+                        department = emp.department.departmentName,
+                        email = emp.empEmail,
+                        mobilePhone = emp.empMP,
+                        officePhone = emp.company.companyNumber,
+                        birthday = emp.empBirthday.toString(),
+                        company = emp.company,
+                        buttonState = false
+                    ).also {
+                    }
+                })
+
+            // 부서에 속한 팀들 필터링
             val departmentTeams = teams.filter {
                 it.department.departmentId / 10 == department.department.departmentId / 10
             }
 
             for (team in departmentTeams) {
-                contacts.add(SectionHeader("  ${team.department.departmentName}"))
+                contacts.add(SectionHeader("   - ${team.department.departmentName}"))
 
                 contacts.addAll(teams.filter { it.department.departmentId == team.department.departmentId }
                     .map { emp ->
@@ -49,7 +68,8 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
                             birthday = emp.empBirthday.toString(),
                             company = emp.company,
                             buttonState = false
-                        )
+                        ).also {
+                        }
                     })
             }
         }

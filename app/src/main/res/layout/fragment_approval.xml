@@ -27,8 +27,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="10dp"
+        android:layout_weight="1"
         android:background="@drawable/rounded_backround"
         android:orientation="vertical">
 
@@ -68,7 +69,7 @@
                     android:layout_gravity="center"
                     android:layout_marginStart="16dp"
                     android:src="@drawable/circle_background"
-                    app:tint="#FFBF00" />
+                    app:tint="@color/orange" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -96,9 +97,10 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="10dp"
         android:padding="10dp"
+        android:layout_weight="1"
         android:background="@drawable/rounded_backround"
         android:orientation="vertical">
 
@@ -135,7 +137,7 @@
                     android:layout_gravity="center"
                     android:layout_marginStart="16dp"
                     android:src="@drawable/circle_background"
-                    app:tint="#FF0040" />
+                    app:tint="@color/red" />
 
                 <TextView
                     android:layout_width="wrap_content"

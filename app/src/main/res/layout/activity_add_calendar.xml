@@ -13,14 +13,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="10dp"
-        tools:context=".calendar.AddCalendar">
+        tools:context=".calendar.AddCalendar"
+        android:background="@color/sand">
 
         <ImageView
             android:id="@+id/backButton"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/backbutton" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,6 +30,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="일정등록"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -38,8 +40,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:clickable="true"
+            android:textColor="@color/white"
             android:text="확인"
             android:textSize="14sp" />
+
     </LinearLayout>
 
     <!-- Scrollable Content Section -->
@@ -187,7 +191,7 @@
                     <com.google.android.material.chip.ChipGroup
                         android:id="@+id/chipGroup"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:singleLine="true"
                         android:background="@drawable/textview_layout_bg"

@@ -8,13 +8,16 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="10dp"
+        android:background="@color/sand">
 
-        android:background="#64A70B">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="개인 주소록"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginStart="30dp"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="#fff"
@@ -26,7 +29,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="추가"
-            android:layout_marginRight="5dp"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:layout_marginRight="10dp"
             android:textSize="14sp" />
     </LinearLayout>
 

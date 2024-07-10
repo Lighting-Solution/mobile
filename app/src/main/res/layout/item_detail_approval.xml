@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="8dp">
-
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_profile"
+        android:layout_marginStart="10dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="10dp"/>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -12,7 +19,7 @@
         android:layout_weight="1">
 
         <TextView
-            android:id="@+id/approverName"
+            android:id="@+id/empName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="김지연 부장"
@@ -25,21 +32,22 @@
 
 
             <TextView
-                android:id="@+id/approverTeam"
+                android:id="@+id/departmentName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="영업팀"
                 android:textSize="16sp" />
 
-            <TextView
-                android:id="@+id/approvalDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="2024-06-24(월) 11:17"
-                android:textSize="16sp" />
+<!--            <TextView-->
+<!--                android:id="@+id/approvalDate"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginStart="8dp"-->
+<!--                android:text="2024-06-24(월) 11:17"-->
+<!--                android:textSize="16sp" />-->
         </LinearLayout>
     </LinearLayout>
+
     <TextView
         android:id="@+id/approvalState"
         android:layout_width="wrap_content"
@@ -47,5 +55,5 @@
         android:layout_gravity="center"
         android:gravity="right"
         android:layout_marginEnd="10dp"
-        android:text="state" />
+        android:text="상태" />
 </LinearLayout>

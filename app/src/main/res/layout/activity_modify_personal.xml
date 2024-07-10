@@ -11,7 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:background="@color/sand"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp">
 
         <ImageView
             android:id="@+id/backButton_1"
@@ -19,7 +21,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:gravity="start"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/backbutton" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,7 +29,10 @@
             android:layout_gravity="center"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="연락처 추가" />
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:text="연락처 편집" />
 
         <TextView
             android:id="@+id/submit"
@@ -36,13 +41,16 @@
             android:layout_gravity="center"
             android:layout_marginRight="10dp"
             android:gravity="right"
+            android:textStyle="bold"
+            android:textColor="@color/white"
             android:text="확인" />
 
     </LinearLayout>
-
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,69 +63,168 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 tools:ignore="MissingConstraints">
-
-                <EditText
-                    android:id="@+id/personalContactName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="이름" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="이름"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <EditText
+                        android:id="@+id/personalContactName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/textview_layout_bg"
+                        android:padding="10dp"
+                        android:hint="이름" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/personalContactNickName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="별명" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="별명"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <EditText
+                        android:id="@+id/personalContactNickName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/textview_layout_bg"
+                        android:padding="10dp"
+                        android:hint="별명" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/departmentName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="부서" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="부서"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <EditText
+                        android:id="@+id/departmentName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/textview_layout_bg"
+                        android:padding="10dp"
+                        android:hint="부서" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/positionName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="직급" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="직급"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <EditText
+                        android:id="@+id/positionName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/textview_layout_bg"
+                        android:padding="10dp"
+                        android:hint="직급" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/personalContactMP"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="전화번호"
-                    android:inputType="phone" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="전화번호"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <EditText
+                        android:id="@+id/personalContactMP"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/textview_layout_bg"
+                        android:padding="10dp"
+                        android:hint="전화번호"
+                        android:inputType="phone" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/personalContactEmail"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="이메일"
-                    android:inputType="textWebEmailAddress" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="이메일"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <EditText
+                        android:id="@+id/personalContactEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/textview_layout_bg"
+                        android:padding="10dp"
+                        android:hint="이메일"
+                        android:inputType="textWebEmailAddress" />
+                </LinearLayout>
 
-                <EditText
-                    android:id="@+id/personalContactBirthday"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="생일"
-                    android:inputType="date" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+                    <TextView
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        android:text="생일"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
 
+                    <TextView
+                        android:id="@+id/personalContactBirthday"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="5dp"
+                        android:background="@drawable/textview_layout_bg"
+                        android:clickable="true"
+                        android:focusable="false"
+                        android:padding="10dp"
+                        android:text="YYYY-MM-DD"
+                        android:textSize="16sp" />
+                </LinearLayout>
 
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="메모" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/parsonalMemoLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:importantForAutofill="no">
+                    android:importantForAutofill="no"
+                    android:layout_marginBottom="10dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/personalContactMemo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top"
+                        android:hint="메모"
                         android:inputType="textMultiLine"
                         android:minLines="3"
                         android:padding="16dp" />
@@ -125,11 +232,14 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="16sp"
                     android:text="회사 선택" />
                 <Spinner
                     android:id="@+id/spinner"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/textview_layout_bg"
+                    android:layout_marginBottom="10dp"/>
 
                 <ViewStub
                     android:id="@+id/companyInfoStub"
@@ -138,14 +248,19 @@
                     android:inflatedId="@+id/companyInfoLayout"
                     android:layout="@layout/company_info_layout"
                     android:visibility="visible"/>
+
             </LinearLayout>
 
             <Button
                 android:id="@+id/deleteContactButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/sand"
                 android:text="연락처 삭제"
-                app:cornerRadius="5dp" />
+                android:textSize="14sp"
+                app:cornerRadius="10dp" />
         </LinearLayout>
+
     </ScrollView>
+
 </LinearLayout>

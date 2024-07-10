@@ -15,6 +15,7 @@ import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -27,6 +28,9 @@ import com.kizitonwose.calendar.view.CalendarView
 import com.kizitonwose.calendar.view.MonthDayBinder
 import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
 import com.ls.m.ls_m_v1.R
+import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
+import com.ls.m.ls_m_v1.login.repository.LoginRepository
+import java.io.Serializable
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -39,10 +43,12 @@ class CalendarFragment : Fragment() {
     private lateinit var eventsRecyclerView: RecyclerView
     private lateinit var monthTitle: TextView
     private lateinit var selectedDateView: TextView
-    private lateinit var addButton : FloatingActionButton
+    private lateinit var addButton: FloatingActionButton
     private var selectedDate: LocalDate? = null
     private lateinit var calendarAdapter: CalendarAdapter
     private val calendarViewModel: CalendarViewModel by viewModels()
+    private lateinit var loginRepository: LoginRepository
+    private lateinit var loginData: LoginResponseDto
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,12 +66,18 @@ class CalendarFragment : Fragment() {
         selectedDate = LocalDate.now()
         addButton = view.findViewById(R.id.AddButton)
 
+        loginRepository = LoginRepository(requireContext())
+
+        loginData = loginRepository.getloginData()
+
         setupRecyclerView()
         setupCalendarView()
         showEventsForDate(LocalDate.now()) // 현재 날짜의 이벤트를 미리 보여줌
 
         addButton.setOnClickListener {
-            val intent = Intent(requireContext(), AddCalendar::class.java)
+            val intent = Intent(requireContext(), AddCalendar::class.java).apply {
+                putExtra("loginData", loginData as Serializable)
+            }
             startActivity(intent)
         }
     }

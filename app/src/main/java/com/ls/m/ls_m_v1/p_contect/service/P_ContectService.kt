@@ -13,8 +13,10 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface P_ContectService {
-    @GET("list/all-personal/android")
-    fun getP_ContectData(): Call<ContanctAandroidDTO>
+    @GET("list/all-personal/android/{id}")
+    fun getP_ContectData(
+        @Path("id") id:String
+    ): Call<ContanctAandroidDTO>
 
     @DELETE("contact")
     fun deleteP_ContectData(
@@ -33,7 +35,7 @@ interface P_ContectService {
         @Body addPersonalDTO: AddPersonalDTO
     ): Call<String>
 }
-class contectRepository {
+object RetrofitInstancePersonal {
     private val BASE_URL = "http://10.0.2.2:9000/api/v1/intranet/contact/"
 
     val api : P_ContectService by lazy {

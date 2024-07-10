@@ -4,33 +4,60 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEmpDTO
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
-import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
+import com.ls.m.ls_m_v1.approval.repository.ApprovalRepository
+import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
 import com.ls.m.ls_m_v1.login.repository.LoginRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ApprovalViewModel(application: Application) : AndroidViewModel(application) {
-    private val _contents = MutableLiveData<List<Pair<ApprovalEntity, ApprovalEmpDTO>>>()
+    private val _pendingDocuments = MutableLiveData<List<Pair<ApprovalEntity, ApprovalEmpDTO>>>()
+    val pendingDocuments: LiveData<List<Pair<ApprovalEntity, ApprovalEmpDTO>>> get() = _pendingDocuments
 
-    val contents: LiveData<List<Pair<ApprovalEntity, ApprovalEmpDTO>>> get() = _contents
+    private val _rejectedDocuments = MutableLiveData<List<Pair<ApprovalEntity, ApprovalEmpDTO>>>()
+    val rejectedDocuments: LiveData<List<Pair<ApprovalEntity, ApprovalEmpDTO>>> get() = _rejectedDocuments
 
-    private val dbHelper = DatabaseHelper(application)
+    private val approvalRepository = ApprovalRepository(application)
     private val loginRepository = LoginRepository(application)
 
-    init {
-        loadData()
-    }
+    fun loadApprovals(loginData: LoginResponseDto) {
 
-    private fun loadData() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val empId = loginRepository.getloginData()
+        viewModelScope.launch {
+            val allApprovals = approvalRepository.getApprovalsForUser(loginData.empId)
 
-            val approvalWithEmp = dbHelper.getApprovalWithEMPDrafter(empId.empId)
-            val filteredData = approvalWithEmp.filter { it.first.ceoStatus == false }
-            _contents.value = filteredData
+            val pendingList = mutableListOf<Pair<ApprovalEntity, ApprovalEmpDTO>>()
+            val rejectedList = mutableListOf<Pair<ApprovalEntity, ApprovalEmpDTO>>()
+
+            allApprovals.forEach { (approval, emp) ->
+                if (approval.digitalApprovalType == 1) {
+                    if (loginData.positionId >= 3) {
+                        rejectedList.add(Pair(approval, emp))
+                    } else if (loginData.positionId == 1) {
+                        if (approval.managerStatus == 1) {
+                            rejectedList.add(Pair(approval, emp))
+                        }
+                    } else {
+                        if (approval.managerStatus == 0) {
+                            rejectedList.add(Pair(approval, emp))
+                        }
+                    }
+                } else if (approval.ceoStatus == 0 && approval.digitalApprovalType == 0) {
+                    if (loginData.positionId != 1) {
+                        if (loginData.positionId == 2 && approval.managerStatus == 0){
+                            pendingList.add(Pair(approval, emp))
+                        }else if (loginData.positionId != 2){
+                            pendingList.add(Pair(approval, emp))
+                        }
+                    }else if (loginData.positionId == 1 && approval.managerStatus == 1){
+                        pendingList.add(Pair(approval, emp))
+                    }
+                }
+            }
+
+            _pendingDocuments.postValue(pendingList)
+            _rejectedDocuments.postValue(rejectedList)
         }
     }
 }

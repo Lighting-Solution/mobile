@@ -1,51 +1,145 @@
 package com.ls.m.ls_m_v1.calendar
 
-import android.R
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.chip.Chip
-import android.graphics.Color
+import com.google.android.material.chip.ChipGroup
+import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
 import com.ls.m.ls_m_v1.calendar.entity.CalendarDto
+import com.ls.m.ls_m_v1.calendar.entity.CalendarEmp
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import com.ls.m.ls_m_v1.calendar.entity.SelectedUser
+import com.ls.m.ls_m_v1.calendar.entity.participantDTO
 import com.ls.m.ls_m_v1.databinding.ActivityAddCalendarBinding
+import com.ls.m.ls_m_v1.emp.entity.EmpDTO
+import com.ls.m.ls_m_v1.emp.repository.EmpRepository
+import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
+import com.ls.m.ls_m_v1.login.repository.LoginRepository
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.util.Calendar
-import java.util.Locale
-import java.util.zip.Inflater
+import java.util.*
+import kotlin.math.log
 
 class AddCalendar : AppCompatActivity() {
-    private lateinit var binding : ActivityAddCalendarBinding
+    private lateinit var binding: ActivityAddCalendarBinding
     private val timeList = mutableListOf<String>()
+    private val selectedUsers = ArrayList<CalendarEmp>()
+    private lateinit var loginRepository: LoginRepository
+    private lateinit var empRepository: EmpRepository
+    private var value: EmpDTO? = null
+    private var empId: Int = 0
+    private var calendarEmp: CalendarEmp? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddCalendarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        empRepository = EmpRepository(this)
+
+        val loginData = intent.getSerializableExtra("loginData")as? LoginResponseDto
+        loginData?.let {
+            value = empRepository.getOneEmps(loginData.empId)
+            if (value != null) {
+                calendarEmp = CalendarEmp(
+                    id = value!!.empId.toString(),
+                    name = value!!.empName,
+                    position = value!!.position.positionName,
+                    company = value!!.company,
+                    department = value!!.department.departmentName,
+                    mobilePhone = value!!.empMP,
+                    isSelected = true
+                )
+            addChip(calendarEmp!!)
+            }
+
+        }
+
         // 기본적으로 오늘 날짜를 설정
         val todayDate = getCurrentDate()
         binding.startDate.text = todayDate
         binding.endDate.text = todayDate
+        empRepository = EmpRepository(this)
+        setupTimeList()
+        setupTimeSpinners()
+        setupListeners()
+        initializeStartTime()
 
+    }
+
+//    private suspend fun getLoginData(): Int {
+//        loginRepository = LoginRepository(this)
+//        val value = loginRepository.getloginData()
+//        return value.empId
+//    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_SELECT_ATTENDEES && resultCode == Activity.RESULT_OK) {
+            Log.d("AddCalendar", "onActivityResult called")
+            if (data != null) {
+                val selectedUsers = data.getParcelableArrayListExtra<CalendarEmp>("selected_users")
+                Log.d("AddCalendar", "Selected users received: $selectedUsers")
+                    binding.chipGroup.removeAllViews()
+                selectedUsers?.forEach { user ->
+                    addChip(user)
+                }
+            } else {
+                Log.d("AddCalendar", "Intent data is null")
+            }
+        }
+    }
+
+    private fun setupTimeList() {
+        val calendar = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 30)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+        for (i in 0 until 48) { // 24시간 = 48개의 30분 간격
+            timeList.add(sdf.format(calendar.time))
+            calendar.add(Calendar.MINUTE, 30)
+        }
+    }
+
+    private fun setupTimeSpinners() {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, timeList).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        binding.startTime.adapter = adapter
+        binding.endTime.adapter = adapter
+    }
+
+    private fun setupListeners() {
         binding.addButton.setOnClickListener {
-            val intent = Intent(this@AddCalendar, CalendarSelect::class.java)
+            val intent = Intent(this, CalendarSelect::class.java)
+            // ChipGroup에 있는 Chip들의 값을 가져와서 Intent에 추가
+            val chips = getChipsFromChipGroup(binding.chipGroup)
+            intent.putParcelableArrayListExtra("selected_users", ArrayList(chips))
             startActivityForResult(intent, REQUEST_CODE_SELECT_ATTENDEES)
         }
+
+        // 메모 활성화 컬러
+        binding.personalContactMemo.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus){
+                binding.memoLayout.setBoxStrokeColorStateList(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
+                binding.personalContactMemo.setHintTextColor(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
+            }
+        }
+
         binding.backButton.setOnClickListener {
             finish()
         }
@@ -58,166 +152,109 @@ class AddCalendar : AppCompatActivity() {
             showDatePickerDialog { date -> binding.endDate.text = date }
         }
 
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 30)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-
-        // 24시간 동안의 시간을 배열에 추가
-
-        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
-
-        // 24시간을 30분 간격으로 추가
-        for (i in 0 until 48) { // 24시간 = 48개의 30 반격
-            timeList.add(sdf.format(calendar.time))
-            calendar.add(Calendar.MINUTE,30)
+        binding.submit.setOnClickListener {
+            var Datas: MutableList<participantDTO> = mutableListOf()
+            for (user in selectedUsers) {
+                var data = participantDTO(
+                    id = user.id,
+                    name = user.name,
+                    department = user.department,
+                )
+                Datas.add(data)
+            }
+            val addData = CalendarDto(
+                calendarTitle = binding.addTitle.text.toString(),
+                calendarCreateAt = Calendar.getInstance().time.toString(),
+                calendarContent = binding.personalContactMemo.text.toString(),
+                calendarStartAt = "${binding.startDate.text}T${binding.startTime.selectedItem}",
+                calendarEndAt = "${binding.endDate.text}T${binding.endTime.selectedItem}",
+                attendees = Datas
+            )
+            // TODO: API 요청 코드 추가
         }
+    }
 
-        // ArrayAdapter를 사용하여 Spinner와 데이터를 연결
-        val adapter = ArrayAdapter(this, R.layout.simple_spinner_item, timeList)
-        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
-        binding.startTime.adapter = adapter
-        binding.endTime.adapter = adapter
-
-        val currentTime = Calendar.getInstance().time
-        val currentFormattedTime = sdf.format(currentTime)
-
-        // 가장 가까운 시간을 찾는 로직
+    private fun initializeStartTime() {
+        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val currentFormattedTime = sdf.format(Calendar.getInstance().time)
         val closestTimePosition = getClosestTimePosition(currentFormattedTime, sdf)
 
         if (closestTimePosition != -1) {
             binding.startTime.setSelection(closestTimePosition)
             binding.endTime.setSelection(closestTimePosition)
-        } else {
-            // 디버그용 로그 출력
-            Log.d("ddddd", currentTime.toString())
-            Log.d("dddddddd", timeList.toString())
-        }
-
-        // Spinner에서 항목을 선택했을 때의 리스너 설정
-        binding.startTime.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedItem = parent?.getItemAtPosition(position).toString()
-                // 선택된 항목에 대한 처리
-                // 예시로 Toast 메시지를 사용하여 선택된 시간을 표시
-                Toast.makeText(this@AddCalendar, "선택된 시간: $selectedItem", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // 아무 항목도 선택되지 않았을 때의 처리
-            }
-        }
-
-        // Spinner에서 항목을 선택했을 때의 리스너 설정
-        binding.endTime.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedItem = parent?.getItemAtPosition(position).toString()
-                // 선택된 항목에 대한 처리
-                // 예시로 Toast 메시지를 사용하여 선택된 시간을 표시
-                Toast.makeText(this@AddCalendar, "선택된 시간: $selectedItem", Toast.LENGTH_SHORT).show()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // 아무 항목도 선택되지 않았을 때의 처리
-            }
-        }
-        // CheckBox 상태 변화 감지하여 Spinner 활성화/비활성화
-        binding.AlldayCheck.setOnCheckedChangeListener { _, isChecked ->
-            binding.startTime.isEnabled = !isChecked
-            binding.endTime.isEnabled = !isChecked
-        }
-        // 메모 활성화 컬러
-        binding.personalContactMemo.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus){
-                binding.memoLayout.setBoxStrokeColorStateList(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
-                binding.personalContactMemo.setHintTextColor(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
-            }
-        }
-
-        binding.submit.setOnClickListener {
-            val addData = CalendarDto(
-                calendarTitle = binding.addTitle.text.toString(),
-                calendarCreateAt = LocalDateTime.now().toString(),
-                calendarContent = binding.personalContactMemo.text.toString(),
-                calendarStartAt = binding.startDate.text.toString() + "T" + binding.startTime.selectedItem.toString(),
-                calendarEndAt = binding.endDate.text.toString() + "T" +binding.endTime.selectedItem.toString(),
-//                user = CalendarDto(
-//                )
-            )
-
-            if (!binding.startTime.isEnabled && !binding.endTime.isEnabled){
-                addData.allDay = true
-            }
-
-            // 등록 데이터 api 요청
-
-
-
-
         }
     }
 
-        private fun getClosestTimePosition(currentFormattedTime: String, sdf: SimpleDateFormat): Int {
-            var closestPosition = -1
-            var minDifference = Long.MAX_VALUE
+    private fun getClosestTimePosition(currentFormattedTime: String, sdf: SimpleDateFormat): Int {
+        var closestPosition = -1
+        var minDifference = Long.MAX_VALUE
+        val currentDateTime = sdf.parse(currentFormattedTime)?.time ?: return -1
 
-            val currentDateTime = sdf.parse(currentFormattedTime)?.time ?: return -1
-
-            for ((index, time) in timeList.withIndex()) {
-                val timeInMillis = sdf.parse(time)?.time ?: continue
-                val difference = Math.abs(currentDateTime - timeInMillis)
-
-                if (difference < minDifference) {
-                    minDifference = difference
-                    closestPosition = index
-                }
+        timeList.forEachIndexed { index, time ->
+            val timeInMillis = sdf.parse(time)?.time ?: return@forEachIndexed
+            val difference = Math.abs(currentDateTime - timeInMillis)
+            if (difference < minDifference) {
+                minDifference = difference
+                closestPosition = index
             }
-            return closestPosition
         }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_SELECT_ATTENDEES && resultCode == RESULT_OK) {
-            val selectedUsers = data?.getParcelableArrayListExtra<SelectedUser>("selected_users")
-            selectedUsers?.forEach { addChip(it) }
-        }
-
+        return closestPosition
     }
 
-    private fun addChip(user: SelectedUser) {
-        val chip = Chip(this)
-        chip.text = user.name
-        chip.isCloseIconVisible = true
-        chip.setOnCloseIconClickListener {
-            binding.chipGroup.removeView(it)
-        }
-        binding.chipGroup.addView(chip)
-    }
     private fun showDatePickerDialog(onDateSelected: (String) -> Unit) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        val datePickerDialog = DatePickerDialog(
-            this,
-            { _, selectedYear, selectedMonth, selectedDay ->
-                val date = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
-                onDateSelected(date)
-            },
-            year, month, day
-        )
-        // 최소 날짜를 오늘 날짜로 설정하여 지난 날짜를 선택할 수 없게 함
-        datePickerDialog.datePicker.minDate = calendar.timeInMillis
-
-        datePickerDialog.show()
+        DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+            val date = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+            onDateSelected(date)
+        }, year, month, day).apply {
+            datePicker.minDate = calendar.timeInMillis
+            show()
+        }
     }
 
     private fun getCurrentDate(): String {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return dateFormat.format(calendar.time)
+    }
+
+    private fun addChip(user: CalendarEmp) {
+        val chip = Chip(this).apply {
+            text = "${user.name} ${user.position}"
+            isCloseIconVisible = true
+            tag = user.id // 추가된 부분: 태그 설정
+            setOnCloseIconClickListener {
+                if (user.id != empId.toString()) {
+                    binding.chipGroup.removeView(this)
+                    user.isSelected = false
+                } else {
+                    Toast.makeText(this@AddCalendar, "본인은 삭제 할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        selectedUsers.add(user) // 추가된 부분: 선택된 사용자 리스트에 추가
+        binding.chipGroup.addView(chip)
+    }
+
+    private fun getChipsFromChipGroup(chipGroup: ChipGroup): List<CalendarEmp> {
+        val chips = mutableListOf<CalendarEmp>()
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as Chip
+            val userId = chip.tag as String
+            val user = selectedUsers.find { it.id == userId }
+            if (user != null) {
+                chips.add(user)
+            }
+        }
+        return chips
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     companion object {

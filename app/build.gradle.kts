@@ -65,6 +65,7 @@ dependencies {
     // 캘린더 라이브러리
     implementation ("com.kizitonwose.calendar:view:2.5.2")
     implementation ("com.kizitonwose.calendar:compose:2.5.2")
+
     // viewModel
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
 
@@ -72,6 +73,10 @@ dependencies {
     implementation ("com.google.code.gson:gson:2.8.5") // json을 자동적으로 자바 클래스로 변형해주는 라이브러리
     implementation ("com.squareup.retrofit2:retrofit:2.6.0") // 레트로핏
     implementation ("com.squareup.retrofit2:converter-gson:2.6.0") // 레트로핏 - gson 컨버터
+
+    // OkHttp
+    implementation ("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.1")
 
     // 프래그먼트
     implementation ("androidx.fragment:fragment-ktx:1.5.1")
