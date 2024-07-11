@@ -1,5 +1,6 @@
 package com.ls.m.ls_m_v1.approval.service
 
+import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
 import com.ls.m.ls_m_v1.calendar.service.CalendarService
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -11,6 +12,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -24,6 +26,12 @@ interface ApprovalService  {
     @Streaming
     suspend fun downloadPDF(@Path("id") id: Int): Response<ResponseBody>
 
+    @GET("주소")
+    fun getApprovalData(
+        @Header("token") token : String,
+        @Path("empId") empId : Int
+    ):Call<ApprovalEntity>
+
     @Multipart
     @POST("주소")
     fun uploadPdf(
@@ -33,7 +41,7 @@ interface ApprovalService  {
 }
 
 object RetrofitInstanceApproval {
-    private const val BASE_URL = "http://10.0.2.2:9000/api/v1"
+    private const val BASE_URL = "http://10.0.2.2:9000/api/v1/"
 
     val instance: ApprovalService by lazy {
         val retrofit = Retrofit.Builder()

@@ -14,6 +14,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.databinding.ActivityModifyPersonalBinding
+import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
+import com.ls.m.ls_m_v1.login.repository.LoginRepository
 import com.ls.m.ls_m_v1.p_contect.dto.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
 import com.ls.m.ls_m_v1.p_contect.repository.PersonalContactRepository
@@ -32,14 +34,18 @@ class ModifyPersonal : AppCompatActivity() {
     private var companyName: String? = null
     private var companyInfoLayout: LinearLayout? = null
     private val repository = PersonalContactRepository(this)
+    private lateinit var loginRepository: LoginRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityModifyPersonalBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        loginRepository = LoginRepository(this)
         context = this
         personalService = RetrofitInstancePersonal.api
+
+        val loginData = loginRepository.getloginData()
 
         val companyList = repository.getAllCompanyData()
 
@@ -142,8 +148,8 @@ class ModifyPersonal : AppCompatActivity() {
             if (binding.spinner.selectedItem == "직접 입력") {
                 // api 통신으로 보냄
                 // 세션인지 토큰인지 확인할것
-                val loginId: String = ""
-                personalService.updateP_ContectData(loginId, addData)
+
+                personalService.updateP_ContectData(loginData.token, loginData.empId, addData)
                     .enqueue(object : retrofit2.Callback<String> {
                         override fun onResponse(call: Call<String>, response: Response<String>) {
                             Log.d("api", call.toString())
@@ -180,7 +186,7 @@ class ModifyPersonal : AppCompatActivity() {
 
         binding.deleteContactButton.setOnClickListener {
             if (id != null) {
-                personalService.deleteP_ContectData(id)
+                personalService.deleteP_ContectData(loginData.token,loginData.empId, id.toInt())
                     .enqueue(object : retrofit2.Callback<String> {
                         override fun onResponse(call: Call<String>, response: Response<String>) {
 

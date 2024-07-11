@@ -1,5 +1,6 @@
 package com.ls.m.ls_m_v1.approval.repository
 
+import android.content.ContentValues
 import android.content.Context
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEmpDTO
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
@@ -71,5 +72,31 @@ class ApprovalRepository(context: Context) {
         }
 
         return approvalWithEMP
+    }
+
+    fun insertDigitalApproval(approval: ApprovalEntity): Long {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("digitalApprovalId", approval.digitalApprovalId)
+            put("empId", approval.empId)
+            put("drafterId", approval.drafterId)
+            put("digitalApprovalName", approval.digitalApprovalName)
+            put("digitalApprovalPath", approval.digitalApprovalPath)
+            put("digitalApprovalType", approval.digitalApprovalType)
+            put("drafterStatus", approval.drafterStatus)
+            put("managerStatus", approval.managerStatus)
+            put("ceoStatus", approval.ceoStatus)
+            put("digitalApprovalCreateAt", approval.digitalApprovalCreateAt)
+            put("digitalApprovalAt", approval.digitalApprovalAt)
+            put("managerRejectAt", approval.managerRejectAt)
+            put("ceoRejectAt", approval.ceoRejectAt)
+        }
+        return db.insert(DatabaseHelper.DatabaseConstants.APPROVAL_TABLE, null, values)
+    }
+
+    fun forRefresh() {
+        val db = dbHelper.writableDatabase
+        db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.APPROVAL_TABLE}")
+        dbHelper.onCreate(db)
     }
 }

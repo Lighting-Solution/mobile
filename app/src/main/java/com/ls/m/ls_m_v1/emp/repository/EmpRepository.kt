@@ -74,7 +74,7 @@ class EmpRepository(context: Context) {
                     empHP = cursor.getString(cursor.getColumnIndexOrThrow("empHP")),
                     empHomeAddress = cursor.getString(cursor.getColumnIndexOrThrow("empHomeAddress")),
                     empHomeFax = cursor.getString(cursor.getColumnIndexOrThrow("empHomeFax")),
-                    empBirthday = LocalDate.parse(cursor.getString(cursor.getColumnIndexOrThrow("empBirthday"))),
+                    empBirthday = cursor.getString(cursor.getColumnIndexOrThrow("empBirthday")),
                     company = dbHelper.getCompany(cursor.getInt(cursor.getColumnIndexOrThrow("companyId"))),
                     position = dbHelper.getPosition(cursor.getInt(cursor.getColumnIndexOrThrow("positionId"))),
                     department = dbHelper.getDepartment(cursor.getInt(cursor.getColumnIndexOrThrow("departmentId")))
@@ -101,7 +101,7 @@ class EmpRepository(context: Context) {
                 empHP = cursor.getString(cursor.getColumnIndexOrThrow("empHP")),
                 empHomeAddress = cursor.getString(cursor.getColumnIndexOrThrow("empHomeAddress")),
                 empHomeFax = cursor.getString(cursor.getColumnIndexOrThrow("empHomeFax")),
-                empBirthday = LocalDate.parse(cursor.getString(cursor.getColumnIndexOrThrow("empBirthday"))),
+                empBirthday = cursor.getString(cursor.getColumnIndexOrThrow("empBirthday")),
                 company = dbHelper.getCompany(cursor.getInt(cursor.getColumnIndexOrThrow("companyId"))),
                 position = dbHelper.getPosition(cursor.getInt(cursor.getColumnIndexOrThrow("positionId"))),
                 department = dbHelper.getDepartment(cursor.getInt(cursor.getColumnIndexOrThrow("departmentId")))

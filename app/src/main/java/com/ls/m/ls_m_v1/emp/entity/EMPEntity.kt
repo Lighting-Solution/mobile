@@ -18,7 +18,7 @@ data class EmpDTO(
     val empHP: String,
     val empHomeAddress :String,
     val empHomeFax: String,
-    val empBirthday: LocalDate,
+    val empBirthday: String,
     val company : CompanyDTO,
     val position: PositionDTO,
     val department : DepartmentDTO

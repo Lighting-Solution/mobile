@@ -7,7 +7,14 @@ data class CalendarEntity (
     var calendarContent: String,
     var calendarStartAt:String,
     var calendarEndAt: String,
-    val allDay: Boolean = false
+    var allDay: Int,
+    val participantEntity: List<ParticipantEntity>
+)
+
+data class ParticipantEntity(
+    val participantId: Int,
+    val calendarId: Int,
+    val empId: Int
 )
 
 // 삭제 아이디 만

@@ -16,20 +16,20 @@ import retrofit2.http.Path
 interface P_ContectService {
     @GET("list/all-personal/android/{id}")
     fun getP_ContectData(
-        @Header("token") token: String,
+        @Header("Authorization") token: String,
         @Path("empId") id:Int
     ): Call<ContanctAandroidDTO>
 
     @DELETE("contact")
     fun deleteP_ContectData(
-        @Header("token") token: String,
+        @Header("Authorization") token: String,
         @Path("empId") id: Int,
-        @Body deleteId : String
+        @Body deleteId : Int
     ):Call<String>
 
     @PUT("contact/{id}")
     fun updateP_ContectData(
-        @Header("token") token: String,
+        @Header("Authorization") token: String,
         @Path("empId") id: Int,
         @Body addPersonalDTO: AddPersonalDTO
     ): Call<String>
@@ -43,7 +43,7 @@ interface P_ContectService {
     ): Call<String>
 }
 object RetrofitInstancePersonal {
-    private val BASE_URL = "http://10.0.2.2:9000/api/v1/intranet/contact/"
+    private val BASE_URL = "http://10.0.2.2:9002/api/v1/lighting_solutions/security/contact/"
     // 시큐리티로 주소 변경
 
     val api : P_ContectService by lazy {

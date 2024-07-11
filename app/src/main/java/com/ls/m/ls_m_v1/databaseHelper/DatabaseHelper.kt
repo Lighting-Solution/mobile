@@ -30,6 +30,7 @@ class DatabaseHelper(context: Context) :
         const val DATABASE_VERSION = 1
 
         const val CALENDAR_TABLE = "calendar"
+        const val PARTICIPANT_TABLE = "participant"
         const val EMP_TABLE = "emp"
         const val POSITION_TABLE = "position"
         const val DEPARTMENT_TABLE = "department"
@@ -62,6 +63,15 @@ class DatabaseHelper(context: Context) :
                 calendarEndAt TEXT NOT NULL,
                 allDay INTEGER
             );
+        """.trimIndent()
+
+        val createParticipantTable = """
+            CREATE TABLE IF NOT EXISTS ${DatabaseConstants.PARTICIPANT_TABLE} (
+                participantId INTEGER PRIMARY KEY AUTOINCREMENT,
+                calendarId INTEGER,
+                empId INTEGER,
+                FOREIGN KEY (calendarId) REFERENCES ${DatabaseConstants.CALENDAR_TABLE}(calendarId)
+                );
         """.trimIndent()
 
         val createEmpTable = """
@@ -167,6 +177,7 @@ class DatabaseHelper(context: Context) :
         try {
             db?.execSQL(createRepo)
             db?.execSQL(createCalendarTable)
+            db?.execSQL(createParticipantTable)
             db?.execSQL(createEmpTable)
             db?.execSQL(createPositionTable)
             db?.execSQL(createDepartmentTable)
@@ -176,7 +187,8 @@ class DatabaseHelper(context: Context) :
             db?.execSQL(createPersonalGroupTable)
             db?.execSQL(createContactGroupTable)
             db?.execSQL(createDigitalApprovalTable)
-        }catch (e : Exception){
+
+        } catch (e: Exception) {
             Log.e("DatabaseHelper", "Error while creating database tables: ${e.message}")
         }
 
@@ -184,6 +196,7 @@ class DatabaseHelper(context: Context) :
 
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PARTICIPANT_TABLE}")
         db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CALENDAR_TABLE}")
         db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.EMP_TABLE}")
         db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.POSITION_TABLE}")
@@ -201,7 +214,6 @@ class DatabaseHelper(context: Context) :
         db.execSQL("DROP TABLE IF EXISTS $tableName")
         onCreate(db)
     }
-
 
 
     fun getPosition(positionId: Int): PositionDTO {
@@ -253,18 +265,19 @@ class DatabaseHelper(context: Context) :
     fun clearDatabase() {
         val db = this.writableDatabase
         try {
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CALENDAR_TABLE}")
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.EMP_TABLE}")
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.POSITION_TABLE}")
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.DEPARTMENT_TABLE}")
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PERSONAL_CONTACT_TABLE}")
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PERSONAL_GROUP_TABLE}")
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CONTACT_GROUP_TABLE}")
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.APPROVAL_TABLE}")
-        db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.MY_EMP}")
-        // 1번 데이터를 제외하고 삭제
-        db?.execSQL("DELETE FROM $DatabaseConstants.COMPANY_TABLE WHERE id > 1")
-        }catch (e: Exception) {
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CALENDAR_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.APPROVAL_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.EMP_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PARTICIPANT_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.POSITION_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.DEPARTMENT_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PERSONAL_CONTACT_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.PERSONAL_GROUP_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.CONTACT_GROUP_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.COMPANY_TABLE}")
+            db?.execSQL("DROP TABLE IF EXISTS ${DatabaseConstants.MY_EMP}")
+            onCreate(db)
+        } catch (e: Exception) {
             Log.e("DatabaseHelper", "Error while clearing database: ${e.message}")
         }
     }

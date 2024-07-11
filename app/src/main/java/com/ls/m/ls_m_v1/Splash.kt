@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
@@ -30,14 +31,12 @@ class Splash : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
-
         // 데이터베이스 생성 및 초기화
-        dbHelper = DatabaseHelper(this)
-        dbHelper.writableDatabase
-
-        empService = RetrofitInstanceEMP.api
-
         empRepository = EmpRepository(this)
+        dbHelper = DatabaseHelper(this)
+//        val db = dbHelper.writableDatabase
+
+        dbHelper.clearDatabase()
 
         // 로그인 데이터 확인 및 화면 전환
         handleLoginData()
@@ -51,34 +50,38 @@ class Splash : AppCompatActivity() {
 //        }, 1000)
     }
 
-    private fun updateEmpData(token :String) {
-        empService.getEmpData(token).enqueue(object : Callback<EmpAndroidDTO> {
+    private fun updateEmpData(token: String) {
+        empService = RetrofitInstanceEMP.api
+        empService.getEmpData("Bearer $token").enqueue(object : Callback<EmpAndroidDTO> {
             override fun onResponse(call: Call<EmpAndroidDTO>, response: Response<EmpAndroidDTO>) {
                 if (response.isSuccessful) {
-                    // 성공적으로 업데이트
-                    Toast.makeText(this@Splash, "업데이트 성공", Toast.LENGTH_SHORT).show()
-
-                    val empDtoList = response.body()?.empDTOList
-                    val positionList = response.body()?.positionDTOList
-                    val departmentList = response.body()?.departmentDTOList
+                    Log.d("UpdateEmpData", "Response successful")
+                    val empAndroidDTO = response.body()
+                    val empDtoList = empAndroidDTO?.empDTOList
+                    val positionList = empAndroidDTO?.positionDTOList
+                    val departmentList = empAndroidDTO?.departmentDTOList
 
                     if (empDtoList != null) {
                         empRepository.insertEmp(empDtoList)
-                        if (positionList != null)
+                        if (positionList != null) {
                             empRepository.insertPosition(positionList)
-
-                        if (departmentList != null)
+                        }
+                        if (departmentList != null) {
                             empRepository.insertDepartment(departmentList)
+                        }
+                        Toast.makeText(this@Splash, "업데이트 성공", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(this@Splash, "업데이트 실패 , 데이터가 없습니다.", Toast.LENGTH_SHORT)
-                            .show()
+                        Log.e("UpdateEmpData", "empDtoList is null")
+                        Toast.makeText(this@Splash, "업데이트 실패, 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
                     }
                 } else {
+                    Log.e("UpdateEmpData", "Response not successful: ${response.errorBody()?.string()}")
                     Toast.makeText(this@Splash, "업데이트 실패, 다시 시도해 주세요", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<EmpAndroidDTO>, t: Throwable) {
+                Log.e("UpdateEmpData", "Request failed: ${t.message}")
                 Toast.makeText(this@Splash, "업데이트 실패: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
@@ -92,6 +95,7 @@ class Splash : AppCompatActivity() {
                 val user = loginRepository.getloginData()
 
                 // EMP 데이터 업데이트
+                empRepository.forRefreash()
                 updateEmpData(user.token)
 
                 // 로그인 데이터가 있을 경우 메인 화면으로 이동

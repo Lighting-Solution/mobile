@@ -48,6 +48,11 @@ class ContactAdapter(
 
     override fun getItemCount() = contacts.size
 
+    fun updateContacts(newContacts: List<Any>) {
+        contacts = newContacts
+        notifyDataSetChanged()
+    }
+
     class ContactViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameTextView: TextView = itemView.findViewById(R.id.contact_name)
         private val positionTextView: TextView = itemView.findViewById(R.id.contact_position)

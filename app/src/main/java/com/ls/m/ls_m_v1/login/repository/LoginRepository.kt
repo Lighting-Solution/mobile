@@ -4,8 +4,6 @@ import android.content.ContentValues
 import android.content.Context
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class LoginRepository(context: Context) {
     private val dbHelper = DatabaseHelper(context)
@@ -13,11 +11,21 @@ class LoginRepository(context: Context) {
     fun insertTokenData(loginResponseDto: LoginResponseDto) {
         val db = dbHelper.writableDatabase
         val value = ContentValues().apply {
-            put("token", loginResponseDto.token)
-            put("empId", loginResponseDto.empId)
-            put("positionId", loginResponseDto.positionId)
-            put("empName", loginResponseDto.empName)
-            put("departmentId", loginResponseDto.departmentId)
+            if (loginResponseDto != null) {
+                put("token", loginResponseDto.token)
+            }
+            if (loginResponseDto != null) {
+                put("empId", loginResponseDto.empId)
+            }
+            if (loginResponseDto != null) {
+                put("positionId", loginResponseDto.positionId)
+            }
+            if (loginResponseDto != null) {
+                put("empName", loginResponseDto.empName)
+            }
+            if (loginResponseDto != null) {
+                put("departmentId", loginResponseDto.departmentId)
+            }
         }
         db.insert(DatabaseHelper.DatabaseConstants.MY_EMP, null, value)
     }

@@ -45,7 +45,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
                     endTime = endDateTime.getOrNull(1) ?: "",
                     color = eventColors[index % eventColors.size],
                     contants = data.calendarContent,
-                    allDay = data.allDay
+                    allDay = if(data.allDay == 1) true else false
                 )
 
                 eventsData.add(event)
