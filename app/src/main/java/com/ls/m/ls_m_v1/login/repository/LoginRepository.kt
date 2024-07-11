@@ -10,12 +10,14 @@ import kotlinx.coroutines.withContext
 class LoginRepository(context: Context) {
     private val dbHelper = DatabaseHelper(context)
 
-    fun insertTokenData(token: String, empId: Int, positionId: Int) {
+    fun insertTokenData(loginResponseDto: LoginResponseDto) {
         val db = dbHelper.writableDatabase
         val value = ContentValues().apply {
-            put("token", token)
-            put("empId", empId)
-            put("positionId", positionId)
+            put("token", loginResponseDto.token)
+            put("empId", loginResponseDto.empId)
+            put("positionId", loginResponseDto.positionId)
+            put("empName", loginResponseDto.empName)
+            put("departmentId", loginResponseDto.departmentId)
         }
         db.insert(DatabaseHelper.DatabaseConstants.MY_EMP, null, value)
     }
@@ -25,7 +27,7 @@ class LoginRepository(context: Context) {
         val db = dbHelper.readableDatabase
         val cursor = db.query(
             DatabaseHelper.DatabaseConstants.MY_EMP,
-            arrayOf("token", "empId", "positionId"),
+            arrayOf("token", "empId", "positionId", "empName", "departmentId"),
             null,
             null,
             null,
@@ -37,7 +39,9 @@ class LoginRepository(context: Context) {
             val token = cursor.getString(cursor.getColumnIndexOrThrow("token"))
             val empId = cursor.getInt(cursor.getColumnIndexOrThrow("empId"))
             val positionId = cursor.getInt(cursor.getColumnIndexOrThrow("positionId"))
-            LoginResponseDto(token, empId, positionId)
+            val empName = cursor.getString(cursor.getColumnIndexOrThrow("empName"))
+            val departmentId = cursor.getInt(cursor.getColumnIndexOrThrow("departmentId"))
+            LoginResponseDto(token, empId, positionId, empName, departmentId)
         } else {
             throw IllegalStateException("No user data found")
         }
@@ -50,7 +54,7 @@ class LoginRepository(context: Context) {
     fun dropLoginTable() {
         val db = dbHelper.writableDatabase
         db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.MY_EMP}")
-//        dbHelper.onCreate(db)
+        dbHelper.onCreate(db)
     }
 
     // 테이블 비어있는지 확인하는 메서드

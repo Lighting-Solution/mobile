@@ -19,9 +19,7 @@ import com.ls.m.ls_m_v1.p_contect.dto.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
 import com.ls.m.ls_m_v1.p_contect.repository.PersonalContactRepository
 import com.ls.m.ls_m_v1.p_contect.service.P_ContectService
-import com.ls.m.ls_m_v1.p_contect.service.contectRepository
-import retrofit2.Call
-import retrofit2.Response
+import com.ls.m.ls_m_v1.p_contect.service.RetrofitInstancePersonal
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.util.Calendar
@@ -41,7 +39,7 @@ class AddPersonal : AppCompatActivity() {
         setContentView(binding.root)
 
         context = this
-        personalService = contectRepository().api
+        personalService = RetrofitInstancePersonal.api
 
         val companyList = repository.getAllCompanyData()
 

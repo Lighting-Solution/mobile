@@ -11,6 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.MainActivity
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
+import com.ls.m.ls_m_v1.emp.entity.EmpAndroidDTO
+import com.ls.m.ls_m_v1.emp.repository.EmpRepository
+import com.ls.m.ls_m_v1.emp.service.EMPService
+import com.ls.m.ls_m_v1.emp.service.RetrofitInstanceEMP
 import com.ls.m.ls_m_v1.login.entity.LoginEntity
 import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
 import com.ls.m.ls_m_v1.login.repository.LoginRepository
@@ -27,6 +31,8 @@ class Login : AppCompatActivity() {
     private lateinit var pw: EditText
     private lateinit var loginButton: Button
     private lateinit var loginRepository: LoginRepository
+    private lateinit var empRepository: EmpRepository
+    private lateinit var empService : EMPService
 
     private lateinit var dbHelper: DatabaseHelper
 
@@ -41,15 +47,19 @@ class Login : AppCompatActivity() {
 
         // 인스턴스 생성하고 데이터베이스 액세스
 
+        empRepository = EmpRepository(this)
+        empService = RetrofitInstanceEMP.api
+
+
         loginButton.setOnClickListener {
             val userId = id.text.toString()
             val userPw = pw.text.toString()
             // api통신으로 받아와 데이터 베이스 저장까지 완료
-            login(userId, userPw)
+//            login(userId, userPw)
             // 화면 전환
-//            val intent = Intent(this@Login, MainActivity::class.java)
-//            startActivity(intent)
-//            finish()
+            val intent = Intent(this@Login, MainActivity::class.java)
+            startActivity(intent)
+            finish()
 
         }
 
@@ -80,14 +90,13 @@ class Login : AppCompatActivity() {
 
                                     CoroutineScope(Dispatchers.IO).launch {
                                         loginRepository.dropLoginTable()
-                                        loginRepository.insertTokenData(
-                                            loginResponse.token,
-                                            loginResponse.empId,
-                                            loginResponse.positionId
-                                        )
+                                        // 로그인 데이터 저장
+                                        loginRepository.insertTokenData(loginResponse)
                                         // 개인 아이디가 필요한 데이터 가져오기
                                         // 캘린더, 개인 주소록, 전자결재..
+                                        // emp데이터 가져오기
 
+                                        updateEmpData(loginResponse.token)
                                         // 화면 전환
                                         val intent = Intent(this@Login, MainActivity::class.java)
                                         startActivity(intent)
@@ -128,5 +137,37 @@ class Login : AppCompatActivity() {
                 }
             }
         }
+    }
+    private fun updateEmpData(token :String) {
+        empService.getEmpData(token).enqueue(object : Callback<EmpAndroidDTO> {
+            override fun onResponse(call: retrofit2.Call<EmpAndroidDTO>, response: Response<EmpAndroidDTO>) {
+                if (response.isSuccessful) {
+                    // 성공적으로 업데이트
+                    Toast.makeText(this@Login, "업데이트 성공", Toast.LENGTH_SHORT).show()
+
+                    val empDtoList = response.body()?.empDTOList
+                    val positionList = response.body()?.positionDTOList
+                    val departmentList = response.body()?.departmentDTOList
+
+                    if (empDtoList != null) {
+                        empRepository.insertEmp(empDtoList)
+                        if (positionList != null)
+                            empRepository.insertPosition(positionList)
+
+                        if (departmentList != null)
+                            empRepository.insertDepartment(departmentList)
+                    } else {
+                        Toast.makeText(this@Login, "업데이트 실패 , 데이터가 없습니다.", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                } else {
+                    Toast.makeText(this@Login, "업데이트 실패, 다시 시도해 주세요", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: retrofit2.Call<EmpAndroidDTO>, t: Throwable) {
+                Toast.makeText(this@Login, "업데이트 실패: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

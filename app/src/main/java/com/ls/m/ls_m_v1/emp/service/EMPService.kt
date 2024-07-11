@@ -5,10 +5,13 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Header
 
 interface EMPService {
     @GET("lite/all-emp/android")
-    fun getEmpData(): Call<EmpAndroidDTO>
+    fun getEmpData(
+        @Header("token") token:String
+    ): Call<EmpAndroidDTO>
 }
 
 object RetrofitInstanceEMP{

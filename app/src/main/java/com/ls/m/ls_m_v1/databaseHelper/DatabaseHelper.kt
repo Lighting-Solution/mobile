@@ -46,7 +46,9 @@ class DatabaseHelper(context: Context) :
             CREATE TABLE IF NOT EXISTS ${DatabaseConstants.MY_EMP} (
                 empId INTEGER PRIMARY KEY,
                 token TEXT NOT NULL,
-                positionId INTEGER
+                positionId INTEGER,
+                empName TEXT,
+                departmentId INTEGER
             );
         """.trimIndent()
 

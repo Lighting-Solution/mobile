@@ -13,5 +13,7 @@ data class LoginEntity(
 data class LoginResponseDto(
     var token : String,
     var empId: Int,
-    var positionId : Int
+    var positionId : Int,
+    var empName : String,
+    var departmentId : Int
 ) : Serializable

@@ -38,8 +38,6 @@ class Splash : AppCompatActivity() {
         empService = RetrofitInstanceEMP.api
 
         empRepository = EmpRepository(this)
-        // EMP 데이터 업데이트
-        updateEmpData()
 
         // 로그인 데이터 확인 및 화면 전환
         handleLoginData()
@@ -53,8 +51,8 @@ class Splash : AppCompatActivity() {
 //        }, 1000)
     }
 
-    private fun updateEmpData() {
-        empService.getEmpData().enqueue(object : Callback<EmpAndroidDTO> {
+    private fun updateEmpData(token :String) {
+        empService.getEmpData(token).enqueue(object : Callback<EmpAndroidDTO> {
             override fun onResponse(call: Call<EmpAndroidDTO>, response: Response<EmpAndroidDTO>) {
                 if (response.isSuccessful) {
                     // 성공적으로 업데이트
@@ -92,6 +90,9 @@ class Splash : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 val user = loginRepository.getloginData()
+
+                // EMP 데이터 업데이트
+                updateEmpData(user.token)
 
                 // 로그인 데이터가 있을 경우 메인 화면으로 이동
                 val intent = Intent(this@Splash, MainActivity::class.java)

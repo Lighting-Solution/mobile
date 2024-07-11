@@ -5,13 +5,9 @@ import android.graphics.Color
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.ls.m.ls_m_v1.calendar.dto.CalendarEvent
-import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import com.ls.m.ls_m_v1.calendar.repository.CalendarRepository
-import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
-import com.ls.m.ls_m_v1.p_contect.service.contectRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate

@@ -84,8 +84,8 @@ class MainActivity : AppCompatActivity() {
                     //emp는 초기에 들고옴. 그래도 다시 받아오는게 나은가..?
                     // 그럼 몇개 테이블을 날려야하지..?
                     // emp, department,position // company는 날리지않아도..
-                    empRepository.forRefreash()
-                    updateEmpData()
+//                    empRepository.forRefreash()
+//                    updateEmpData()
 
                     supportFragmentManager.beginTransaction().replace(R.id.container, empFragment)
                         .commit()
@@ -96,8 +96,8 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(applicationContext, "두 번째 탭", Toast.LENGTH_SHORT).show()
                     // 개인 주소록,개인그룹, 회사, 연락처 그룹
                     // 데이터 베이스 초기화하기
-                    personalContactRepository.forRefresh()
-                    updatePersonal(loginData.empId.toString())
+//                    personalContactRepository.forRefresh()
+//                    updatePersonal(loginData.empId.toString())
 
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.container, interpersonalFragment).commit()
@@ -106,12 +106,16 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.tab3 -> {
                     Toast.makeText(applicationContext, "세 번째 탭", Toast.LENGTH_SHORT).show()
+                    //캘린더
+
+
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.container, calendarFragment).commit()
                     true
                 }
 
                 R.id.tab4 -> {
+                    // 전자결재
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.container, approvalFragment).commit()
                     true

@@ -10,14 +10,15 @@ import retrofit2.http.POST
 
 interface LoginService {
     // 서버 통신 하는곳
-    @POST("Login/data")
+    // 보안서버로 통신
+    @POST("login")
     suspend fun requestLoginData(
         @Body loginEntity: LoginEntity
-    ) : Call<LoginResponseDto>// 받아올 데이터 형식 확인 후 수정할 것
+    ) : Call<LoginResponseDto>
 }
 
 object RetrofitInstanceLogin{
-    private const val BASE_URL = "http://10.0.2.2:9000/api/v1/emp/"
+    private const val BASE_URL = "http://10.0.2.2:9001/api/v1/lighting_solutions/security/"
 
     val api: LoginService by lazy {
         Retrofit.Builder()

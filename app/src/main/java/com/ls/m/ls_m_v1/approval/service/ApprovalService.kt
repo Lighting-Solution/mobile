@@ -17,6 +17,7 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Streaming
 
+/// pdf데이터 확인할것
 interface ApprovalService  {
     //  서버 통신
     @GET("path/to/your/pdf/{id}")
