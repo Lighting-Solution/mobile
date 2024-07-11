@@ -8,6 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -15,28 +16,35 @@ import retrofit2.http.Path
 interface P_ContectService {
     @GET("list/all-personal/android/{id}")
     fun getP_ContectData(
-        @Path("id") id:String
+        @Header("token") token: String,
+        @Path("empId") id:Int
     ): Call<ContanctAandroidDTO>
 
     @DELETE("contact")
     fun deleteP_ContectData(
+        @Header("token") token: String,
+        @Path("empId") id: Int,
         @Body deleteId : String
     ):Call<String>
 
     @PUT("contact/{id}")
     fun updateP_ContectData(
-        @Path("id") id: String,
+        @Header("token") token: String,
+        @Path("empId") id: Int,
         @Body addPersonalDTO: AddPersonalDTO
     ): Call<String>
 
     // insert
     @POST("contact")
     fun addPersnalData(
+        @Header("token") token: String,
+        @Path("empId") id : Int,
         @Body addPersonalDTO: AddPersonalDTO
     ): Call<String>
 }
 object RetrofitInstancePersonal {
     private val BASE_URL = "http://10.0.2.2:9000/api/v1/intranet/contact/"
+    // 시큐리티로 주소 변경
 
     val api : P_ContectService by lazy {
         Retrofit.Builder()

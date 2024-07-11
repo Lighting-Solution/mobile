@@ -2,6 +2,7 @@ package com.ls.m.ls_m_v1.calendar.service
 
 import com.ls.m.ls_m_v1.calendar.entity.CalendarDto
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
+import com.ls.m.ls_m_v1.calendar.entity.UpdateCalendarDto
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -30,11 +31,15 @@ interface CalendarService {
     @PUT("주소")
     fun updataCalendarData(
     // 업데이트
+        @Header("token") token: String,
+        @Body updateCalendarDto: UpdateCalendarDto
     ):Call<String>
 
     @DELETE("주소")
     fun deleteCalendarData(
         //아마 토큰이랑 데이터 아이디
+        @Header("token") token: String,
+        @Body calendarId : Int
     ): Call<String>
 
 }

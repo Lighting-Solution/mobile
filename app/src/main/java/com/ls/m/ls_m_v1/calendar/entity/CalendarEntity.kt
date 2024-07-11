@@ -21,3 +21,13 @@ data class CalendarDto (
 //    var allDay: Boolean = false,//
     val attendees: List<participantDTO>
 )// 참석자 포함해야함
+
+data class UpdateCalendarDto (
+    var calendarId : Int,
+    var calendarTitle: String,
+    var calendarCreateAt: String,
+    var calendarContent: String,
+    var calendarStartAt:String,
+    var calendarEndAt: String,
+    val attendees: List<participantDTO>
+)
