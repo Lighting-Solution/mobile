@@ -3,16 +3,18 @@
     <item
         android:id="@+id/tab1"
         android:icon="@drawable/ic_phone_book"
-        android:title="Contact" />
+        android:title="" />
     <item
         android:id="@+id/tab2"
         android:icon="@drawable/ic_phone_book_personal"
-        android:title="PersonalContact" />
+
+        android:title="" />
     <item
         android:id="@+id/tab3"
         android:icon="@drawable/ic_calendar"
-        android:title="Calendar" />
+        android:title="" />
     <item
         android:id="@+id/tab4"
-        android:title="결재" />
+        android:icon="@drawable/ic_approval"
+        android:title="" />
 </menu>

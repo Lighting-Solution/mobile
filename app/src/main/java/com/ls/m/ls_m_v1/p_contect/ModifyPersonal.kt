@@ -18,6 +18,7 @@ import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
 import com.ls.m.ls_m_v1.login.repository.LoginRepository
 import com.ls.m.ls_m_v1.p_contect.dto.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
+import com.ls.m.ls_m_v1.p_contect.entity.PersonalContactDTO
 import com.ls.m.ls_m_v1.p_contect.repository.PersonalContactRepository
 import com.ls.m.ls_m_v1.p_contect.service.P_ContectService
 import com.ls.m.ls_m_v1.p_contect.service.RetrofitInstancePersonal
@@ -35,6 +36,7 @@ class ModifyPersonal : AppCompatActivity() {
     private var companyInfoLayout: LinearLayout? = null
     private val repository = PersonalContactRepository(this)
     private lateinit var loginRepository: LoginRepository
+    private lateinit var personalContactRepository: PersonalContactRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +44,7 @@ class ModifyPersonal : AppCompatActivity() {
         setContentView(binding.root)
 
         loginRepository = LoginRepository(this)
+        personalContactRepository = PersonalContactRepository(this)
         context = this
         personalService = RetrofitInstancePersonal.api
 
@@ -125,55 +128,63 @@ class ModifyPersonal : AppCompatActivity() {
             } else {
                 null
             }
-            val addData = AddPersonalDTO(
-                personalContactName = binding.personalContactName.text.toString(),
-                personalContactNickName = binding.personalContactNickName.text.toString(),
-                departmentName = binding.departmentName.text.toString(),
-                positionName = binding.positionName.text.toString(),
-                personalContactMemo = binding.personalContactMemo.text.toString(),
-                personalContactMP = binding.personalContactMP.text.toString(),
-                personalContactEmail = binding.personalContactEmail.text.toString(),
-                personalContactBirthday = birthdayAdd,
-                company = CompanyDTO(
-                    companyId = binding.spinner.id ?: 0,
-                    companyName = companyInfoLayout?.findViewById<EditText>(R.id.companyName)?.text.toString(),
-                    companyAddress = companyInfoLayout?.findViewById<EditText>(R.id.companyAddress)?.text.toString(),
-                    companyNumber = companyInfoLayout?.findViewById<EditText>(R.id.companyNumber)?.text.toString(),
-                    companyURL = companyInfoLayout?.findViewById<EditText>(R.id.companyURL)?.text.toString(),
-                    companyFax = companyInfoLayout?.findViewById<EditText>(R.id.companyFax)?.text.toString()
-                ), empId = 21
-                // 로그인 할때 변경할 것
-            )
-            // 등록 데이터 api요청으로 날림
-            if (binding.spinner.selectedItem == "직접 입력") {
-                // api 통신으로 보냄
-                // 세션인지 토큰인지 확인할것
-
-                personalService.updateP_ContectData(loginData.token, loginData.empId, addData)
-                    .enqueue(object : retrofit2.Callback<String> {
-                        override fun onResponse(call: Call<String>, response: Response<String>) {
-                            Log.d("api", call.toString())
-                            Log.d("api", response.toString())
-
-                            if (response.isSuccessful) {
-                                // 성공적으로 업데이트됨
-                                Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
-                                // 성공하면 테이블 날리고 리프레쉬 할것.
-
-                            } else {
-                                // 업데이트 실패
-                                Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                        }
-
-                        override fun onFailure(call: Call<String>, t: Throwable) {
-                            TODO("Not yet implemented")
-                        }
-
-                    })
-
+            val addData = id?.let { it1 ->
+                PersonalContactDTO(
+                    personalContactId = it1.toInt(),
+                    personalContactName = binding.personalContactName.text.toString(),
+                    personalContactNickName = binding.personalContactNickName.text.toString(),
+                    departmentName = binding.departmentName.text.toString(),
+                    positionName = binding.positionName.text.toString(),
+                    personalContactMemo = binding.personalContactMemo.text.toString(),
+                    personalContactMP = binding.personalContactMP.text.toString(),
+                    personalContactEmail = binding.personalContactEmail.text.toString(),
+                    personalContactBirthday = birthdayAdd.toString(),
+                    company = CompanyDTO(
+                        companyId = binding.spinner.id ?: 0,
+                        companyName = companyInfoLayout?.findViewById<EditText>(R.id.companyName)?.text.toString(),
+                        companyAddress = companyInfoLayout?.findViewById<EditText>(R.id.companyAddress)?.text.toString(),
+                        companyNumber = companyInfoLayout?.findViewById<EditText>(R.id.companyNumber)?.text.toString(),
+                        companyURL = companyInfoLayout?.findViewById<EditText>(R.id.companyURL)?.text.toString(),
+                        companyFax = companyInfoLayout?.findViewById<EditText>(R.id.companyFax)?.text.toString()
+                    ), empId = loginData.empId
+                    // 로그인 할때 변경할 것
+                )
             }
+
+            if (addData != null) {
+                personalContactRepository.insertPersonalContact(addData)
+            }
+            finish()
+            // 등록 데이터 api요청으로 날림
+//            if (binding.spinner.selectedItem == "직접 입력") {
+//                // api 통신으로 보냄
+//                // 세션인지 토큰인지 확인할것
+//
+//                personalService.updateP_ContectData(loginData.token, loginData.empId, addData)
+//                    .enqueue(object : retrofit2.Callback<String> {
+//                        override fun onResponse(call: Call<String>, response: Response<String>) {
+//                            Log.d("api", call.toString())
+//                            Log.d("api", response.toString())
+//
+//                            if (response.isSuccessful) {
+//                                // 성공적으로 업데이트됨
+//                                Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
+//                                // 성공하면 테이블 날리고 리프레쉬 할것.
+//
+//                            } else {
+//                                // 업데이트 실패
+//                                Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT)
+//                                    .show()
+//                            }
+//                        }
+//
+//                        override fun onFailure(call: Call<String>, t: Throwable) {
+//                            TODO("Not yet implemented")
+//                        }
+//
+//                    })
+//
+//            }
         }
 
         // 메모 활성화 컬러
@@ -186,26 +197,28 @@ class ModifyPersonal : AppCompatActivity() {
 
         binding.deleteContactButton.setOnClickListener {
             if (id != null) {
-                personalService.deleteP_ContectData(loginData.token,loginData.empId, id.toInt())
-                    .enqueue(object : retrofit2.Callback<String> {
-                        override fun onResponse(call: Call<String>, response: Response<String>) {
-
-                            if (response.isSuccessful) {
-                                // 성공적으로 업데이트됨
-                                Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
-                                // 성공하면 테이블 날리고 리프레쉬 할것.
-
-                            } else {
-                                // 업데이트 실패
-                                Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                        }
-
-                        override fun onFailure(call: Call<String>, t: Throwable) {
-                            TODO("Not yet implemented")
-                        }
-                    })
+//                personalService.deleteP_ContectData(loginData.token,loginData.empId, id.toInt())
+//                    .enqueue(object : retrofit2.Callback<String> {
+//                        override fun onResponse(call: Call<String>, response: Response<String>) {
+//
+//                            if (response.isSuccessful) {
+//                                // 성공적으로 업데이트됨
+//                                Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
+//                                // 성공하면 테이블 날리고 리프레쉬 할것.
+//
+//                            } else {
+//                                // 업데이트 실패
+//                                Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT)
+//                                    .show()
+//                            }
+//                        }
+//
+//                        override fun onFailure(call: Call<String>, t: Throwable) {
+//                            TODO("Not yet implemented")
+//                        }
+//                    })
+                personalContactRepository.deletePersonalContact(id.toInt())
+                finish()
             }
         }
     }

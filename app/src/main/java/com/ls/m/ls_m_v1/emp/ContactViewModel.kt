@@ -4,14 +4,16 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.ls.m.ls_m_v1.emp.entity.AllContact
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
 import com.ls.m.ls_m_v1.emp.repository.EmpRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ContactViewModel(application: Application) : AndroidViewModel(application) {
     private val _contacts = MutableLiveData<List<Any>>()
     val contacts: LiveData<List<Any>> get() = _contacts
-
     private val empRepository = EmpRepository(application)
 
     init {
@@ -19,7 +21,7 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun loadContacts() {
-        val empList = empRepository.getAllEmps()
+        val empList = empRepository.getAllEmps().distinctBy { it.empId } // 중복 제거
         val contacts = mutableListOf<Any>()
 
         val departments = empList.filter { it.department.departmentId % 10 == 0 }
@@ -42,8 +44,7 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
                         birthday = emp.empBirthday.toString(),
                         company = emp.company,
                         buttonState = false
-                    ).also {
-                    }
+                    )
                 })
 
             // 부서에 속한 팀들 필터링
@@ -67,8 +68,7 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
                             birthday = emp.empBirthday.toString(),
                             company = emp.company,
                             buttonState = false
-                        ).also {
-                        }
+                        )
                     })
             }
         }

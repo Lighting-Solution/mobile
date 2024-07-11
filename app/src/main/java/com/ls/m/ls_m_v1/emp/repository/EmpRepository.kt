@@ -190,5 +190,13 @@ class EmpRepository(context: Context) {
         db?.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.POSITION_TABLE}")
         dbHelper.onCreate(db)
     }
+    fun getEmpCount(): Int {
+        val db = dbHelper.readableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM ${DatabaseHelper.DatabaseConstants.EMP_TABLE}", null)
+        cursor.moveToFirst()
+        val count = cursor.getInt(0)
+        cursor.close()
+        return count
+    }
 
 }

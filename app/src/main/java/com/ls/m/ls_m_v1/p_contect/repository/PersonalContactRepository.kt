@@ -38,7 +38,15 @@ class PersonalContactRepository(context: Context) {
         val contacts = mutableListOf<PersonalContactDTO>()
         val db = dbHelper.readableDatabase
         val cursor: Cursor =
-            db.query(DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE, null, null, null, null, null, null)
+            db.query(
+                DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
         if (cursor.moveToFirst()) {
             do {
                 val contact = PersonalContactDTO(
@@ -50,11 +58,10 @@ class PersonalContactRepository(context: Context) {
                     personalContactEmail = cursor.getString(cursor.getColumnIndexOrThrow("personalContactEmail")),
                     personalContactMP = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMP")),
                     personalContactMemo = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMemo")),
-                    personalContactBirthday = LocalDate.parse(
-                        cursor.getString(
-                            cursor.getColumnIndexOrThrow(
-                                "personalContactBirthday"
-                            )
+                    personalContactBirthday =
+                    cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            "personalContactBirthday"
                         )
                     ),
                     company = dbHelper.getCompany(cursor.getInt(cursor.getColumnIndexOrThrow("companyId"))),
@@ -109,11 +116,10 @@ class PersonalContactRepository(context: Context) {
                         personalContactEmail = cursor.getString(cursor.getColumnIndexOrThrow("personalContactEmail")),
                         personalContactMP = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMP")),
                         personalContactMemo = cursor.getString(cursor.getColumnIndexOrThrow("personalContactMemo")),
-                        personalContactBirthday = LocalDate.parse(
-                            cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                    "personalContactBirthday"
-                                )
+                        personalContactBirthday =
+                        cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                "personalContactBirthday"
                             )
                         ),
                         company = CompanyDTO(
@@ -152,7 +158,15 @@ class PersonalContactRepository(context: Context) {
         val personalGroups = mutableListOf<PersonalGroupDTO>()
         val db = dbHelper.readableDatabase
         val cursor: Cursor =
-            db.query(DatabaseHelper.DatabaseConstants.PERSONAL_GROUP_TABLE, null, null, null, null, null, null)
+            db.query(
+                DatabaseHelper.DatabaseConstants.PERSONAL_GROUP_TABLE,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+            )
         if (cursor.moveToFirst()) {
             do {
                 val personalGroup = PersonalGroupDTO(
@@ -166,31 +180,39 @@ class PersonalContactRepository(context: Context) {
         cursor.close()
         return personalGroups
     }
-//    fun insertCompany(company: CompanyDTO): Long {
-//        // 1번 제외 후 저장 할것
-//        val db = dbHelper.writableDatabase
-//        val values = ContentValues().apply {
-//            put("companyName", company.companyName)
-//            put("companyAddress", company.companyAddress)
-//            put("companyURL", company.companyURL)
-//            put("companyNumber", company.companyNumber)
-//            put("companyFax", company.companyFax)
-//        }
-//        val id = db.insert(DatabaseHelper.DatabaseConstants.COMPANY_TABLE, null, values)
-//        db.close()
-//        return id
-//    }
 
-   fun getAllCompanyData(): List<CompanyDTO> {
+    fun insertCompany(company: CompanyDTO): Long {
+        // 1번 제외 후 저장 할것
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("companyName", company.companyName)
+            put("companyAddress", company.companyAddress)
+            put("companyURL", company.companyURL)
+            put("companyNumber", company.companyNumber)
+            put("companyFax", company.companyFax)
+        }
+        val id = db.insert(DatabaseHelper.DatabaseConstants.COMPANY_TABLE, null, values)
+        db.close()
+        return id
+    }
+
+    fun getAllCompanyData(): List<CompanyDTO> {
         val db: SQLiteDatabase = dbHelper.readableDatabase
         val cursor: Cursor = db.query(
             DatabaseHelper.DatabaseConstants.COMPANY_TABLE,
-            arrayOf("companyId","companyName" , "companyAddress","companyURL", "companyNumber", "companyFax" ),
+            arrayOf(
+                "companyId",
+                "companyName",
+                "companyAddress",
+                "companyURL",
+                "companyNumber",
+                "companyFax"
+            ),
             null, null, null, null, null
         )
 
         val companys = mutableListOf<CompanyDTO>()
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 val id = cursor.getInt(cursor.getColumnIndexOrThrow("companyId"))
                 val name = cursor.getString(cursor.getColumnIndexOrThrow("companyName"))
@@ -198,28 +220,28 @@ class PersonalContactRepository(context: Context) {
                 val url = cursor.getString(cursor.getColumnIndexOrThrow("companyURL"))
                 val officeNumber = cursor.getString(cursor.getColumnIndexOrThrow("companyNumber"))
                 val fax = cursor.getString(cursor.getColumnIndexOrThrow("companyFax"))
-                companys.add(CompanyDTO(id,name, address, url, officeNumber,fax))
-            }while (cursor.moveToNext())
+                companys.add(CompanyDTO(id, name, address, url, officeNumber, fax))
+            } while (cursor.moveToNext())
         }
         cursor.close()
         db.close()
         return companys
     }
 
-    fun insertCompany(company: CompanyDTO) {
-        if (company.companyId != 1) {
-            val db = dbHelper.writableDatabase
-            val values = ContentValues().apply {
-                put("companyId", company.companyId)
-                put("companyName", company.companyName)
-                put("companyAddress", company.companyAddress)
-                put("companyURL", company.companyURL)
-                put("companyNumber", company.companyNumber)
-                put("companyFax", company.companyFax)
-            }
-            db.insert("company", null, values)
-        }
-    }
+//    fun insertCompany(company: CompanyDTO) {
+//        if (company.companyId != 1) {
+//            val db = dbHelper.writableDatabase
+//            val values = ContentValues().apply {
+//                put("companyId", company.companyId)
+//                put("companyName", company.companyName)
+//                put("companyAddress", company.companyAddress)
+//                put("companyURL", company.companyURL)
+//                put("companyNumber", company.companyNumber)
+//                put("companyFax", company.companyFax)
+//            }
+//            db.insert("company", null, values)
+//        }
+//    }
 
     fun insertPersonalGroup(group: PersonalGroupDTO) {
         val db = dbHelper.writableDatabase
@@ -241,12 +263,59 @@ class PersonalContactRepository(context: Context) {
         db.insert("contact_group", null, values)
     }
 
-    fun forRefresh(){
+    fun getPersonalContactCount(): Int {
+        val db = dbHelper.readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT COUNT(*) FROM ${DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE}",
+            null
+        )
+        cursor.moveToFirst()
+        val count = cursor.getInt(0)
+        cursor.close()
+        return count
+    }
+
+    fun updatePersonalContact(contact: PersonalContactDTO) {
+        val db = dbHelper.writableDatabase
+
+        val values = ContentValues().apply {
+            put("positionName", contact.positionName)
+            put("departmentName", contact.departmentName)
+            put("personalContactName", contact.personalContactName)
+            put("personalContactNickName", contact.personalContactNickName)
+            put("personalContactEmail", contact.personalContactEmail)
+            put("personalContactMP", contact.personalContactMP)
+            put("personalContactMemo", contact.personalContactMemo)
+            put("personalContactBirthday", contact.personalContactBirthday.toString())
+            put("companyId", contact.company.companyId)
+            put("empId", contact.empId)
+        }
+
+        db.update(
+            DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE,
+            values,
+            "personalContactId = ?",
+            arrayOf(contact.personalContactId.toString())
+        )
+    }
+
+    fun forRefresh() {
         val db = dbHelper.writableDatabase
         db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE}")
         db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.PERSONAL_GROUP_TABLE}")
         db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.CONTACT_GROUP_TABLE}")
         db.execSQL("DROP TABLE IF EXISTS ${DatabaseHelper.DatabaseConstants.COMPANY_TABLE}")
         dbHelper.onCreate(db)
+    }
+
+    fun deletePersonalContact(id: Int) {
+        val db = dbHelper.writableDatabase
+
+        // 개인 연락처 삭제
+        db.delete(
+            DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE,
+            "personalContactId = ?",
+            arrayOf(id.toString())
+        )
     }
 }

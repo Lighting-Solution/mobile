@@ -19,7 +19,7 @@ data class PersonalContactDTO(
     val personalContactEmail :String,
     val personalContactMP :String,
     val personalContactMemo :String,
-    val personalContactBirthday :LocalDate,
+    val personalContactBirthday :String,
     val company :CompanyDTO,
     val empId : Int
 )

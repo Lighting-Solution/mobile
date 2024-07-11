@@ -2,7 +2,6 @@ package com.ls.m.ls_m_v1.emp
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.emp.entity.AllContact
-import com.ls.m.ls_m_v1.emp.repository.EmpRepository
 
 class EMPFragment : Fragment() {
 
@@ -33,9 +31,11 @@ class EMPFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-
         // ViewModel 초기화
-        contactViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application))
+        contactViewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
+        )
             .get(ContactViewModel::class.java)
 
         // 어댑터 초기화

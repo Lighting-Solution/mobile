@@ -49,9 +49,11 @@ class Login : AppCompatActivity() {
     private lateinit var loginRepository: LoginRepository
     private lateinit var empRepository: EmpRepository
     private lateinit var calendarRepository: CalendarRepository
+    private lateinit var personalContactRepository: PersonalContactRepository
 
     private lateinit var empService: EMPService
     private lateinit var calendarService: CalendarService
+    private lateinit var p_contactService : P_ContectService
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,96 +69,107 @@ class Login : AppCompatActivity() {
         empRepository = EmpRepository(this)
         dbHelper = DatabaseHelper(this)
         loginRepository = LoginRepository(this)
+        personalContactRepository = PersonalContactRepository(this)
 
         // 서비스 초기화
-        empService = RetrofitInstanceEMP.api
-
-
-
 
         loginButton.setOnClickListener {
             val userId = id.text.toString()
             val userPw = pw.text.toString()
 
             // api통신으로 받아와 데이터 베이스 저장까지 완료
-            login(userId, userPw)
+            CoroutineScope(Dispatchers.Main).launch {
+                val loginResponse = login(userId, userPw)
+                if (loginResponse != null) {
+                    // 로그인 성공 시 처리
+
+                    // emp 통신
+                    updateEmpData(loginResponse.token)
+
+                    // personal contact
+                    updatePersonal(loginResponse.empId, loginResponse.token)
+
+
+
+                    val intent = Intent(this@Login, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                } else {
+                    // 로그인 실패 시 처리
+                }
+            }
+
         }
+
+
     }
 
-    private fun login(userId: String, userPw: String) {
+    private suspend fun login(userId: String, userPw: String): LoginResponseDto? {
         loginRepository = LoginRepository(this)
         val loginEntity = LoginEntity(userId, userPw)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        return withContext(Dispatchers.IO) {
             try {
                 val response = RetrofitInstanceLogin.api.requestLoginData(loginEntity)
                 if (response.isSuccessful) {
                     val responseMap = response.body()
                     if (responseMap != null) {
+                        val token = "Bearer " + (responseMap["token"] as? String ?: "")
+                        val empId = (responseMap["empId"] as? String)?.toInt() ?: 0
+                        val positionId = (responseMap["positionId"] as? String)?.toInt() ?: 0
+                        val empName = responseMap["empName"] as? String ?: ""
+                        val departmentId = (responseMap["departmentId"] as? String)?.toInt() ?: 0
+
+                        val loginResponse = LoginResponseDto(token, empId, positionId, empName, departmentId)
+
                         withContext(Dispatchers.Main) {
-                            val token = "Bearer " + responseMap["token"] as String ?: ""
-                            val empId = (responseMap["empId"] as String).toInt() ?: 0
-                            val positionId = (responseMap["positionId"] as String).toInt() ?: 0
-                            val empName = responseMap["empName"] as String ?: ""
-                            val departmentId = (responseMap["departmentId"] as String).toInt()
-
-                            val loginResponse =
-                                LoginResponseDto(token, empId, positionId, empName, departmentId)
-
-                            Toast.makeText(
-                                this@Login,
-                                "Login successful, token: $token",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
+                            Toast.makeText(this@Login, "Login successful, token: $token", Toast.LENGTH_SHORT).show()
                             loginRepository.dropLoginTable()
                             loginRepository.insertTokenData(loginResponse)
-
-                            empRepository.forRefreash()
-                            updateEmpData(token)
-
-
-                            val intent = Intent(this@Login, MainActivity::class.java)
-                            startActivity(intent)
-                            finish()
                         }
+
+                        return@withContext loginResponse
                     } else {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                this@Login,
-                                "Login failed: empty response",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(this@Login, "Login failed: empty response", Toast.LENGTH_SHORT).show()
                         }
+                        return@withContext null
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(
-                            this@Login,
-                            "Login failed: ${response.message()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Toast.makeText(this@Login, "Login failed: ${response.message()}", Toast.LENGTH_SHORT).show()
                     }
+                    return@withContext null
                 }
             } catch (e: HttpException) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@Login, "Login failed: ${e.message}", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this@Login, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+                return@withContext null
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@Login, "네트워크 오류: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+                return@withContext null
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@Login, "Error: 아이디/비밀번호를 확인해 주세요", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this@Login, "Error: 아이디/비밀번호를 확인해 주세요", Toast.LENGTH_SHORT).show()
                 }
+                return@withContext null
             }
         }
     }
 
     private fun updateEmpData(token: String) {
+        empService = RetrofitInstanceEMP.api
+
+        // 데이터베이스에 데이터가 있는지 확인
+        val empCount = empRepository.getEmpCount()
+        if (empCount > 0) {
+            // 데이터가 이미 존재하면 업데이트하지 않음
+            return
+        }
+
         empService.getEmpData(token).enqueue(object : Callback<EmpAndroidDTO> {
             override fun onResponse(call: Call<EmpAndroidDTO>, response: Response<EmpAndroidDTO>) {
                 if (response.isSuccessful) {
@@ -226,4 +239,58 @@ class Login : AppCompatActivity() {
         // 전자결재 업데이트 로직
     }
 
+    private fun updatePersonal(id: Int, token: String) {
+        p_contactService = RetrofitInstancePersonal.api
+        // 데이터베이스에 데이터가 있는지 확인
+        val personalContactCount = personalContactRepository.getPersonalContactCount()
+        if (personalContactCount > 0) {
+            // 데이터가 이미 존재하면 업데이트하지 않음
+            return
+        }
+        p_contactService.getP_ContectData(token, id)
+            .enqueue(object : Callback<ContanctAandroidDTO> {
+                override fun onResponse(
+                    call: Call<ContanctAandroidDTO>,
+                    response: Response<ContanctAandroidDTO>
+                ) {
+                    if (response.isSuccessful) {
+                        val personalData = response.body()
+                        // 개인 주소록 데이터를 처리합니다.
+                        personalData?.let {
+                            // Company 데이터를 먼저 삽입
+                            it.personalContactDTOList.forEach { contact ->
+                                personalContactRepository.insertCompany(contact.company)
+                            }
+                            // PersonalContact 데이터를 삽입
+                            it.personalContactDTOList.forEach { contact ->
+                                personalContactRepository.insertPersonalContact(contact)
+                            }
+                            // PersonalGroup 데이터를 삽입
+                            it.personalGroupDTOList.forEach { group ->
+                                personalContactRepository.insertPersonalGroup(group)
+                            }
+                            // ContactGroup 데이터를 삽입
+                            it.contactGroupDTOList.forEach { contactGroup ->
+                                personalContactRepository.insertContactGroup(contactGroup)
+                            }
+
+                            Toast.makeText(this@Login, "데이터 삽입 완료", Toast.LENGTH_SHORT)
+                                .show()
+
+                        }
+                    } else {
+
+                        Toast.makeText(this@Login, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+
+                override fun onFailure(call: Call<ContanctAandroidDTO>, t: Throwable) {
+
+                    Toast.makeText(this@Login, "네트워크 오류: ${t.message}", Toast.LENGTH_SHORT)
+                        .show()
+
+                }
+            })
+    }
 }

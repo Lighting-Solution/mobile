@@ -16,7 +16,7 @@ import retrofit2.http.Path
 
 interface CalendarService {
     // 서버 통신하는 곳
-    @GET("events/{empId}")
+    @GET("events/")
     suspend fun getCalendarData(
         @Header("Authorization") token: String,
         @Path("empId") empId: Int

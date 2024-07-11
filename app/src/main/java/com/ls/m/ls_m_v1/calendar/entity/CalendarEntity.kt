@@ -18,14 +18,14 @@ data class ParticipantEntity(
 )
 
 // 삭제 아이디 만
-data class CalendarDto (
+data class CalendarDto(
     //  업데이트 id추가
     var calendarTitle: String,
     var calendarCreateAt: String,
     var calendarContent: String,
     var calendarStartAt:String,
     var calendarEndAt: String,
-//    var allDay: Boolean = false,//
+    var allDay: Int = 0,//
     val attendees: List<participantDTO>
 )// 참석자 포함해야함
 

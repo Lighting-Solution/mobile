@@ -15,11 +15,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.databinding.ActivityAddPersonalBinding
+import com.ls.m.ls_m_v1.login.repository.LoginRepository
 import com.ls.m.ls_m_v1.p_contect.dto.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.CompanyDTO
+import com.ls.m.ls_m_v1.p_contect.entity.PersonalContactDTO
 import com.ls.m.ls_m_v1.p_contect.repository.PersonalContactRepository
 import com.ls.m.ls_m_v1.p_contect.service.P_ContectService
 import com.ls.m.ls_m_v1.p_contect.service.RetrofitInstancePersonal
+import retrofit2.Call
+import retrofit2.Response
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.util.Calendar
@@ -32,6 +36,8 @@ class AddPersonal : AppCompatActivity() {
     private var companyInfoLayout: LinearLayout? = null
     private lateinit var personalService: P_ContectService
     private val repository = PersonalContactRepository(this)
+    private lateinit var loginRepository: LoginRepository
+    private lateinit var personalContactRepository: PersonalContactRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +46,8 @@ class AddPersonal : AppCompatActivity() {
 
         context = this
         personalService = RetrofitInstancePersonal.api
+        loginRepository = LoginRepository(this)
+        personalContactRepository = PersonalContactRepository(this)
 
         val companyList = repository.getAllCompanyData()
 
@@ -48,9 +56,21 @@ class AddPersonal : AppCompatActivity() {
 
         // 메모 활성화 컬러
         binding.personalContactMemo.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus){
-                binding.parsonalMemoLayout.setBoxStrokeColorStateList(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
-                binding.personalContactMemo.setHintTextColor(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
+            if (hasFocus) {
+                binding.parsonalMemoLayout.setBoxStrokeColorStateList(
+                    ColorStateList.valueOf(
+                        Color.parseColor(
+                            "#a97d6a"
+                        )
+                    )
+                )
+                binding.personalContactMemo.setHintTextColor(
+                    ColorStateList.valueOf(
+                        Color.parseColor(
+                            "#a97d6a"
+                        )
+                    )
+                )
             }
         }
 
@@ -92,6 +112,9 @@ class AddPersonal : AppCompatActivity() {
         binding.personalContactBirthday.setOnClickListener {
             showDatePickerDialog { date -> binding.personalContactBirthday.text = date }
         }
+
+        val loginData = loginRepository.getloginData()
+
         binding.submit.setOnClickListener {
             val birthdayStr = binding.personalContactBirthday.text.toString()
             val birthday: LocalDate? = if (birthdayStr.isNotEmpty()) {
@@ -104,77 +127,80 @@ class AddPersonal : AppCompatActivity() {
             } else {
                 null
             }
-
-            val addData = AddPersonalDTO(
+            val addData = PersonalContactDTO(
+                personalContactId = 0,
                 personalContactName = binding.personalContactName.text.toString(),
-                personalContactNickName = binding.personalContactNickName.text.toString(),
                 departmentName = binding.departmentName.text.toString(),
                 positionName = binding.positionName.text.toString(),
                 personalContactMemo = binding.personalContactMemo.text.toString(),
                 personalContactMP = binding.personalContactMP.text.toString(),
                 personalContactEmail = binding.personalContactEmail.text.toString(),
-                personalContactBirthday = birthday,
+                personalContactBirthday = birthday.toString(),
+                personalContactNickName = binding.personalContactNickName.text.toString(),
                 company = CompanyDTO(
                     companyId = binding.spinner.id ?: 0,
                     companyName = companyInfoLayout?.findViewById<EditText>(R.id.companyName)?.text.toString(),
                     companyAddress = companyInfoLayout?.findViewById<EditText>(R.id.companyAddress)?.text.toString(),
                     companyNumber = companyInfoLayout?.findViewById<EditText>(R.id.companyNumber)?.text.toString(),
                     companyURL = companyInfoLayout?.findViewById<EditText>(R.id.companyURL)?.text.toString(),
-                    companyFax = companyInfoLayout?.findViewById<EditText>(R.id.companyFax)?.text.toString()
-                ),empId = 21
-                // 로그인 할때 변경할 것
+                    companyFax = companyInfoLayout?.findViewById<EditText>(R.id.companyFax)?.text.toString(),
+                ), empId = loginData.empId
             )
+            val companyId = personalContactRepository.insertCompany(addData.company)
+            addData.company.companyId = companyId.toInt()
+            personalContactRepository.insertPersonalContact(addData)
 
-            Log.d("ddddddd",binding.personalContactBirthday.text.toString() )
 
-            // 등록 데이터 api요청으로 날림
-//            if (binding.spinner.selectedItem == "직접 입력") {
-//                // api 통신으로 보냄
-//                personalService.addPersnalData(addData).enqueue(object : retrofit2.Callback<String> {
-//                    override fun onResponse(call: Call<String>, response: Response<String>) {
-//
-//                        if (response.isSuccessful) {
-//                            // 성공적으로 업데이트됨
-//                            Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
-//                            // 성공하면 테이블 날리고 리프레쉬 할것.
-//
-//
-//                        } else {
-//                            // 업데이트 실패
-//                            Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
-//                    override fun onFailure(call: Call<String>, t: Throwable) {
-//                        TODO("Not yet implemented")
-//                    }
-//
-//                })
 
-//            } else {
-//                // 선택한 회사가 있으면 회사 정보를 읽어옴
-//                addData.company.companyId = companyId ?: 0
-//                personalService.addPersnalData(addData).enqueue(object : retrofit2.Callback<String> {
-//                    override fun onResponse(call: Call<String>, response: Response<String>) {
-//                        Log.d("api", call.toString())
-//                        Log.d("api", response.toString())
-//
-//                        if (response.isSuccessful) {
-//                            // 성공적으로 업데이트됨
-//                            Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
-//                        } else {
-//                            // 업데이트 실패
-//                            Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
-//                    override fun onFailure(call: Call<String>, t: Throwable) {
-//                        TODO("Not yet implemented")
-//                    }
-//
-//                })
-//            }
+             //등록 데이터 api요청으로 날림
+            if (binding.spinner.selectedItem == "직접 입력") {
+                // api 통신으로 보냄
+                personalService.addPersnalData(loginData.token, loginData.empId, addData).enqueue(object : retrofit2.Callback<String> {
+                    override fun onResponse(call: Call<String>, response: Response<String>) {
+
+                        if (response.isSuccessful) {
+                            // 성공적으로 업데이트됨
+                            Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
+                            // 성공하면 테이블 날리고 리프레쉬 할것.
+
+
+                        } else {
+                            // 업데이트 실패
+                            Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    override fun onFailure(call: Call<String>, t: Throwable) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+
+            } else {
+                // 선택한 회사가 있으면 회사 정보를 읽어옴
+                addData.company.companyId = (companyId ?: 0).toInt()
+                personalService.addPersnalData(loginData.token, loginData.empId, addData).enqueue(object : retrofit2.Callback<String> {
+                    override fun onResponse(call: Call<String>, response: Response<String>) {
+                        Log.d("api", call.toString())
+                        Log.d("api", response.toString())
+
+                        if (response.isSuccessful) {
+                            // 성공적으로 업데이트됨
+                            Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // 업데이트 실패
+                            Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    override fun onFailure(call: Call<String>, t: Throwable) {
+                        TODO("Not yet implemented")
+                    }
+
+                })
+            }
 
         }
     }
+
     private fun showDatePickerDialog(onDateSelected: (String) -> Unit) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -184,7 +210,8 @@ class AddPersonal : AppCompatActivity() {
         val datePickerDialog = DatePickerDialog(
             this,
             { _, selectedYear, selectedMonth, selectedDay ->
-                val date = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                val date =
+                    String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 onDateSelected(date)
             },
             year, month, day

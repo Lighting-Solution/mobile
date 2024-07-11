@@ -2,6 +2,7 @@ package com.ls.m.ls_m_v1.calendar.repository
 
 import android.content.ContentValues
 import android.content.Context
+import com.ls.m.ls_m_v1.calendar.entity.CalendarDto
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
 import com.ls.m.ls_m_v1.calendar.entity.ParticipantEntity
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
@@ -36,6 +37,36 @@ class CalendarRepository(context: Context) {
         }
         db.close()
     }
+
+    fun createCalendarInDatabase(calendarData: CalendarDto) {
+        val db = dbHelper.writableDatabase
+        try {
+            // ContentValues 객체를 생성하여 값을 설정
+            val values = ContentValues().apply {
+                put("calendarTitle", calendarData.calendarTitle)
+                put("calendarCreateAt", calendarData.calendarCreateAt)
+                put("calendarContent", calendarData.calendarContent)
+                put("calendarStartAt", calendarData.calendarStartAt)
+                put("calendarEndAt", calendarData.calendarEndAt)
+                put("allDay", calendarData.allDay)
+            }
+
+            // 새로운 calendar 행을 삽입하고, 생성된 calendarId를 가져옴
+            val calendarId = db.insert(DatabaseHelper.DatabaseConstants.CALENDAR_TABLE, null, values)
+
+            // participantEntity 리스트에 있는 각 참가자에 대해 데이터베이스에 새 행을 삽입
+            calendarData.attendees.forEach { participant ->
+                val participantValues = ContentValues().apply {
+                    put("calendarId", calendarId)
+                    put("empId", participant.id)
+                }
+                db.insert(DatabaseHelper.DatabaseConstants.PARTICIPANT_TABLE, null, participantValues)
+            }
+        } finally {
+            db.close()
+        }
+    }
+
 
     fun insertParticipant(participantEntityList: List<ParticipantEntity>) {
         val db = dbHelper.writableDatabase

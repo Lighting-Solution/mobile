@@ -2,6 +2,7 @@ package com.ls.m.ls_m_v1.p_contect.service
 
 import com.ls.m.ls_m_v1.p_contect.dto.AddPersonalDTO
 import com.ls.m.ls_m_v1.p_contect.entity.ContanctAandroidDTO
+import com.ls.m.ls_m_v1.p_contect.entity.PersonalContactDTO
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -17,29 +18,29 @@ interface P_ContectService {
     @GET("list/all-personal/android/{id}")
     fun getP_ContectData(
         @Header("Authorization") token: String,
-        @Path("empId") id:Int
+        @Path("id") id:Int
     ): Call<ContanctAandroidDTO>
 
     @DELETE("contact")
     fun deleteP_ContectData(
         @Header("Authorization") token: String,
-        @Path("empId") id: Int,
+        @Path("id ") id: Int,
         @Body deleteId : Int
     ):Call<String>
 
-    @PUT("contact/{id}")
+    @PUT("personal-contact")
     fun updateP_ContectData(
         @Header("Authorization") token: String,
-        @Path("empId") id: Int,
+        @Path("id") id: Int,
         @Body addPersonalDTO: AddPersonalDTO
     ): Call<String>
 
     // insert
-    @POST("contact")
+    @POST("personal-contact/{id}")
     fun addPersnalData(
-        @Header("token") token: String,
-        @Path("empId") id : Int,
-        @Body addPersonalDTO: AddPersonalDTO
+        @Header("Authorization") token: String,
+        @Path("id") id : Int,
+        @Body addPersonalDTO: PersonalContactDTO
     ): Call<String>
 }
 object RetrofitInstancePersonal {

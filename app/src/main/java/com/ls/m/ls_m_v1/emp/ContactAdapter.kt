@@ -49,7 +49,7 @@ class ContactAdapter(
     override fun getItemCount() = contacts.size
 
     fun updateContacts(newContacts: List<Any>) {
-        contacts = newContacts
+        contacts = newContacts.distinctBy { if (it is AllContact) it.id else (it as SectionHeader).title }
         notifyDataSetChanged()
     }
 

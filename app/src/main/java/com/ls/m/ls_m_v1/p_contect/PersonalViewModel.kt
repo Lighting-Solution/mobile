@@ -9,10 +9,10 @@ import com.ls.m.ls_m_v1.emp.entity.AllContact
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
 import com.ls.m.ls_m_v1.p_contect.repository.PersonalContactRepository
 
-class PersonalViewModel(application: Application): AndroidViewModel(application) {
+class PersonalViewModel(application: Application) : AndroidViewModel(application) {
     private var personalContactRepository = PersonalContactRepository(application)
     private val _contacts = MutableLiveData<List<Any>>()
-    val contacts : LiveData<List<Any>> get() = _contacts
+    val contacts: LiveData<List<Any>> get() = _contacts
 
     init {
         loadContacts()
@@ -24,9 +24,9 @@ class PersonalViewModel(application: Application): AndroidViewModel(application)
         val contacts = mutableListOf<Any>()
 
         // 데이터를 적절히 분류하여 SectionHeader와 함께 추가
-        val sections = personalGroups.groupBy { it.personalGroupName }
-        for ((section, groupItems) in sections) {
-            contacts.add(SectionHeader(section))
+        val groupMap = personalGroups.groupBy { it.personalGroupName }
+        for ((groupName, groupItems) in groupMap) {
+            contacts.add(SectionHeader(groupName))
             for (group in groupItems) {
                 val items = personalList.filter { it.empId == group.empId }
                 contacts.addAll(items.map { personal ->
@@ -47,6 +47,10 @@ class PersonalViewModel(application: Application): AndroidViewModel(application)
                 })
             }
         }
-        _contacts.value = contacts
+
+        // 중복된 SectionHeader 제거
+        _contacts.value =
+            contacts.distinctBy { if (it is AllContact) it.id else (it as SectionHeader).title }
     }
 }
+

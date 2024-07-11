@@ -7,28 +7,25 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
+import com.ls.m.ls_m_v1.calendar.dto.CalendarEvent
 import com.ls.m.ls_m_v1.calendar.entity.CalendarDto
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEmp
-import com.ls.m.ls_m_v1.calendar.entity.CalendarEntity
-import com.ls.m.ls_m_v1.calendar.entity.SelectedUser
 import com.ls.m.ls_m_v1.calendar.entity.participantDTO
+import com.ls.m.ls_m_v1.calendar.repository.CalendarRepository
 import com.ls.m.ls_m_v1.databinding.ActivityAddCalendarBinding
 import com.ls.m.ls_m_v1.emp.entity.EmpDTO
 import com.ls.m.ls_m_v1.emp.repository.EmpRepository
 import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
 import com.ls.m.ls_m_v1.login.repository.LoginRepository
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.*
-import kotlin.math.log
 
 class AddCalendar : AppCompatActivity() {
     private lateinit var binding: ActivityAddCalendarBinding
@@ -36,9 +33,11 @@ class AddCalendar : AppCompatActivity() {
     private val selectedUsers = ArrayList<CalendarEmp>()
     private lateinit var loginRepository: LoginRepository
     private lateinit var empRepository: EmpRepository
+    private lateinit var calendarRepository: CalendarRepository
     private var value: EmpDTO? = null
     private var empId: Int = 0
     private var calendarEmp: CalendarEmp? = null
+    private lateinit var calendarViewModel : CalendarViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +45,7 @@ class AddCalendar : AppCompatActivity() {
         setContentView(binding.root)
 
         empRepository = EmpRepository(this)
+        calendarRepository = CalendarRepository(this)
 
         val loginData = intent.getSerializableExtra("loginData")as? LoginResponseDto
         loginData?.let {
@@ -74,6 +74,11 @@ class AddCalendar : AppCompatActivity() {
         setupTimeSpinners()
         setupListeners()
         initializeStartTime()
+
+
+
+
+
 
     }
 
@@ -161,6 +166,7 @@ class AddCalendar : AppCompatActivity() {
                     department = user.department,
                 )
                 Datas.add(data)
+                Log.d("ddd", data.toString())
             }
             val addData = CalendarDto(
                 calendarTitle = binding.addTitle.text.toString(),
@@ -168,9 +174,22 @@ class AddCalendar : AppCompatActivity() {
                 calendarContent = binding.personalContactMemo.text.toString(),
                 calendarStartAt = "${binding.startDate.text}T${binding.startTime.selectedItem}",
                 calendarEndAt = "${binding.endDate.text}T${binding.endTime.selectedItem}",
+                allDay = if(binding.AlldayCheck.isSelected) 1 else 0,
                 attendees = Datas
             )
             // TODO: API 요청 코드 추가
+            calendarRepository.createCalendarInDatabase(addData)
+            calendarViewModel.addEvent(CalendarEvent(
+                allDay = binding.AlldayCheck.isSelected,
+                title = binding.addTitle.text.toString(),
+                startDate = LocalDate.parse(binding.startDate.text),
+                startTime = binding.startTime.selectedItem.toString(),
+                endDate = LocalDate.parse(binding.endDate.text),
+                endTime = binding.endTime.selectedItem.toString(),
+                contants = binding.personalContactMemo.toString(),
+                color = 0
+            ))
+            finish()
         }
     }
 
