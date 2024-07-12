@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import com.ls.m.ls_m_v1.MainActivity
+import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.calendar.dto.CalendarEvent
 import com.ls.m.ls_m_v1.calendar.entity.CalendarDto
 import com.ls.m.ls_m_v1.calendar.entity.CalendarEmp
@@ -74,11 +76,6 @@ class AddCalendar : AppCompatActivity() {
         setupTimeSpinners()
         setupListeners()
         initializeStartTime()
-
-
-
-
-
 
     }
 
@@ -166,7 +163,6 @@ class AddCalendar : AppCompatActivity() {
                     department = user.department,
                 )
                 Datas.add(data)
-                Log.d("ddd", data.toString())
             }
             val addData = CalendarDto(
                 calendarTitle = binding.addTitle.text.toString(),
@@ -189,7 +185,10 @@ class AddCalendar : AppCompatActivity() {
                 contants = binding.personalContactMemo.toString(),
                 color = 0
             ))
-            finish()
+            val intent = Intent(this@AddCalendar, MainActivity::class.java).apply {
+                putExtra("SELECTED_TAB", R.id.tab3)  // 예시로 세 번째 탭을 선택
+            }
+            startActivity(intent)
         }
     }
 

@@ -20,42 +20,19 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
         loadContacts()
     }
 
-    private fun loadContacts() {
-        val empList = empRepository.getAllEmps().distinctBy { it.empId } // 중복 제거
-        val contacts = mutableListOf<Any>()
+    fun loadContacts() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val empList = empRepository.getAllEmps().distinctBy { it.empId } // 중복 제거
+            val contacts = mutableListOf<Any>()
 
-        val departments = empList.filter { it.department.departmentId % 10 == 0 }
-        val teams = empList.filter { it.department.departmentId % 10 != 0 }
+            val departments = empList.filter { it.department.departmentId % 10 == 0 }
+            val teams = empList.filter { it.department.departmentId % 10 != 0 }
 
-        for (department in departments) {
-            contacts.add(SectionHeader(department.department.departmentName))
+            for (department in departments) {
+                contacts.add(SectionHeader(department.department.departmentName))
 
-            // 부서에 속한 사람들 추가
-            contacts.addAll(empList.filter { it.department.departmentId == department.department.departmentId }
-                .map { emp ->
-                    AllContact(
-                        id = emp.empId.toString(),
-                        name = emp.empName,
-                        position = emp.position.positionName,
-                        department = emp.department.departmentName,
-                        email = emp.empEmail,
-                        mobilePhone = emp.empMP,
-                        officePhone = emp.company.companyNumber,
-                        birthday = emp.empBirthday.toString(),
-                        company = emp.company,
-                        buttonState = false
-                    )
-                })
-
-            // 부서에 속한 팀들 필터링
-            val departmentTeams = teams.filter {
-                it.department.departmentId / 10 == department.department.departmentId / 10
-            }
-
-            for (team in departmentTeams) {
-                contacts.add(SectionHeader("   - ${team.department.departmentName}"))
-
-                contacts.addAll(teams.filter { it.department.departmentId == team.department.departmentId }
+                // 부서에 속한 사람들 추가
+                contacts.addAll(empList.filter { it.department.departmentId == department.department.departmentId }
                     .map { emp ->
                         AllContact(
                             id = emp.empId.toString(),
@@ -70,8 +47,37 @@ class ContactViewModel(application: Application) : AndroidViewModel(application)
                             buttonState = false
                         )
                     })
+
+                // 부서에 속한 팀들 필터링
+                val departmentTeams = teams.filter {
+                    it.department.departmentId / 10 == department.department.departmentId / 10
+                }
+
+                for (team in departmentTeams) {
+                    contacts.add(SectionHeader("   - ${team.department.departmentName}"))
+
+                    contacts.addAll(teams.filter { it.department.departmentId == team.department.departmentId }
+                        .map { emp ->
+                            AllContact(
+                                id = emp.empId.toString(),
+                                name = emp.empName,
+                                position = emp.position.positionName,
+                                department = emp.department.departmentName,
+                                email = emp.empEmail,
+                                mobilePhone = emp.empMP,
+                                officePhone = emp.company.companyNumber,
+                                birthday = emp.empBirthday.toString(),
+                                company = emp.company,
+                                buttonState = false
+                            )
+                        })
+                }
             }
+            _contacts.postValue(contacts)
         }
-        _contacts.value = contacts
+    }
+
+    fun refreshData() {
+        loadContacts()
     }
 }

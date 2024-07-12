@@ -31,9 +31,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
         loadEvents()
     }
 
-    private fun loadEvents() {
+    fun loadEvents() {
+        val datas = calendarRepository.getAllCalendar()
         viewModelScope.launch(Dispatchers.IO) {
-            val datas = calendarRepository.getAllCalendar()
             val eventsData = mutableListOf<CalendarEvent>()
 
             for ((index, data) in datas.withIndex()) {
@@ -65,17 +65,17 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     fun addEvent(calendarEvent: CalendarEvent) {
         val calDTO = CalendarDto(
             calendarTitle = calendarEvent.title,
-            calendarCreateAt = calendarEvent.startDate.toString(), // You need to provide the proper field here
+            calendarCreateAt = calendarEvent.startDate.toString(),
             calendarContent = calendarEvent.contants,
             calendarStartAt = "${calendarEvent.startDate}T${calendarEvent.startTime}",
             calendarEndAt = "${calendarEvent.endDate}T${calendarEvent.endTime}",
             allDay = if (calendarEvent.allDay) 1 else 0,
-            attendees = emptyList() // Update as per your need
+            attendees = listOf() // 필요에 따라 업데이트
         )
 
         viewModelScope.launch(Dispatchers.IO) {
             calendarRepository.createCalendarInDatabase(calDTO)
-            loadEvents() // Refresh events after adding a new one
+            loadEvents() // 새 이벤트를 추가한 후 이벤트를 새로고침
         }
     }
 }

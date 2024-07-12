@@ -12,6 +12,7 @@ import com.google.gson.Gson
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEmpDTO
 import com.ls.m.ls_m_v1.approval.entity.ApprovalEntity
+import com.ls.m.ls_m_v1.approval.repository.ApprovalRepository
 import com.ls.m.ls_m_v1.approval.service.RetrofitInstanceApproval
 import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.databinding.ActivityApprovalDetailBinding
@@ -42,6 +43,7 @@ class ApprovalDetail : AppCompatActivity() {
     private lateinit var approvalDetailAdapter: ApprovalDetailAdapter
     private lateinit var loginRepository: LoginRepository
     private lateinit var dbHelper: DatabaseHelper
+    private  lateinit var approvalRepository: ApprovalRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityApprovalDetailBinding.inflate(layoutInflater)
@@ -49,6 +51,7 @@ class ApprovalDetail : AppCompatActivity() {
         setContentView(binding.root)
         empRepository = EmpRepository(this)
         dbHelper = DatabaseHelper(this)
+        approvalRepository = ApprovalRepository(this)
 
         val approval = intent.getSerializableExtra("approval_data") as? ApprovalEntity
         approval?.let {
@@ -101,7 +104,7 @@ class ApprovalDetail : AppCompatActivity() {
                 uploadPdfToServer(pdfFile, approval)
 
                 // 목록으로 가면서 리프레쉬
-
+                //approvalRepository.updateManagerStatus(approval.digitalApprovalId, 1)
 
             }
         }
@@ -191,15 +194,15 @@ class ApprovalDetail : AppCompatActivity() {
 
                 // 이미지의 위치와 크기를 결정합니다.
                 val (x, y) = when (approvalData.managerStatus) {
-                    0 -> Pair(550f, 47f)  // managerStatus 0일 때 위치
-                    1 -> Pair(630f, 47f)  // managerStatus 1일 때 위치
-                    else -> Pair(470f, 47f)  // 기본 위치
+                    0 -> Pair(630f,  795f)  // managerStatus 0일 때 위치
+                    1 -> Pair(550f,  795f)  // managerStatus 1일 때 위치
+                    else -> Pair(470f,  795f)  // 기본 위치
                 }
                 val imageWidth = 40f
                 val imageHeight = 35f
 
                 // 이미지 변환 매트릭스를 사용하여 이미지를 올바르게 배치합니다.
-                val matrix = Matrix(imageWidth, 0f, 0f, -imageHeight, x, y + imageHeight)
+                val matrix = Matrix(imageWidth, 0f, 0f, imageHeight, x, y)
 
                 // PDFBox의 PDPageContentStream을 사용하여 이미지를 그립니다.
                 contentStream.drawImage(pdImage, matrix)
@@ -245,7 +248,7 @@ class ApprovalDetail : AppCompatActivity() {
                 if (response.isSuccessful) {
                     Toast.makeText(this@ApprovalDetail, "PDF 업로드 성공", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this@ApprovalDetail, "PDF 업로드 실패", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(this@ApprovalDetail, "PDF 업로드 실패", Toast.LENGTH_SHORT).show()
                 }
             }
 

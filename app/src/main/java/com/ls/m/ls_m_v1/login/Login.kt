@@ -123,7 +123,7 @@ class Login : AppCompatActivity() {
                         val loginResponse = LoginResponseDto(token, empId, positionId, empName, departmentId)
 
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@Login, "Login successful, token: $token", Toast.LENGTH_SHORT).show()
+                            //Toast.makeText(this@Login, "Login successful, token: $token", Toast.LENGTH_SHORT).show()
                             loginRepository.dropLoginTable()
                             loginRepository.insertTokenData(loginResponse)
                         }
@@ -187,7 +187,7 @@ class Login : AppCompatActivity() {
                         if (departmentList != null) {
                             empRepository.insertDepartment(departmentList)
                         }
-                        Toast.makeText(this@Login, "업데이트 성공", Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(this@Login, "업데이트 성공", Toast.LENGTH_SHORT).show()
                     } else {
                         Log.e("UpdateEmpData", "empDtoList is null")
                         Toast.makeText(this@Login, "업데이트 실패, 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
@@ -274,8 +274,7 @@ class Login : AppCompatActivity() {
                                 personalContactRepository.insertContactGroup(contactGroup)
                             }
 
-                            Toast.makeText(this@Login, "데이터 삽입 완료", Toast.LENGTH_SHORT)
-                                .show()
+//                            Toast.makeText(this@Login, "데이터 삽입 완료", Toast.LENGTH_SHORT).show()
 
                         }
                     } else {

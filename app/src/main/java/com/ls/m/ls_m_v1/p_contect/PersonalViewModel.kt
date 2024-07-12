@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.ls.m.ls_m_v1.databaseHelper.DatabaseHelper
 import com.ls.m.ls_m_v1.emp.entity.AllContact
 import com.ls.m.ls_m_v1.emp.entity.SectionHeader
 import com.ls.m.ls_m_v1.p_contect.repository.PersonalContactRepository
@@ -18,7 +17,7 @@ class PersonalViewModel(application: Application) : AndroidViewModel(application
         loadContacts()
     }
 
-    private fun loadContacts() {
+    fun loadContacts() {
         val personalList = personalContactRepository.getAllPersonalContacts()
         val personalGroups = personalContactRepository.getAllPersonalGroups()
         val contacts = mutableListOf<Any>()
@@ -49,8 +48,10 @@ class PersonalViewModel(application: Application) : AndroidViewModel(application
         }
 
         // 중복된 SectionHeader 제거
-        _contacts.value =
-            contacts.distinctBy { if (it is AllContact) it.id else (it as SectionHeader).title }
+        _contacts.value = contacts.distinctBy { if (it is AllContact) it.id else (it as SectionHeader).title }
+    }
+
+    fun refreshData() {
+        loadContacts()
     }
 }
-

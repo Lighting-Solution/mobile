@@ -2,6 +2,7 @@ package com.ls.m.ls_m_v1.p_contect
 
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -13,6 +14,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.ls.m.ls_m_v1.MainActivity
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.databinding.ActivityAddPersonalBinding
 import com.ls.m.ls_m_v1.login.repository.LoginRepository
@@ -31,13 +33,10 @@ import java.util.Calendar
 class AddPersonal : AppCompatActivity() {
     private lateinit var binding: ActivityAddPersonalBinding
     private lateinit var context: Context
-    private var companyId: Int? = null
-    private var companyName: String? = null
-    private var companyInfoLayout: LinearLayout? = null
     private lateinit var personalService: P_ContectService
-    private val repository = PersonalContactRepository(this)
     private lateinit var loginRepository: LoginRepository
     private lateinit var personalContactRepository: PersonalContactRepository
+    private lateinit var companyList: List<CompanyDTO>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +48,7 @@ class AddPersonal : AppCompatActivity() {
         loginRepository = LoginRepository(this)
         personalContactRepository = PersonalContactRepository(this)
 
-        val companyList = repository.getAllCompanyData()
+        companyList = personalContactRepository.getAllCompanyData()
 
         val items = companyList.map { it.companyName }.toMutableList()
         items.add(0, "직접 입력")
@@ -58,43 +57,22 @@ class AddPersonal : AppCompatActivity() {
         binding.personalContactMemo.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 binding.parsonalMemoLayout.setBoxStrokeColorStateList(
-                    ColorStateList.valueOf(
-                        Color.parseColor(
-                            "#a97d6a"
-                        )
-                    )
+                    ColorStateList.valueOf(Color.parseColor("#a97d6a"))
                 )
-                binding.personalContactMemo.setHintTextColor(
-                    ColorStateList.valueOf(
-                        Color.parseColor(
-                            "#a97d6a"
-                        )
-                    )
-                )
+                binding.personalContactMemo.setHintTextColor(ColorStateList.valueOf(Color.parseColor("#a97d6a")))
             }
         }
 
-        //Arrayabapter 를 사용하여  spinner에 항목을 설정합니다.
+        // ArrayAdapter를 사용하여 spinner에 항목을 설정합니다.
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, items)
         binding.spinner.adapter = adapter
 
-        // Spinner의 항목이 선택 되었을때 동작을 설정합니다.
+        // Spinner의 항목이 선택되었을 때 동작을 설정합니다.
         binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View,
-                position: Int,
-                id: Long
-            ) {
-                val selectedItem = parent?.getItemAtPosition(position) as String
-                // 회사가 선택되면 회사 정보 레이아웃을 표시하고, 그렇지 않으면 숨김
+            override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
+                val selectedItem = items[position]
                 if (selectedItem != "직접 입력") {
                     binding.companyInfoStub.visibility = View.GONE
-                    val selectedCompany = companyList.find { it.companyName == selectedItem }
-                    selectedCompany?.let {
-                        companyId = it.companyId
-                        companyName = it.companyName
-                    }
                 } else {
                     binding.companyInfoStub.visibility = View.VISIBLE
                 }
@@ -102,7 +80,6 @@ class AddPersonal : AppCompatActivity() {
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
-
         }
 
         binding.backButton1.setOnClickListener {
@@ -116,17 +93,10 @@ class AddPersonal : AppCompatActivity() {
         val loginData = loginRepository.getloginData()
 
         binding.submit.setOnClickListener {
-            val birthdayStr = binding.personalContactBirthday.text.toString()
-            val birthday: LocalDate? = if (birthdayStr.isNotEmpty()) {
-                try {
-                    LocalDate.parse(birthdayStr)
-                } catch (e: DateTimeParseException) {
-                    Toast.makeText(context, "날짜 형식이 올바르지 않습니다.", Toast.LENGTH_SHORT).show()
-                    null
-                }
-            } else {
-                null
-            }
+
+            val selectedCompany = companyList.find { it.companyName == binding.spinner.selectedItem.toString() }
+            val companyId = selectedCompany?.companyId ?: 0
+
             val addData = PersonalContactDTO(
                 personalContactId = 0,
                 personalContactName = binding.personalContactName.text.toString(),
@@ -135,69 +105,66 @@ class AddPersonal : AppCompatActivity() {
                 personalContactMemo = binding.personalContactMemo.text.toString(),
                 personalContactMP = binding.personalContactMP.text.toString(),
                 personalContactEmail = binding.personalContactEmail.text.toString(),
-                personalContactBirthday = birthday.toString(),
+                personalContactBirthday = binding.personalContactBirthday.text.toString()?: "-",
                 personalContactNickName = binding.personalContactNickName.text.toString(),
-                company = CompanyDTO(
-                    companyId = binding.spinner.id ?: 0,
-                    companyName = companyInfoLayout?.findViewById<EditText>(R.id.companyName)?.text.toString(),
-                    companyAddress = companyInfoLayout?.findViewById<EditText>(R.id.companyAddress)?.text.toString(),
-                    companyNumber = companyInfoLayout?.findViewById<EditText>(R.id.companyNumber)?.text.toString(),
-                    companyURL = companyInfoLayout?.findViewById<EditText>(R.id.companyURL)?.text.toString(),
-                    companyFax = companyInfoLayout?.findViewById<EditText>(R.id.companyFax)?.text.toString(),
-                ), empId = loginData.empId
+                company = if (binding.spinner.selectedItem == "직접 입력") {
+                    CompanyDTO(
+                        companyId = 0,
+                        companyName = binding.companyInfoStub.findViewById<EditText>(R.id.companyName)?.text.toString(),
+                        companyAddress = binding.companyInfoStub.findViewById<EditText>(R.id.companyAddress)?.text.toString(),
+                        companyNumber = binding.companyInfoStub.findViewById<EditText>(R.id.companyNumber)?.text.toString(),
+                        companyURL = binding.companyInfoStub.findViewById<EditText>(R.id.companyURL)?.text.toString(),
+                        companyFax = binding.companyInfoStub.findViewById<EditText>(R.id.companyFax)?.text.toString()
+                    )
+                } else {
+                    selectedCompany ?: CompanyDTO(companyId, "", "", "", "", "")
+                },
+                empId = loginData.empId
             )
-            val companyId = personalContactRepository.insertCompany(addData.company)
-            addData.company.companyId = companyId.toInt()
-            personalContactRepository.insertPersonalContact(addData)
 
-
-
-             //등록 데이터 api요청으로 날림
             if (binding.spinner.selectedItem == "직접 입력") {
-                // api 통신으로 보냄
-                personalService.addPersnalData(loginData.token, loginData.empId, addData).enqueue(object : retrofit2.Callback<String> {
-                    override fun onResponse(call: Call<String>, response: Response<String>) {
+//                personalService.addPersnalData(loginData.token, addData).enqueue(object : retrofit2.Callback<String> {
+//                    override fun onResponse(call: Call<String>, response: Response<String>) {
+//                        if (response.isSuccessful) {
+//                            Toast.makeText(context, "회사 정보가 발송되었습니다.", Toast.LENGTH_SHORT).show()
+//                        } else {
+//                            Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
+//                        }
+//                    }
+//
+//                    override fun onFailure(call: Call<String>, t: Throwable) {
+//                        Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
+//                    }
+//                })
+                val companyId = personalContactRepository.insertCompany(addData.company)
+                addData.company.companyId = companyId.toInt()
 
-                        if (response.isSuccessful) {
-                            // 성공적으로 업데이트됨
-                            Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
-                            // 성공하면 테이블 날리고 리프레쉬 할것.
-
-
-                        } else {
-                            // 업데이트 실패
-                            Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    override fun onFailure(call: Call<String>, t: Throwable) {
-                        TODO("Not yet implemented")
-                    }
-
-                })
-
+                personalContactRepository.createPersonalContact(addData)
             } else {
-                // 선택한 회사가 있으면 회사 정보를 읽어옴
-                addData.company.companyId = (companyId ?: 0).toInt()
-                personalService.addPersnalData(loginData.token, loginData.empId, addData).enqueue(object : retrofit2.Callback<String> {
-                    override fun onResponse(call: Call<String>, response: Response<String>) {
-                        Log.d("api", call.toString())
-                        Log.d("api", response.toString())
-
-                        if (response.isSuccessful) {
-                            // 성공적으로 업데이트됨
-                            Toast.makeText(context, "회사 정보가 발송.", Toast.LENGTH_SHORT).show()
-                        } else {
-                            // 업데이트 실패
-                            Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    override fun onFailure(call: Call<String>, t: Throwable) {
-                        TODO("Not yet implemented")
-                    }
-
-                })
+//                addData.company.companyId = binding.spinner.id
+//                Log.d("dddd",binding.spinner.id.toString())
+//                personalService.addPersnalData(loginData.token, addData).enqueue(object : retrofit2.Callback<String> {
+//                    override fun onResponse(call: Call<String>, response: Response<String>) {
+//                        if (response.isSuccessful) {
+//                            Toast.makeText(context, "회사 정보가 발송되었습니다.", Toast.LENGTH_SHORT).show()
+//                        } else {
+//                            Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
+//                        }
+//                    }
+//
+//                    override fun onFailure(call: Call<String>, t: Throwable) {
+//                        Toast.makeText(context, "회사 정보 발송에 실패했습니다.", Toast.LENGTH_SHORT).show()
+//                    }
+//                })
+                addData.company.companyId = binding.spinner.id
+                personalContactRepository.createPersonalContact(addData)
             }
-
+            val intent = Intent(this@AddPersonal, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                putExtra("SELECTED_TAB", R.id.tab2)
+            }
+            startActivity(intent)
+            finish()
         }
     }
 
@@ -210,8 +177,7 @@ class AddPersonal : AppCompatActivity() {
         val datePickerDialog = DatePickerDialog(
             this,
             { _, selectedYear, selectedMonth, selectedDay ->
-                val date =
-                    String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
+                val date = String.format("%04d-%02d-%02d", selectedYear, selectedMonth + 1, selectedDay)
                 onDateSelected(date)
             },
             year, month, day
@@ -219,5 +185,4 @@ class AddPersonal : AppCompatActivity() {
 
         datePickerDialog.show()
     }
-
 }

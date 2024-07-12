@@ -23,7 +23,6 @@ class ApprovalViewModel(application: Application) : AndroidViewModel(application
     private val loginRepository = LoginRepository(application)
 
     fun loadApprovals(loginData: LoginResponseDto) {
-
         viewModelScope.launch {
             val allApprovals = approvalRepository.getApprovalsForUser(loginData.empId)
 
@@ -45,12 +44,12 @@ class ApprovalViewModel(application: Application) : AndroidViewModel(application
                     }
                 } else if (approval.ceoStatus == 0 && approval.digitalApprovalType == 0) {
                     if (loginData.positionId != 1) {
-                        if (loginData.positionId == 2 && approval.managerStatus == 0){
+                        if (loginData.positionId == 2 && approval.managerStatus == 0) {
                             pendingList.add(Pair(approval, emp))
-                        }else if (loginData.positionId != 2){
+                        } else if (loginData.positionId != 2) {
                             pendingList.add(Pair(approval, emp))
                         }
-                    }else if (loginData.positionId == 1 && approval.managerStatus == 1){
+                    } else if (loginData.positionId == 1 && approval.managerStatus == 1) {
                         pendingList.add(Pair(approval, emp))
                     }
                 }
@@ -59,5 +58,9 @@ class ApprovalViewModel(application: Application) : AndroidViewModel(application
             _pendingDocuments.postValue(pendingList)
             _rejectedDocuments.postValue(rejectedList)
         }
+    }
+
+    fun refreshData(loginData: LoginResponseDto) {
+        loadApprovals(loginData)
     }
 }

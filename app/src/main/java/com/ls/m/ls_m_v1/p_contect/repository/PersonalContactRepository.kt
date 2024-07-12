@@ -32,6 +32,22 @@ class PersonalContactRepository(context: Context) {
         }
         db.insert(DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE, null, values)
     }
+    fun createPersonalContact(contact: PersonalContactDTO) {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("positionName", contact.positionName)
+            put("departmentName", contact.departmentName)
+            put("personalContactName", contact.personalContactName)
+            put("personalContactNickName", contact.personalContactNickName)
+            put("personalContactEmail", contact.personalContactEmail)
+            put("personalContactMP", contact.personalContactMP)
+            put("personalContactMemo", contact.personalContactMemo)
+            put("personalContactBirthday", contact.personalContactBirthday.toString())
+            put("companyId", contact.company.companyId)
+            put("empId", contact.empId)
+        }
+        db.insert(DatabaseHelper.DatabaseConstants.PERSONAL_CONTACT_TABLE, null, values)
+    }
 
     // Get All Personal Contacts
     fun getAllPersonalContacts(): List<PersonalContactDTO> {

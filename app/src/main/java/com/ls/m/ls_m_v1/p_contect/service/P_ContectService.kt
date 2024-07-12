@@ -36,10 +36,9 @@ interface P_ContectService {
     ): Call<String>
 
     // insert
-    @POST("personal-contact/{id}")
+    @POST("personal-contact")
     fun addPersnalData(
         @Header("Authorization") token: String,
-        @Path("id") id : Int,
         @Body addPersonalDTO: PersonalContactDTO
     ): Call<String>
 }

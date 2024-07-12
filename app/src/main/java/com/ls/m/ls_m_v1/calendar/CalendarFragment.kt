@@ -8,25 +8,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.kizitonwose.calendar.core.CalendarDay
-import com.kizitonwose.calendar.core.CalendarMonth
-import com.kizitonwose.calendar.core.DayPosition
-import com.kizitonwose.calendar.core.daysOfWeek
-import com.kizitonwose.calendar.core.yearMonth
-import com.kizitonwose.calendar.view.CalendarView
-import com.kizitonwose.calendar.view.MonthDayBinder
-import com.kizitonwose.calendar.view.MonthHeaderFooterBinder
+import com.kizitonwose.calendar.core.*
+import com.kizitonwose.calendar.view.*
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
 import com.ls.m.ls_m_v1.login.repository.LoginRepository
@@ -38,7 +30,6 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 class CalendarFragment : Fragment() {
-    // UI 요소와 변수 선언
     lateinit var calendarView: CalendarView
     private lateinit var eventsRecyclerView: RecyclerView
     private lateinit var monthTitle: TextView
@@ -67,19 +58,24 @@ class CalendarFragment : Fragment() {
         addButton = view.findViewById(R.id.AddButton)
 
         loginRepository = LoginRepository(requireContext())
-
         loginData = loginRepository.getloginData()
+
+        // 초기 데이터 로드
+        calendarViewModel.loadEvents()
+
+        // Observe the events LiveData to update the UI
+        calendarViewModel.events.observe(viewLifecycleOwner, Observer { events ->
+            calendarView.notifyCalendarChanged()
+            if (selectedDate != null) {
+                showEventsForDate(selectedDate!!)
+            }
+        })
 
         setupRecyclerView()
         setupCalendarView()
         showEventsForDate(LocalDate.now()) // 현재 날짜의 이벤트를 미리 보여줌
 
-        addButton.setOnClickListener {
-            val intent = Intent(requireContext(), AddCalendar::class.java).apply {
-                putExtra("loginData", loginData as Serializable)
-            }
-            startActivity(intent)
-        }
+
     }
 
     private fun setupRecyclerView() {
@@ -108,20 +104,12 @@ class CalendarFragment : Fragment() {
             }
         }
 
-        calendarViewModel.events.observe(viewLifecycleOwner, Observer { events ->
-            calendarView.notifyCalendarChanged()
-            if (selectedDate != null) {
-                showEventsForDate(selectedDate!!)
-            }
-        })
-
         calendarView.dayBinder = object : MonthDayBinder<DayViewContainer> {
             override fun create(view: View) = DayViewContainer(view)
             override fun bind(container: DayViewContainer, data: CalendarDay) {
                 container.day = data
                 container.textView.text = data.date.dayOfMonth.toString()
 
-                // 이벤트 여부와 상관없이 항상 updateEventViews 실행
                 context?.let { updateEventViews(container.viewContainer, data.date, it) }
 
                 if (data.position == DayPosition.MonthDate) {
@@ -160,6 +148,14 @@ class CalendarFragment : Fragment() {
                             }
                         }
                     }
+
+                }
+                addButton.setOnClickListener {
+                    val intent = Intent(requireContext(), AddCalendar::class.java).apply {
+                        putExtra("loginData", loginData as Serializable)
+                        putExtra("date", data.date)
+                    }
+                    startActivity(intent)
                 }
 
                 val today = LocalDate.now()
@@ -216,6 +212,9 @@ class CalendarFragment : Fragment() {
         }
     }
 
+    fun refreshData() {
+        calendarViewModel.loadEvents()
+    }
 
     private fun showEventsForDate(date: LocalDate) {
         val eventsForDate = calendarViewModel.getEventsOnDate(date)

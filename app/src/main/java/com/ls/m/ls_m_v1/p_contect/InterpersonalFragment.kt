@@ -47,8 +47,6 @@ class InterpersonalFragment : Fragment() {
         loginRepository = LoginRepository(requireContext())
         val loginData = loginRepository.getloginData()
 
-//        updatePersonal(loginData.empId, loginData.token)
-
         val recyclerView : RecyclerView = view.findViewById(R.id.personalC_recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -64,7 +62,7 @@ class InterpersonalFragment : Fragment() {
                     putExtra("officePhone", contact.company.companyNumber)
                     putExtra("position", contact.position)
                     putExtra("birthday", contact.birthday)
-                    putExtra("buttonState", true) // 예시로 true 값 사용
+                    putExtra("buttonState", true)
                     putExtra("nickName", contact.nickname)
                     putExtra("memo", contact.memo)
                 }
@@ -80,12 +78,13 @@ class InterpersonalFragment : Fragment() {
         }
 
         val addButton = view.findViewById<TextView>(R.id.addPersonal)
-
         addButton.setOnClickListener {
             val intent = Intent(this.requireContext(), AddPersonal::class.java)
             startActivity(intent)
         }
     }
 
-
+    fun refreshData() {
+        personalViewModel.loadContacts()
+    }
 }

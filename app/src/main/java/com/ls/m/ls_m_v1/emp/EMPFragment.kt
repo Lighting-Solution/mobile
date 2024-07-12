@@ -63,4 +63,8 @@ class EMPFragment : Fragment() {
             contactAdapter.updateContacts(contacts)
         })
     }
+
+    fun refreshData() {
+        contactViewModel.loadContacts()
+    }
 }

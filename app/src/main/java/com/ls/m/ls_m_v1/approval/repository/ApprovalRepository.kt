@@ -74,6 +74,18 @@ class ApprovalRepository(context: Context) {
         return approvalWithEMP
     }
 
+    fun updateManagerStatus(digitalApprovalId: Int, newStatus: Int) {
+        val db = dbHelper.writableDatabase
+        val values = ContentValues().apply {
+            put("managerStatus", newStatus)
+        }
+        val whereClause = "digitalApprovalId = ?"
+        val whereArgs = arrayOf(digitalApprovalId.toString())
+
+        db.update(DatabaseHelper.DatabaseConstants.APPROVAL_TABLE, values, whereClause, whereArgs)
+        db.close()
+    }
+
     fun insertDigitalApproval(approval: ApprovalEntity): Long {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {

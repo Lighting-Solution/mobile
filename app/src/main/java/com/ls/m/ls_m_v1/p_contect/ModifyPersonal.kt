@@ -1,6 +1,7 @@
 package com.ls.m.ls_m_v1.p_contect
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.ls.m.ls_m_v1.MainActivity
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.databinding.ActivityModifyPersonalBinding
 import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
@@ -218,6 +220,14 @@ class ModifyPersonal : AppCompatActivity() {
 //                        }
 //                    })
                 personalContactRepository.deletePersonalContact(id.toInt())
+                // 메인 화면으로 돌아가기 위한 Intent 생성
+                val intent = Intent(this@ModifyPersonal, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    putExtra("SELECTED_TAB", R.id.tab2)
+                }
+                startActivity(intent)
+
+                // 현재 Activity 종료
                 finish()
             }
         }

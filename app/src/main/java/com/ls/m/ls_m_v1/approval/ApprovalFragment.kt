@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ls.m.ls_m_v1.R
 import com.ls.m.ls_m_v1.approval.service.downloadAndSavePDF
+import com.ls.m.ls_m_v1.login.entity.LoginResponseDto
 import com.ls.m.ls_m_v1.login.repository.LoginRepository
 import kotlinx.coroutines.launch
 import java.io.Serializable
@@ -29,6 +30,7 @@ class ApprovalFragment : Fragment() {
     private lateinit var rejectedAdapter: ApprovalAdapter
 
     private lateinit var loginRepository: LoginRepository
+    private lateinit var loginData: LoginResponseDto
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,24 +50,14 @@ class ApprovalFragment : Fragment() {
 
         loginRepository = LoginRepository(requireContext())
 
-        // loginData를 가져온 후에 어댑터를 설정하고 observeViewModel 호출
         lifecycleScope.launch {
-            val loginData = loginRepository.getloginData()
+            loginData = loginRepository.getloginData()
 
             pendingAdapter = ApprovalAdapter(emptyList(), loginData) { approval ->
-//                lifecycleScope.launch {
-//                    val success = downloadAndSavePDF(requireContext(), approval.digitalApprovalId)
-//                    if (success) {
-//                        Toast.makeText(requireContext(), "PDF 다운로드 성공", Toast.LENGTH_SHORT).show()
-//                    } else {
-//                        Toast.makeText(requireContext(), "PDF 다운로드 실패", Toast.LENGTH_SHORT).show()
-//                    }
-//                }
                 val intent = Intent(requireContext(), ApprovalDetail::class.java).apply {
                     putExtra("approval_data", approval as Serializable)
                 }
                 startActivity(intent)
-
             }
             rejectedAdapter = ApprovalAdapter(emptyList(), loginData) { approval ->
                 lifecycleScope.launch {
@@ -97,5 +89,9 @@ class ApprovalFragment : Fragment() {
             rejectedAdapter.content = rejectedDocuments
             rejectedAdapter.notifyDataSetChanged()
         }
+    }
+
+    fun refreshData() {
+        approvalViewModel.refreshData(loginData)
     }
 }
